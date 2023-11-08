@@ -2,7 +2,8 @@ namespace Runner {
 
     public enum ObstacleType {
         Wall,
-        Slide
+        Slide//,
+        //Jump
     }
 
 }

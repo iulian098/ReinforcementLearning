@@ -1675,7 +1675,12 @@ MonoBehaviour:
   minX: 1
   anim: {fileID: 265262356475037057}
   coll: {fileID: 5065891363373585830}
+  rb: {fileID: 0}
+  jumpForce: 500
   isAI: 1
+  groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 2048
   Stopped: 0
 --- !u!114 &7559471503786355929
 MonoBehaviour:

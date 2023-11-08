@@ -6,6 +6,8 @@ using System;
 using Cinemachine;
 using System.Threading.Tasks;
 using System.Text;
+using NPOI.HSSF.Record;
+using TMPro;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -56,6 +58,13 @@ namespace Runner.RL {
         [SerializeField] List<RunnerAgent> agentsList;
 
         [SerializeField] float waitTime;
+
+        [Header("UI")]
+        [SerializeField] TMP_Text eValue;
+        [SerializeField] TMP_Text agentRewardText;
+        [SerializeField] TMP_Text agentEpisodeRewardText;
+        [SerializeField] TMP_Text episodeCountText;
+        [SerializeField] TMP_Text actionText;
 
         int currentAction;
         int episodeCount;
@@ -149,9 +158,6 @@ namespace Runner.RL {
                 a.gameObject.name = "Agent" + i;
                 if (loadData) {
                     a.qTable = loadedQTable;
-                    //a.loadData = loadData;
-                    //loadedQ = a.LoadData(dataNr);
-                    //a.q_table = loadedQ;
                     a.dataNr = dataNr;
                     a.SetEValue(0.5f);
                 }
@@ -166,21 +172,16 @@ namespace Runner.RL {
             agentsList = new List<RunnerAgent>(numberOfAgents);
             gridGenerator.Init();
             List<RunnerState> states = GenerateStates();
-
-            /*for (int i = 0; i < Enum.GetValues(typeof(ObstacleType)).Length; i++) {
-                for (int cell = 0; cell < gridGenerator.Cells.Length; cell++) {
-                    states.Add(new RunnerState() {
-                        XDistance = gridGenerator.Cells[cell].x,
-                        YDistance = gridGenerator.Cells[cell].y,
-                        ObstacleType = (ObstacleType)i
-                    });
-                }
-            }*/
-
+            List<string> actionNames = new List<string>() { 
+                "DoNothing",
+                "Left",
+                "Right",
+                "Roll"
+            };
             envParameters = new RunnerEnvironmentParams() {
                 state_size = states.Count,
-                action_descriptions = new List<string>() { "DoNothing", "Left", "Right", "Roll" },
-                action_size = 4,
+                action_descriptions = actionNames,
+                action_size = actionNames.Count,
                 num_agents = 1,
                 states = states.ToArray()
                 // grid = gridGenerator.Cells
@@ -195,6 +196,14 @@ namespace Runner.RL {
                 else
                     Run(agentsList[i]);
             }
+        }
+
+        void UpdateUI(RunnerAgent agent, int action) {
+            eValue.text = $"E: {agent.E}";
+            agentRewardText.text = $"Reward: {agent.reward}";
+            agentEpisodeRewardText.text = $"Episode Reward: {agent.episodeReward}";
+            episodeCountText.text = $"Episode: {episodeCount}";
+            actionText.text = $"Action: {envParameters.action_descriptions[action]}";
         }
 
         void Run(RunnerAgent agent, bool isLast = false) {
@@ -268,42 +277,28 @@ namespace Runner.RL {
                     break;
             }
 
-            /* Collider[] detectedColls = Physics.OverlapSphere(agent.PlayerTransform.position, 1);
-
-             if (detectedColls.Length > 0) {
-                 foreach (Collider coll in detectedColls) {
-                     if (coll.CompareTag("Finish")) {
-                         agent.reward = 1;
-                         agent.done = true;
-                         agent.Finished = true;
-                         Debug.LogWarning("<color=green>Finish</color>");
-                         //agent.Player.SendInput();
-                     }
-                     else if (coll.CompareTag("Obstacle")) {
-                         agent.done = true;
-                         agent.reward -= 10;
-                         Debug.LogWarning("<color=red>Obstacle Hit</color>");
-                         //agent.Player.SendInput();
-                     }
-                 }
-             }*/
 
             currentObstacle = RunnerManager.instance.Obstacles[agent.RunnerPlayer.CurrentObstacle];
 
-            if (currentObstacle.ObstacleType == ObstacleType.Wall && action == 3)
+            if (currentObstacle.ObstacleType == ObstacleType.Wall && action >= 3)
                 agent.reward = -0.01f;
-            else if (currentObstacle.ObstacleType == ObstacleType.Slide && (action == 1 || action == 2))
+            else if (currentObstacle.ObstacleType == ObstacleType.Slide && (action != 0 && action != 3))
                 agent.reward = -0.01f;
+            /*else if (currentObstacle.ObstacleType == ObstacleType.Jump && (action != 0 && action != 4)) {
+                agent.reward = -0.01f;
+            }*/
             else if (currentObstacle.ObstacleType == ObstacleType.Wall && (action == 1 || action == 2)) {
                 int currentDistance = (int)Mathf.Abs(agent.transform.position.x - currentObstacle.transform.position.x);
 
                 if (currentDistance > agent.RunnerPlayer.LastXDistance)
                     agent.reward = -0.015f;
-                else if(currentDistance < agent.RunnerPlayer.LastXDistance)
+                else if (currentDistance < agent.RunnerPlayer.LastXDistance)
                     agent.RunnerPlayer.LastXDistance = currentDistance;
             }
 
             agent.episodeReward += agent.reward;
+
+            UpdateUI(agent, action);
         }
 
         void EndStep(RunnerAgent agent) {
