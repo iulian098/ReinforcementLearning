@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Runner {
 
     public class RunnerManager : MonoBehaviour {
-        public static RunnerManager instance;
+        public static RunnerManager Instance;
 
         [SerializeField] int nrObstacles;
         [SerializeField] int obstacleXOffset;
@@ -22,18 +22,29 @@ namespace Runner {
         public float Score => score;
         public bool Initialized => initialized;
         private void Awake() {
-            instance = this;
+            Instance = this;
         }
 
         private void Start() {
             if (selfInit) Init();
         }
 
-        // Start is called before the first frame update
+        void Update() {
+            score += Time.deltaTime;
+        }
+
+        public void ResetScore() {
+            score = 0;
+        }
+
         public void Init() {
             if (initialized) return;
             initialized = true;
 
+            GenerateLevel();
+        }
+
+        void GenerateLevel() {
             obstacles = new Obstacle[nrObstacles + 1];
 
             for (int i = 0; i < nrObstacles; i++) {
@@ -49,13 +60,12 @@ namespace Runner {
             obstacles[nrObstacles] = finish;
         }
 
-        // Update is called once per frame
-        void Update() {
-            score += Time.deltaTime;
-        }
-
-        public void ResetScore() {
-            score = 0;
+        public void RegenerateLevel() {
+            foreach (var obstacle in obstacles) {
+                if (obstacle == finish) continue;
+                Destroy(obstacle.gameObject);
+            }
+            GenerateLevel();
         }
     }
 

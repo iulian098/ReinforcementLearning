@@ -1,3 +1,4 @@
+using StateMachine.Player;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -5,7 +6,7 @@ using UnityEngine;
 namespace Runner.RL {
 
     public class RunnerAgent : MonoBehaviour {
-        [SerializeField] protected RunnerPlayer runnerPlayer;
+        [SerializeField] protected PlayerStateMachine runnerPlayer;
         [SerializeField] protected bool useLastActionSetIfFinished;
         [SerializeField] protected int annealingSteps = 2000; // Number of steps to lower e to eMin.
 
@@ -31,7 +32,7 @@ namespace Runner.RL {
 
         public bool Finished { get => finished; set => finished = value; }
         public float E => e;
-        public RunnerPlayer RunnerPlayer => runnerPlayer;
+        public PlayerStateMachine RunnerPlayer => runnerPlayer;
         public Transform PlayerTransform => playerTransform;
         public List<int> RewardList => rewardList;
 
@@ -60,9 +61,9 @@ namespace Runner.RL {
             }
 
             lastState = new RunnerState() {
-                XDistance = (int)RunnerManager.instance.Obstacles[0].transform.position.x,
-                YDistance = (int)RunnerManager.instance.Obstacles[0].transform.position.z,
-                ObstacleType = RunnerManager.instance.Obstacles[0].ObstacleType
+                XDistance = (int)RunnerManager.Instance.Obstacles[0].transform.position.x,
+                YDistance = (int)RunnerManager.Instance.Obstacles[0].transform.position.z,
+                ObstacleType = RunnerManager.Instance.Obstacles[0].ObstacleType
             };
             finishTransform = GameObject.FindGameObjectWithTag("Finish").transform;
         }
@@ -76,7 +77,7 @@ namespace Runner.RL {
                 episodeReward += reward;
                 done = true;
                 Finished = true;
-                RewardList.Add((int)RunnerManager.instance.Score);
+                RewardList.Add((int)RunnerManager.Instance.Score);
                 RunnerPlayer.Stopped = true;
 
                 Debug.LogWarning("<color=green>Finish</color>");
@@ -90,21 +91,22 @@ namespace Runner.RL {
                         episodeReward += reward;
                         done = true;
                         Finished = true;
-                        RewardList.Add((int)RunnerManager.instance.Score);
+                        RewardList.Add((int)RunnerManager.Instance.Score);
                         RunnerPlayer.Stopped = true;
-
+                        RunnerPlayer.AcceptingSteps = true;
                         Debug.LogWarning("<color=green>Finish</color>");
                     }
                     else if (coll.CompareTag("Obstacle")) {
                         done = true;
-                        reward = -10;
+                        reward = -0.5f;
                         episodeReward += reward;
-                        RewardList.Add((int)RunnerManager.instance.Score);
+                        RewardList.Add((int)RunnerManager.Instance.Score);
                         RunnerPlayer.Stopped = true;
+                        RunnerPlayer.AcceptingSteps = true;
                         Debug.LogWarning("<color=red>Obstacle Hit</color>");
                     }
                     else if (coll.CompareTag("Checkpoint") && !checkpointsReached.Contains(coll)) {
-                        reward = 0.02f;
+                        reward = 0.05f;
                         episodeReward += reward;
                         checkpointsReached.Add(coll);
                         Debug.LogWarning("<color=yellow>Checkpoint Hit</color>");
@@ -124,27 +126,22 @@ namespace Runner.RL {
             int maxValueAction = -1;
 
             for (int i = 0; i < qTable[lastState].Length; i++) {
-
                 if (qTable[lastState][i] > maxValue) {
                     maxValue = qTable[lastState][i];
                     maxValueAction = i;
                 }
-
             }
 
             action = maxValueAction;
 
             if ((useLastActionSetIfFinished && e <= eMin) || loadData)
-                return new float[1] { action };
+                return action;
 
-            if (Random.Range(0f, 1f) < e) {
+            if (Random.Range(0f, 1f) < e)
                 action = Random.Range(0, actions);
-            }
 
-            if (e > eMin) {
+            if (e > eMin)
                 e = e - ((1f - eMin) / annealingSteps);
-            }
-
 
             return action;
         }
@@ -175,19 +172,12 @@ namespace Runner.RL {
             lastState = state;
         }
 
-        /// <summary>
-        /// Reset agent data
-        /// </summary>
         public void ResetAgent() {
             RunnerPlayer.ResetData();
             checkpointsReached.Clear();
             reward = 0;
             currentStep = 0;
             done = false;
-        }
-
-        public void SetAnnealingSteps(int val) {
-            annealingSteps = val;
         }
 
         public void SaveData(int agentID, int epCount = 0) {

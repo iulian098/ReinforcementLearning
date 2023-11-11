@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 323122546998049650}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.4507, y: 2.7, z: 0.81}
+  m_LocalPosition: {x: 1.4507, y: 2.7, z: 0.94}
   m_LocalScale: {x: 17.166496, y: 3.1681151, z: 0.35789}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -151,7 +151,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e7da46a1a715fe4bbaae2a87f2c30df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obstacleType: 1
+  obstacleType: 2
 --- !u!1 &7779032855624948247
 GameObject:
   m_ObjectHideFlags: 0
@@ -424,7 +424,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f4ffa10341ed6514fb9ea9d79e16362a, type: 2}
+  - {fileID: 2100000, guid: 9593ebce30a8a6041ab7503c963616d8, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

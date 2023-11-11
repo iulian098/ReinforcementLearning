@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Text;
 using NPOI.HSSF.Record;
 using TMPro;
+using StateMachine.Player;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -45,6 +46,7 @@ namespace Runner.RL {
         [Space]
 
         [Header("Settings")]
+        [SerializeField] bool regenerateLevelOnDeath;
         [SerializeField] float startingEpisodeReward;
         [SerializeField] GenerateGrid gridGenerator;
         [SerializeField] Transform spawnPoint;
@@ -82,6 +84,7 @@ namespace Runner.RL {
         Obstacle currentObstacle;
 
         public Dictionary<RunnerState, float[]> BestQTable => bestQTable;
+        public bool RegenerateLevelOnDeath { get => regenerateLevelOnDeath; set => regenerateLevelOnDeath = value; }
         Dictionary<RunnerState, float[]> loadedQTable = new Dictionary<RunnerState, float[]>();
 
         void Awake() {
@@ -96,7 +99,7 @@ namespace Runner.RL {
             
             Application.targetFrameRate = 60;
 
-            RunnerManager.instance.Init();
+            RunnerManager.Instance.Init();
 
             if (loadData) {
                 Debug.Log("Start loading data");
@@ -176,7 +179,8 @@ namespace Runner.RL {
                 "DoNothing",
                 "Left",
                 "Right",
-                "Roll"
+                "Roll",
+                "Jump"
             };
             envParameters = new RunnerEnvironmentParams() {
                 state_size = states.Count,
@@ -184,7 +188,6 @@ namespace Runner.RL {
                 action_size = actionNames.Count,
                 num_agents = 1,
                 states = states.ToArray()
-                // grid = gridGenerator.Cells
             };
         }
 
@@ -207,7 +210,6 @@ namespace Runner.RL {
         }
 
         void Run(RunnerAgent agent, bool isLast = false) {
-            //if (acceptingSteps == true) {
             if (agent.acceptingSteps && agent.RunnerPlayer.AcceptingSteps) {
                 if (!agent.done)
                     Step(agent, isLast);
@@ -223,8 +225,6 @@ namespace Runner.RL {
 
             if (agent.currentStep >= maxSteps - 1) {
                 agent.done = true;
-                //agent.Player.SendInput();
-                //return;
             }
 
             agent.reward = 0;
@@ -262,31 +262,35 @@ namespace Runner.RL {
                     //DoNothing
                     break;
                 case 1:
-                    agent.RunnerPlayer.ReceiveInput(-1, false, false);
+                    agent.RunnerPlayer.SendInput(new StateMachine.Player.PlayerInput() {
+                        direction = new Vector2(-1, 0)
+                    });
                     break;
                 case 2:
-                    agent.RunnerPlayer.ReceiveInput(1, false, false);
+                    agent.RunnerPlayer.SendInput(new StateMachine.Player.PlayerInput() {
+                        direction = new Vector2(1, 0)
+                    });
                     break;
                 case 3:
-                    agent.RunnerPlayer.ReceiveInput(0, false, true);
+                    agent.RunnerPlayer.SwitchState(new RollState(agent.RunnerPlayer));
                     break;
                 case 4:
-                    agent.RunnerPlayer.ReceiveInput(0, true, false);
+                    agent.RunnerPlayer.SwitchState(new JumpState(agent.RunnerPlayer));
                     break;
                 default:
                     break;
             }
 
 
-            currentObstacle = RunnerManager.instance.Obstacles[agent.RunnerPlayer.CurrentObstacle];
+            currentObstacle = RunnerManager.Instance.Obstacles[agent.RunnerPlayer.CurrentObstacle];
 
             if (currentObstacle.ObstacleType == ObstacleType.Wall && action >= 3)
                 agent.reward = -0.01f;
             else if (currentObstacle.ObstacleType == ObstacleType.Slide && (action != 0 && action != 3))
                 agent.reward = -0.01f;
-            /*else if (currentObstacle.ObstacleType == ObstacleType.Jump && (action != 0 && action != 4)) {
+            else if (currentObstacle.ObstacleType == ObstacleType.Jump && (action != 0 && action != 4)) {
                 agent.reward = -0.01f;
-            }*/
+            }
             else if (currentObstacle.ObstacleType == ObstacleType.Wall && (action == 1 || action == 2)) {
                 int currentDistance = (int)Mathf.Abs(agent.transform.position.x - currentObstacle.transform.position.x);
 
@@ -302,7 +306,7 @@ namespace Runner.RL {
         }
 
         void EndStep(RunnerAgent agent) {
-            Obstacle obs = RunnerManager.instance.Obstacles[agent.RunnerPlayer.CurrentObstacle];
+            Obstacle obs = RunnerManager.Instance.Obstacles[agent.RunnerPlayer.CurrentObstacle];
             agent.SendState(new RunnerState() {
                 XDistance = (int)(agent.transform.position.x - obs.transform.position.x),
                 YDistance = (int)(obs.transform.position.z - agent.transform.position.z),
@@ -315,6 +319,9 @@ namespace Runner.RL {
                 foreach (RunnerAgent a in agentsList)
                     if (!a.done) return;
             }
+
+            if (regenerateLevelOnDeath)
+                RunnerManager.Instance.RegenerateLevel();
 
             if (!firstTime) {
 
@@ -355,9 +362,9 @@ namespace Runner.RL {
             //acceptingSteps = true;
             episodeCount++;
 
-            if (RunnerManager.instance.Score > maxScore) maxScore = (int)RunnerManager.instance.Score;
+            if (RunnerManager.Instance.Score > maxScore) maxScore = (int)RunnerManager.Instance.Score;
 
-            RunnerManager.instance.ResetScore();
+            RunnerManager.Instance.ResetScore();
 
             for (int i = 0; i < agentsList.Count; i++) {
 
@@ -402,7 +409,7 @@ namespace Runner.RL {
         }
 
         void EndReset(RunnerAgent agent) {
-            Obstacle obs = RunnerManager.instance.Obstacles[agent.RunnerPlayer.CurrentObstacle];
+            Obstacle obs = RunnerManager.Instance.Obstacles[agent.RunnerPlayer.CurrentObstacle];
             agent.SendState(new RunnerState() {
                 XDistance = (int)(agent.transform.position.x - obs.transform.position.x),
                 YDistance = (int)(obs.transform.position.z - agent.transform.position.z),
@@ -432,17 +439,6 @@ namespace Runner.RL {
 
 #if UNITY_EDITOR
 
-        private void OnDrawGizmos() {
-            Gizmos.color = Color.blue;
-
-            for (int i = 0; i < agentsList.Count; i++) {
-                if (agentsList[i].PlayerTransform != null && agentsList[i].PlayerTransform.gameObject.activeInHierarchy) {
-                    Gizmos.DrawWireSphere(agentsList[i].PlayerTransform.position, 1);
-                    Handles.Label(agentsList[i].PlayerTransform.position, $"{agentsList[i].episodeReward}\nE:{agentsList[i].E}");
-                }
-            }
-        }
-
         [ContextMenu("Save Max Scores")]
         void SaveMaxScores() {
             string data = "";
@@ -457,11 +453,6 @@ namespace Runner.RL {
         }
 
 #endif
-
-        private void OnDrawGizmosSelected() {
-            Gizmos.DrawWireSphere(spawnPoint.position, 1);
-
-        }
     }
 
 }

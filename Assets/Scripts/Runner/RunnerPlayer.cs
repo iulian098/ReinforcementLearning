@@ -38,7 +38,7 @@ namespace Runner {
             } 
             set { 
                 currentObstacle = value;
-                lastXDistance = (int)Mathf.Abs(transform.position.x - RunnerManager.instance.Obstacles[currentObstacle].transform.position.x);
+                lastXDistance = (int)Mathf.Abs(transform.position.x - RunnerManager.Instance.Obstacles[currentObstacle].transform.position.x);
             } 
         }
         public CapsuleCollider Coll => coll;
@@ -66,9 +66,9 @@ namespace Runner {
 
             transform.Translate(Vector3.forward * speed * Time.deltaTime);
 
-            if (currentObstacle >= RunnerManager.instance.Obstacles.Length - 1) return;
+            if (currentObstacle >= RunnerManager.Instance.Obstacles.Length - 1) return;
 
-            if (transform.position.z >= RunnerManager.instance.Obstacles[currentObstacle].transform.position.z - 1)
+            if (transform.position.z >= RunnerManager.Instance.Obstacles[currentObstacle].transform.position.z - 1)
                 CurrentObstacle++;
 
         }

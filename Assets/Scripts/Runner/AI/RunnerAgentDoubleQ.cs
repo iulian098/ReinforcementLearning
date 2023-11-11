@@ -28,14 +28,10 @@ namespace Runner.RL {
                 qTableB.Add(env.states[i], actions);
             }
 
-            /*lastState = new Vector2Int(
-                (int)RunnerManager.instance.Obstacles[0].transform.position.x,
-                (int)RunnerManager.instance.Obstacles[0].transform.position.z
-                );*/
             lastState = new RunnerState() {
-                XDistance = (int)RunnerManager.instance.Obstacles[0].transform.position.x,
-                YDistance = (int)RunnerManager.instance.Obstacles[0].transform.position.z,
-                ObstacleType = RunnerManager.instance.Obstacles[0].ObstacleType
+                XDistance = (int)RunnerManager.Instance.Obstacles[0].transform.position.x,
+                YDistance = (int)RunnerManager.Instance.Obstacles[0].transform.position.z,
+                ObstacleType = RunnerManager.Instance.Obstacles[0].ObstacleType
             };
 
             finishTransform = GameObject.FindGameObjectWithTag("Finish").transform;
@@ -61,15 +57,13 @@ namespace Runner.RL {
             action = maxValueAction;
 
             if ((useLastActionSetIfFinished && e <= eMin) || loadData)
-                return new float[1] { action };
+                return action;
 
-            if (Random.Range(0f, 1f) < e) {
+            if (Random.Range(0f, 1f) < e)
                 action = Random.Range(0, actions);
-            }
 
-            if (e > eMin) {
+            if (e > eMin)
                 e = e - ((1f - eMin) / annealingSteps);
-            }
 
 
             return action;
@@ -98,7 +92,7 @@ namespace Runner.RL {
             foreach (var item in otherTable[state])
                 if (item > nextStateMax) nextStateMax = item;
 
-            if (action != -1 && !loadData) {
+            if (action != -1) {
                 if (done == true)
                     selectedTable[lastState][action] += learning_rate * (reward - selectedTable[lastState][action]);
                 else
