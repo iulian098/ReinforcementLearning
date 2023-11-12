@@ -100,10 +100,6 @@ namespace Runner.RL {
             }
             lastState = state;
         }
-
-        private void OnDrawGizmosSelected() {
-            Gizmos.DrawSphere(PlayerTransform.position, 0.8f);
-        }
     }
 
 }

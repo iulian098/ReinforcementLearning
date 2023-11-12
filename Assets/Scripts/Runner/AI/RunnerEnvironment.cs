@@ -106,8 +106,6 @@ namespace Runner.RL {
                loadedQTable = await LoadData();
                 Debug.Log("Done loading data");
             }
-            
-            BeginNewGame();
         }
 
         async Task<Dictionary<RunnerState, float[]>> LoadData() {
@@ -145,7 +143,7 @@ namespace Runner.RL {
             return loadedQ;
         }
 
-        void BeginNewGame() {
+        public void BeginNewGame() {
 
             Debug.Log("Begin!!!!!!!!!!!!");
             SetUp();
@@ -435,6 +433,19 @@ namespace Runner.RL {
             }
 
             return states;
+        }
+
+        public void SetAgent(RunnerAgent agent) {
+            playerPrefab = agent;
+        }
+
+        public void StopTraining() {
+            initialized = false;
+            foreach (var agent in agentsList) {
+                Destroy(agent.gameObject);
+            }
+
+            agentsList.Clear();
         }
 
 #if UNITY_EDITOR
