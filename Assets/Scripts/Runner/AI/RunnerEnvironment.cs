@@ -237,7 +237,7 @@ namespace Runner.RL {
 
         IEnumerator WaitStep() {
             yield return new WaitForSeconds(waitTime);
-            foreach (RunnerAgent a in agentsList) {
+            foreach (RunnerBaseAgent a in agentsList) {
                 yield return new WaitUntil(() => a.RunnerPlayer.AcceptingSteps);
                 EndStep(a);
                 a.acceptingSteps = true;
@@ -315,7 +315,7 @@ namespace Runner.RL {
 
         void Reset(bool firstTime = false) {
             if (!firstTime) {
-                foreach (RunnerAgent a in agentsList)
+                foreach (RunnerBaseAgent a in agentsList)
                     if (!a.done) return;
             }
 
@@ -367,10 +367,10 @@ namespace Runner.RL {
 
             for (int i = 0; i < agentsList.Count; i++) {
 
-                agentsList[i].ResetAgent();
                 agentsList[i].episodeReward = startingEpisodeReward;
                 agentsList[i].PlayerTransform.position = spawnPoint.position;
                 agentsList[i].PlayerTransform.rotation = spawnPoint.rotation;
+                agentsList[i].ResetAgent();
 
 
                 /*if (loadData)

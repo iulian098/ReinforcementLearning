@@ -934,6 +934,7 @@ MonoBehaviour:
   agents:
   - {fileID: 710519226490430221, guid: a195bf49ba92bbb4198bcde10bfeca6b, type: 3}
   - {fileID: 2642898721276649183, guid: eace13e1c60c3324e9c93d8f07bbb756, type: 3}
+  - {fileID: 8074961512310785651, guid: 06493750f061963459f967654a8f8f1c, type: 3}
   environment: {fileID: 1846587109}
   mainMenuPanel: {fileID: 1882994962}
   trainingMenuPanel: {fileID: 2046312386}
@@ -5263,7 +5264,7 @@ MonoBehaviour:
       m_Image: {fileID: 0}
     - m_Text: Double Q-Learning
       m_Image: {fileID: 0}
-    - m_Text: Option C
+    - m_Text: SARSA
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:

@@ -93,59 +93,12 @@ namespace Runner.RL {
                 if (item > nextStateMax) nextStateMax = item;
 
             if (action != -1) {
-                if (done == true)
+                if (done)
                     selectedTable[lastState][action] += learning_rate * (reward - selectedTable[lastState][action]);
                 else
                     selectedTable[lastState][action] += learning_rate * (reward + gamma * nextStateMax - selectedTable[lastState][action]);
             }
             lastState = state;
-        }
-
-        protected override void Update() {
-            if (done) return;
-            Collider[] detectedColls = Physics.OverlapCapsule(playerTransform.position + new Vector3(0, 0.5f, 0), playerTransform.position + new Vector3(0, runnerPlayer.Coll.height - 0.5f, 0), runnerPlayer.Coll.radius);
-
-            if (transform.position.z > finishTransform.position.z) {
-                reward = 1;
-                episodeReward += reward;
-                done = true;
-                Finished = true;
-                RewardList.Add((int)RunnerManager.Instance.Score);
-                RunnerPlayer.Stopped = true;
-
-                Debug.LogWarning("<color=green>Finish</color>");
-
-            }
-
-            if (detectedColls.Length > 0) {
-                foreach (Collider coll in detectedColls) {
-                    if (coll.CompareTag("Finish")) {
-                        reward = 1;
-                        episodeReward += reward;
-                        done = true;
-                        Finished = true;
-                        RewardList.Add((int)RunnerManager.Instance.Score);
-                        RunnerPlayer.Stopped = true;
-                        RunnerPlayer.AcceptingSteps = true;
-                        Debug.LogWarning("<color=green>Finish</color>");
-                    }
-                    else if (coll.CompareTag("Obstacle")) {
-                        done = true;
-                        reward = -0.5f;
-                        episodeReward += reward;
-                        RewardList.Add((int)RunnerManager.Instance.Score);
-                        RunnerPlayer.Stopped = true;
-                        RunnerPlayer.AcceptingSteps = true;
-                        Debug.LogWarning("<color=red>Obstacle Hit</color>");
-                    }
-                    else if (coll.CompareTag("Checkpoint") && !checkpointsReached.Contains(coll)) {
-                        reward = 0.05f;
-                        episodeReward += reward;
-                        checkpointsReached.Add(coll);
-                        Debug.LogWarning("<color=yellow>Checkpoint Hit</color>");
-                    }
-                }
-            }
         }
 
         public override void SaveData(int agentID, int epCount = 0) {
