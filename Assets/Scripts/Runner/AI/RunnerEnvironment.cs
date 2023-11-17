@@ -50,14 +50,14 @@ namespace Runner.RL {
         [SerializeField] float startingEpisodeReward;
         [SerializeField] GenerateGrid gridGenerator;
         [SerializeField] Transform spawnPoint;
-        [SerializeField] RunnerAgent playerPrefab;
+        [SerializeField] RunnerBaseAgent playerPrefab;
 
         [SerializeField] int maxSteps;
         [SerializeField] int numberOfAgents;
 
         [SerializeField] bool useBestQTable;
         [SerializeField] DefaultAgent agentSettings;
-        [SerializeField] List<RunnerAgent> agentsList;
+        [SerializeField] List<RunnerBaseAgent> agentsList;
 
         [SerializeField] float waitTime;
 
@@ -80,7 +80,7 @@ namespace Runner.RL {
         RunnerEnvironmentParams envParameters;
         Dictionary<RunnerState, float[]> bestQTable;
         List<(int, int)> bestScores = new List<(int, int)>();
-        RunnerAgent bestAgent;
+        RunnerBaseAgent bestAgent;
         Obstacle currentObstacle;
 
         public Dictionary<RunnerState, float[]> BestQTable => bestQTable;
@@ -103,7 +103,7 @@ namespace Runner.RL {
 
             if (loadData) {
                 Debug.Log("Start loading data");
-               loadedQTable = await LoadData();
+                loadedQTable = await LoadData();
                 Debug.Log("Done loading data");
             }
         }
@@ -143,14 +143,14 @@ namespace Runner.RL {
             return loadedQ;
         }
 
-        public void BeginNewGame() {
+        public async void BeginNewGame() {
 
             Debug.Log("Begin!!!!!!!!!!!!");
             SetUp();
 
             //Setting up agent
             for (int i = 0; i < numberOfAgents; i++) {
-                RunnerAgent a = Instantiate(playerPrefab, spawnPoint.position, spawnPoint.rotation);
+                RunnerBaseAgent a = Instantiate(playerPrefab, spawnPoint.position, spawnPoint.rotation);
                 cvcCamera.Follow = a.transform;
                 cvcCamera.LookAt = a.transform;
                 a.Init(envParameters, agentSettings);
@@ -158,7 +158,8 @@ namespace Runner.RL {
                 //a.SetAnnealingSteps(maxSteps * 20);
                 a.gameObject.name = "Agent" + i;
                 if (loadData) {
-                    a.qTable = loadedQTable;
+                    //a.qTable = loadedQTable;
+                    await a.LoadData(dataFileName);
                     a.dataNr = dataNr;
                     a.SetEValue(0.5f);
                 }
@@ -170,7 +171,7 @@ namespace Runner.RL {
         }
 
         void SetUp() {
-            agentsList = new List<RunnerAgent>(numberOfAgents);
+            agentsList = new List<RunnerBaseAgent>(numberOfAgents);
             gridGenerator.Init();
             List<RunnerState> states = GenerateStates();
             List<string> actionNames = new List<string>() { 
@@ -199,7 +200,7 @@ namespace Runner.RL {
             }
         }
 
-        void UpdateUI(RunnerAgent agent, int action) {
+        void UpdateUI(RunnerBaseAgent agent, int action) {
             eValue.text = $"E: {agent.E}";
             agentRewardText.text = $"Reward: {agent.reward}";
             agentEpisodeRewardText.text = $"Episode Reward: {agent.episodeReward}";
@@ -207,7 +208,7 @@ namespace Runner.RL {
             actionText.text = $"Action: {envParameters.action_descriptions[action]}";
         }
 
-        void Run(RunnerAgent agent, bool isLast = false) {
+        void Run(RunnerBaseAgent agent, bool isLast = false) {
             if (agent.acceptingSteps && agent.RunnerPlayer.AcceptingSteps) {
                 if (!agent.done)
                     Step(agent, isLast);
@@ -216,7 +217,7 @@ namespace Runner.RL {
             }
         }
 
-        void Step(RunnerAgent agent, bool isLast) {
+        void Step(RunnerBaseAgent agent, bool isLast) {
             if (isLast)
                 agent.acceptingSteps = false;
             agent.currentStep += 1;
@@ -244,7 +245,7 @@ namespace Runner.RL {
 
         }
 
-        void MiddleStep(int action, RunnerAgent agent) {
+        void MiddleStep(int action, RunnerBaseAgent agent) {
             /*
             0 - DoNothing, 
             1 - Left, 
@@ -303,7 +304,7 @@ namespace Runner.RL {
             UpdateUI(agent, action);
         }
 
-        void EndStep(RunnerAgent agent) {
+        void EndStep(RunnerBaseAgent agent) {
             Obstacle obs = RunnerManager.Instance.Obstacles[agent.RunnerPlayer.CurrentObstacle];
             agent.SendState(new RunnerState() {
                 XDistance = (int)(agent.transform.position.x - obs.transform.position.x),
@@ -321,7 +322,7 @@ namespace Runner.RL {
             if (regenerateLevelOnDeath)
                 RunnerManager.Instance.RegenerateLevel();
 
-            if (!firstTime) {
+            /*if (!firstTime) {
 
                 if (bestAgent == null)
                     bestAgent = agentsList[0];
@@ -355,7 +356,7 @@ namespace Runner.RL {
                     }
                 }
 
-            }
+            }*/
 
             //acceptingSteps = true;
             episodeCount++;
@@ -375,9 +376,9 @@ namespace Runner.RL {
                 /*if (loadData)
                     System.Array.Copy(loadedQ, agentsList[i].q_table, loadedQ.Length);
                 else*/
-                if (episodeCount > 0 && bestQTable != null && useBestQTable) {  //Set best Q table
+                /*if (episodeCount > 0 && bestQTable != null && useBestQTable) {  //Set best Q table
                     agentsList[i].qTable = new Dictionary<RunnerState, float[]>(bestQTable);
-                }
+                }*/
 
 
                 if (episodeCount > 0 && episodeCount % saveEveryEpisode == 0 && saveData) {
@@ -406,7 +407,7 @@ namespace Runner.RL {
             }
         }
 
-        void EndReset(RunnerAgent agent) {
+        void EndReset(RunnerBaseAgent agent) {
             Obstacle obs = RunnerManager.Instance.Obstacles[agent.RunnerPlayer.CurrentObstacle];
             agent.SendState(new RunnerState() {
                 XDistance = (int)(agent.transform.position.x - obs.transform.position.x),
@@ -435,7 +436,7 @@ namespace Runner.RL {
             return states;
         }
 
-        public void SetAgent(RunnerAgent agent) {
+        public void SetAgent(RunnerBaseAgent agent) {
             playerPrefab = agent;
         }
 

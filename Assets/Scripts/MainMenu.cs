@@ -6,7 +6,7 @@ using UnityEngine;
 public class MainMenu : MonoBehaviour
 {
 
-    [SerializeField] RunnerAgent[] agents;
+    [SerializeField] RunnerBaseAgent[] agents;
     [SerializeField] RunnerEnvironment environment;
     [SerializeField] GameObject mainMenuPanel;
     [SerializeField] GameObject trainingMenuPanel;

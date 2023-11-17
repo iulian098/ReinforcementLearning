@@ -1,50 +1,16 @@
 using StateMachine.Player;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Runner.RL {
 
-    public class RunnerAgent : MonoBehaviour {
-        [SerializeField] protected PlayerStateMachine runnerPlayer;
-        [SerializeField] protected bool useLastActionSetIfFinished;
-        [SerializeField] protected int annealingSteps = 2000; // Number of steps to lower e to eMin.
-
+    public class RunnerAgent : RunnerBaseAgent {
         public Dictionary<RunnerState, float[]> qTable = new Dictionary<RunnerState, float[]>();
-        public bool acceptingSteps;
-        public bool done;
-        public bool loadData;
-        public int dataNr;
-        public int currentStep;
-        public float reward;
-        public float episodeReward;
 
-        protected RunnerState lastState;
-        protected int actions;
-        protected bool finished;
-        protected List<int> rewardList;
-        protected float learning_rate = 0.05f; // The rate at which to update the value estimates given a reward. Default: 0.5f
-        protected float gamma = 0.99f; // Discount factor for calculating Q-target. Defualt = 0.99f
-        protected float eMin = 0.1f; // Lower bound of epsilon.
-        protected float e = 1;  // Initial epsilon value for random action selection.
-        protected int action = -1;
-        protected List<Collider> checkpointsReached = new List<Collider>();
-
-        public bool Finished { get => finished; set => finished = value; }
-        public float E => e;
-        public PlayerStateMachine RunnerPlayer => runnerPlayer;
-        public Transform PlayerTransform => playerTransform;
-        public List<int> RewardList => rewardList;
-
-        protected Transform playerTransform;
-        protected Transform finishTransform;
-
-        private void Awake() {
-            playerTransform = transform;
-            rewardList = new List<int>();
-        }
-
-        public virtual void Init(RunnerEnvironment.RunnerEnvironmentParams env, DefaultAgent agentSettings) {
+        public override void Init(RunnerEnvironment.RunnerEnvironmentParams env, DefaultAgent agentSettings) {
             learning_rate = agentSettings.learningRate;
             gamma = agentSettings.gamma;
             eMin = agentSettings.eMin;
@@ -68,7 +34,7 @@ namespace Runner.RL {
             finishTransform = GameObject.FindGameObjectWithTag("Finish").transform;
         }
 
-        protected virtual void Update() {
+        protected override void Update() {
             if (done) return;
             Collider[] detectedColls = Physics.OverlapCapsule(playerTransform.position + new Vector3(0, 0.5f, 0), playerTransform.position + new Vector3(0, runnerPlayer.Coll.height - 0.5f, 0), runnerPlayer.Coll.radius);
 
@@ -115,12 +81,7 @@ namespace Runner.RL {
             }
         }
 
-        public void SetEValue(float val) {
-            if (e - val > eMin)
-                e = val;
-        }
-
-        public virtual object GetAction() {
+        public override object GetAction() {
 
             float maxValue = float.MinValue;
             int maxValueAction = -1;
@@ -146,7 +107,7 @@ namespace Runner.RL {
             return action;
         }
 
-        public virtual void SendState(RunnerState state) {
+        public override void SendState(RunnerState state) {
 
             float nextStateMax = float.MinValue;
 
@@ -172,15 +133,7 @@ namespace Runner.RL {
             lastState = state;
         }
 
-        public void ResetAgent() {
-            RunnerPlayer.ResetData();
-            checkpointsReached.Clear();
-            reward = 0;
-            currentStep = 0;
-            done = false;
-        }
-
-        public void SaveData(int agentID, int epCount = 0) {
+        public override void SaveData(int agentID, int epCount = 0) {
             string text = "";
             foreach (var item in qTable) {
                 text += item.Key.ToString() + ",";
@@ -202,6 +155,39 @@ namespace Runner.RL {
 
         }
 
+        public async override Task LoadData(string fileName) {
+            int bufferSize = 128;
+            Dictionary<RunnerState, float[]> loadedQ = new Dictionary<RunnerState, float[]>();
+
+            using (FileStream fs = File.OpenRead($"Data/{fileName}.csv")) {
+
+                using (var streamReader = new StreamReader(fs, Encoding.UTF8, true, bufferSize)) {
+
+                    string line = await streamReader.ReadLineAsync();
+                    while (true) {
+
+                        string[] data = line.Split(',');
+
+                        RunnerState s = RunnerState.StringToState(data[0]);
+                        float[] actions = new float[] {
+                            float.Parse(data[1]),
+                            float.Parse(data[2]),
+                            float.Parse(data[3]),
+                            float.Parse(data[4])
+                        };
+
+                        loadedQ.Add(s, actions);
+
+                        await Task.Yield();
+                        line = await streamReader.ReadLineAsync();
+
+                        if (line == null) break;
+                    }
+                }
+            }
+
+            qTable = loadedQ;
+        }
     }
 
 }
