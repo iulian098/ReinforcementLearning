@@ -1,5 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Runner.RL {
@@ -27,11 +30,13 @@ namespace Runner.RL {
 
             Obstacle firstObstacle = RunnerManager.Instance.Obstacles[0];
 
+            //Initial state
             previousState = lastState = new RunnerState() {
                 XDistance = (int)(transform.position.x - firstObstacle.transform.position.x),
                 YDistance = (int)(firstObstacle.transform.position.z - transform.position.z),
                 ObstacleType = firstObstacle.ObstacleType
             };
+
             previousAction = action = 0;
             finishTransform = GameObject.FindGameObjectWithTag("Finish").transform;
 
@@ -63,9 +68,6 @@ namespace Runner.RL {
         }
 
         public override void SendState(RunnerState state) {
-
-            //Prev state -> Current state
-
             float nextStateMax = float.MinValue;
 
             if (!qTable.ContainsKey(state)) {
@@ -77,11 +79,6 @@ namespace Runner.RL {
                 if (item > nextStateMax) nextStateMax = item;
 
             if (action != -1 && !loadData) {
-                /*if (done)
-                    qTable[lastState][action] += learning_rate * (reward - qTable[lastState][action]);
-                else
-                    qTable[lastState][action] += learning_rate * (reward + gamma * nextStateMax - qTable[lastState][action]);*/
-
                 qTable[previousState][previousAction] += learning_rate * (reward + gamma * qTable[state][action] - qTable[previousState][previousAction]);
             }
             previousAction = action;
@@ -106,6 +103,40 @@ namespace Runner.RL {
 
         public override void SaveData(int agentID, int epCount = 0) {
             
+        }
+
+        public async override Task LoadData(string fileName) {
+            int bufferSize = 128;
+            Dictionary<RunnerState, float[]> loadedQ = new Dictionary<RunnerState, float[]>();
+
+            using (FileStream fs = File.OpenRead($"Data/{fileName}.csv")) {
+
+                using (var streamReader = new StreamReader(fs, Encoding.UTF8, true, bufferSize)) {
+
+                    string line = await streamReader.ReadLineAsync();
+                    while (true) {
+
+                        string[] data = line.Split(',');
+
+                        RunnerState s = RunnerState.StringToState(data[0]);
+                        float[] actions = new float[] {
+                            float.Parse(data[1]),
+                            float.Parse(data[2]),
+                            float.Parse(data[3]),
+                            float.Parse(data[4])
+                        };
+
+                        loadedQ.Add(s, actions);
+
+                        await Task.Yield();
+                        line = await streamReader.ReadLineAsync();
+
+                        if (line == null) break;
+                    }
+                }
+            }
+
+            qTable = loadedQ;
         }
 
     }

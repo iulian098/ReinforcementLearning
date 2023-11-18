@@ -28,10 +28,13 @@ namespace Runner.RL {
                 qTableB.Add(env.states[i], actions);
             }
 
+            Obstacle firstObstacle = RunnerManager.Instance.Obstacles[0];
+
+            //Initial state
             lastState = new RunnerState() {
-                XDistance = (int)RunnerManager.Instance.Obstacles[0].transform.position.x,
-                YDistance = (int)RunnerManager.Instance.Obstacles[0].transform.position.z,
-                ObstacleType = RunnerManager.Instance.Obstacles[0].ObstacleType
+                XDistance = (int)(transform.position.x - firstObstacle.transform.position.x),
+                YDistance = (int)(firstObstacle.transform.position.z - transform.position.z),
+                ObstacleType = firstObstacle.ObstacleType
             };
 
             finishTransform = GameObject.FindGameObjectWithTag("Finish").transform;
@@ -77,11 +80,6 @@ namespace Runner.RL {
             Dictionary<RunnerState, float[]> selectedTable = randVal < 0.5f ? qTableA : qTableB;
             Dictionary<RunnerState, float[]> otherTable = randVal < 0.5f ? qTableB : qTableA;
 
-            /*if (useLastActionSetIfFinished && Finished) {
-                lastVecState = state;
-                return;
-            }*/
-
             if (!selectedTable.ContainsKey(state))
                 selectedTable.Add(state, new float[actions]);
             if (!otherTable.ContainsKey(state))
@@ -99,6 +97,19 @@ namespace Runner.RL {
                     selectedTable[lastState][action] += learning_rate * (reward + gamma * nextStateMax - selectedTable[lastState][action]);
             }
             lastState = state;
+        }
+
+        public override void ResetAgent() {
+            base.ResetAgent();
+
+            Obstacle firstObstacle = RunnerManager.Instance.Obstacles[0];
+
+            lastState = new RunnerState() {
+                XDistance = (int)(transform.position.x - firstObstacle.transform.position.x),
+                YDistance = (int)(firstObstacle.transform.position.z - transform.position.z),
+                ObstacleType = firstObstacle.ObstacleType
+            };
+
         }
 
         public override void SaveData(int agentID, int epCount = 0) {

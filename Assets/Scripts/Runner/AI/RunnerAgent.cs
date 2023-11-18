@@ -26,11 +26,15 @@ namespace Runner.RL {
                 qTable.Add(env.states[i], actions);
             }
 
+            Obstacle firstObstacle = RunnerManager.Instance.Obstacles[0];
+
+            //Initial state
             lastState = new RunnerState() {
-                XDistance = (int)RunnerManager.Instance.Obstacles[0].transform.position.x,
-                YDistance = (int)RunnerManager.Instance.Obstacles[0].transform.position.z,
-                ObstacleType = RunnerManager.Instance.Obstacles[0].ObstacleType
+                XDistance = (int)(transform.position.x - firstObstacle.transform.position.x),
+                YDistance = (int)(firstObstacle.transform.position.z - transform.position.z),
+                ObstacleType = firstObstacle.ObstacleType
             };
+
             finishTransform = GameObject.FindGameObjectWithTag("Finish").transform;
         }
 
@@ -84,6 +88,19 @@ namespace Runner.RL {
                     qTable[lastState][action] += learning_rate * (reward + gamma * nextStateMax - qTable[lastState][action]);
             }
             lastState = state;
+        }
+
+        public override void ResetAgent() {
+            base.ResetAgent();
+
+            Obstacle firstObstacle = RunnerManager.Instance.Obstacles[0];
+
+            lastState = new RunnerState() {
+                XDistance = (int)(transform.position.x - firstObstacle.transform.position.x),
+                YDistance = (int)(firstObstacle.transform.position.z - transform.position.z),
+                ObstacleType = firstObstacle.ObstacleType
+            };
+
         }
 
         public override void SaveData(int agentID, int epCount = 0) {

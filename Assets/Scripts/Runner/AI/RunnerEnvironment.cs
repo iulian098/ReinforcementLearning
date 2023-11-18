@@ -55,7 +55,6 @@ namespace Runner.RL {
         [SerializeField] int maxSteps;
         [SerializeField] int numberOfAgents;
 
-        [SerializeField] bool useBestQTable;
         [SerializeField] DefaultAgent agentSettings;
         [SerializeField] List<RunnerBaseAgent> agentsList;
 
@@ -72,9 +71,6 @@ namespace Runner.RL {
         int episodeCount;
         int maxScore = 0;
 
-        float bestReward;
-
-        bool agentFinished;
         bool initialized;
 
         RunnerEnvironmentParams envParameters;
@@ -85,14 +81,10 @@ namespace Runner.RL {
 
         public Dictionary<RunnerState, float[]> BestQTable => bestQTable;
         public bool RegenerateLevelOnDeath { get => regenerateLevelOnDeath; set => regenerateLevelOnDeath = value; }
-        Dictionary<RunnerState, float[]> loadedQTable = new Dictionary<RunnerState, float[]>();
 
         void Awake() {
             Instance = this;
-            bestReward = float.MinValue;
             episodeCount = 0;
-            if (numberOfAgents == 1)
-                useBestQTable = false;
         }
 
         async void Start() {
@@ -100,12 +92,6 @@ namespace Runner.RL {
             Application.targetFrameRate = 60;
 
             RunnerManager.Instance.Init();
-
-            if (loadData) {
-                Debug.Log("Start loading data");
-                loadedQTable = await LoadData();
-                Debug.Log("Done loading data");
-            }
         }
 
         async Task<Dictionary<RunnerState, float[]>> LoadData() {
@@ -448,23 +434,6 @@ namespace Runner.RL {
 
             agentsList.Clear();
         }
-
-#if UNITY_EDITOR
-
-        [ContextMenu("Save Max Scores")]
-        void SaveMaxScores() {
-            string data = "";
-
-            foreach (var item in bestScores) {
-                data += item.Item1 + "," + item.Item2;
-                data += "\n";
-            }
-
-            File.WriteAllText($"Data/{bestScoreDataName}.csv", data);
-
-        }
-
-#endif
     }
 
 }
