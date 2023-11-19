@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Runner.RL {
@@ -112,8 +114,68 @@ namespace Runner.RL {
 
         }
 
-        public override void SaveData(int agentID, int epCount = 0) {
-            Debug.Log("Save data not implemented");
+        public override void SaveData() {
+            string text = "";
+            foreach (var item in qTableA) {
+                text += item.Key.ToString() + ",";
+                for (int i = 0; i < item.Value.Length; i++)
+                    text += $"{item.Value[i]}{(i != item.Value.Length - 1 ? "," : "")}";
+                text += "\n";
+            }
+
+            File.WriteAllText($"Data/DQ_Data_A.csv", text);
+
+            string textB = "";
+            foreach (var item in qTableB) {
+                textB += item.Key.ToString() + ",";
+                for (int i = 0; i < item.Value.Length; i++)
+                    textB += $"{item.Value[i]}{(i != item.Value.Length - 1 ? "," : "")}";
+                textB += "\n";
+            }
+
+            File.WriteAllText($"Data/DQ_Data_B.csv", textB);
+
+        }
+
+        public async override Task LoadData() {
+            qTableA = await LoadTable("DQ_Data_A");
+            qTableB = await LoadTable("DQ_Data_B");
+
+        }
+
+        async Task<Dictionary<RunnerState, float[]>> LoadTable(string fileName) {
+            int bufferSize = 128;
+            Dictionary<RunnerState, float[]> loadedQ = new Dictionary<RunnerState, float[]>();
+
+            using (FileStream fs = File.OpenRead(Application.dataPath + $"Data/{fileName}.csv")) {
+
+                using (var streamReader = new StreamReader(fs, Encoding.UTF8, true, bufferSize)) {
+
+                    string line = await streamReader.ReadLineAsync();
+                    while (true) {
+
+                        string[] data = line.Split(',');
+
+                        RunnerState s = RunnerState.StringToState(data[0]);
+                        float[] actions = new float[] {
+                            float.Parse(data[1]),
+                            float.Parse(data[2]),
+                            float.Parse(data[3]),
+                            float.Parse(data[4])
+                        };
+
+                        loadedQ.Add(s, actions);
+
+                        await Task.Yield();
+                        line = await streamReader.ReadLineAsync();
+
+                        if (line == null) break;
+                    }
+                }
+            }
+
+            return loadedQ;
+
         }
     }
 

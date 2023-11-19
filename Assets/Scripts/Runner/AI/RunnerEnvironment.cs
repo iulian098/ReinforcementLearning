@@ -38,7 +38,6 @@ namespace Runner.RL {
 
         [Header("Data")]
         [SerializeField] bool loadData;
-        [SerializeField] string dataFileName;
         [SerializeField] bool saveData;
         [SerializeField] string bestScoreDataName;
         [SerializeField] int saveEveryEpisode = 500;
@@ -94,41 +93,6 @@ namespace Runner.RL {
             RunnerManager.Instance.Init();
         }
 
-        async Task<Dictionary<RunnerState, float[]>> LoadData() {
-            int bufferSize = 128;
-            Dictionary<RunnerState, float[]> loadedQ = new Dictionary<RunnerState, float[]>();
-
-            using (FileStream fs = File.OpenRead($"Data/{dataFileName}.csv")) {
-
-                using (var streamReader = new StreamReader(fs, Encoding.UTF8, true, bufferSize)) {
-
-                    string line = await streamReader.ReadLineAsync();
-                    while (true) {
-
-                        string[] data = line.Split(',');
-
-                        RunnerState s = RunnerState.StringToState(data[0]);
-                        float[] actions = new float[] {
-                            float.Parse(data[1]),
-                            float.Parse(data[2]),
-                            float.Parse(data[3]),
-                            float.Parse(data[4])
-                        };
-
-                        loadedQ.Add(s, actions);
-
-                        await Task.Yield();
-                        line = await streamReader.ReadLineAsync();
-
-                        if (line == null) break;
-                    }
-                }
-            }
-
-
-            return loadedQ;
-        }
-
         public async void BeginNewGame() {
 
             Debug.Log("Begin!!!!!!!!!!!!");
@@ -145,7 +109,7 @@ namespace Runner.RL {
                 a.gameObject.name = "Agent" + i;
                 if (loadData) {
                     //a.qTable = loadedQTable;
-                    await a.LoadData(dataFileName);
+                    await a.LoadData();
                     a.dataNr = dataNr;
                     a.SetEValue(0.5f);
                 }
@@ -179,10 +143,7 @@ namespace Runner.RL {
         void FixedUpdate() {
             if (!initialized) return;
             for (int i = 0; i < agentsList.Count; i++) {
-                if (i == agentsList.Count - 1)
-                    Run(agentsList[i], true);
-                else
-                    Run(agentsList[i]);
+                Run(agentsList[i], i == agentsList.Count - 1);
             }
         }
 
@@ -368,7 +329,7 @@ namespace Runner.RL {
 
 
                 if (episodeCount > 0 && episodeCount % saveEveryEpisode == 0 && saveData) {
-                    agentsList[i].SaveData(i, episodeCount);
+                    agentsList[i].SaveData();
                 }
                 EndReset(agentsList[i]);
             }
@@ -433,6 +394,16 @@ namespace Runner.RL {
             }
 
             agentsList.Clear();
+        }
+
+        public void ToggleLoadData(bool value) {
+            loadData = value;
+        }
+
+        public void SaveData() {
+            foreach (var agent in agentsList) {
+                agent.SaveData();
+            }
         }
     }
 

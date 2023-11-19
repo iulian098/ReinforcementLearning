@@ -101,15 +101,25 @@ namespace Runner.RL {
 
         }
 
-        public override void SaveData(int agentID, int epCount = 0) {
-            
+        public override void SaveData() {
+
+            string text = "";
+            foreach (var item in qTable) {
+                text += item.Key.ToString() + ",";
+                for (int i = 0; i < item.Value.Length; i++)
+                    text += $"{item.Value[i]}{(i != item.Value.Length - 1 ? "," : "")}";
+                text += "\n";
+            }
+
+            File.WriteAllText($"Data/SARSA_Data.csv", text);
+
         }
 
-        public async override Task LoadData(string fileName) {
+        public async override Task LoadData() { 
             int bufferSize = 128;
             Dictionary<RunnerState, float[]> loadedQ = new Dictionary<RunnerState, float[]>();
 
-            using (FileStream fs = File.OpenRead($"Data/{fileName}.csv")) {
+            using (FileStream fs = File.OpenRead($"Data/SARSA_Data.csv")) {
 
                 using (var streamReader = new StreamReader(fs, Encoding.UTF8, true, bufferSize)) {
 

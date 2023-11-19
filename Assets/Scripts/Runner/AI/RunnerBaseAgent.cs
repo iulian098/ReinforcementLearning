@@ -50,18 +50,6 @@ namespace Runner.RL {
             if (done) return;
             Collider[] detectedColls = Physics.OverlapCapsule(playerTransform.position + new Vector3(0, 0.5f, 0), playerTransform.position + new Vector3(0, runnerPlayer.Coll.height - 0.5f, 0), runnerPlayer.Coll.radius);
 
-            if (transform.position.z > finishTransform.position.z) {
-                reward = 1;
-                episodeReward += reward;
-                done = true;
-                Finished = true;
-                RewardList.Add((int)RunnerManager.Instance.Score);
-                RunnerPlayer.Stopped = true;
-
-                Debug.LogWarning("<color=green>Finish</color>");
-
-            }
-
             if (detectedColls.Length > 0) {
                 foreach (Collider coll in detectedColls) {
                     if (coll.CompareTag("Finish")) {
@@ -72,7 +60,7 @@ namespace Runner.RL {
                         RewardList.Add((int)RunnerManager.Instance.Score);
                         RunnerPlayer.Stopped = true;
                         RunnerPlayer.AcceptingSteps = true;
-                        Debug.LogWarning("<color=green>Finish</color>");
+                        Debug.Log("<color=green>Finish</color>");
                     }
                     else if (coll.CompareTag("Obstacle")) {
                         done = true;
@@ -81,13 +69,13 @@ namespace Runner.RL {
                         RewardList.Add((int)RunnerManager.Instance.Score);
                         RunnerPlayer.Stopped = true;
                         RunnerPlayer.AcceptingSteps = true;
-                        Debug.LogWarning("<color=red>Obstacle Hit</color>");
+                        Debug.Log("<color=red>Obstacle Hit</color>");
                     }
                     else if (coll.CompareTag("Checkpoint") && !checkpointsReached.Contains(coll)) {
                         reward = 0.05f;
                         episodeReward += reward;
                         checkpointsReached.Add(coll);
-                        Debug.LogWarning("<color=yellow>Checkpoint Hit</color>");
+                        Debug.Log("<color=yellow>Checkpoint Hit</color>");
                     }
                 }
             }
@@ -111,8 +99,8 @@ namespace Runner.RL {
             done = false;
         }
 
-        public abstract void SaveData(int agentID, int epCount = 0);
+        public abstract void SaveData();
 
-        public virtual Task LoadData(string data) { return null; }
+        public virtual Task LoadData() { return null; }
     }
 }
