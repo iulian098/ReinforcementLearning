@@ -185,8 +185,8 @@ namespace Runner.RL {
         IEnumerator WaitStep() {
             yield return new WaitForSeconds(waitTime);
             foreach (RunnerBaseAgent a in agentsList) {
-                yield return new WaitUntil(() => a.RunnerPlayer.AcceptingSteps);
                 EndStep(a);
+                yield return new WaitUntil(() => a.RunnerPlayer.AcceptingSteps);
                 a.acceptingSteps = true;
             }
 
