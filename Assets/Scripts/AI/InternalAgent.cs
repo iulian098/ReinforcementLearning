@@ -5,7 +5,7 @@ using System.Linq;
 using System.IO;
 
 [System.Serializable]
-public class InternalAgent : Agent
+public class InternalAgent : BaseAgent
 {
 
     public List<float> rewardList;

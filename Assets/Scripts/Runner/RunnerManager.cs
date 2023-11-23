@@ -13,6 +13,7 @@ namespace Runner {
         [SerializeField] Obstacle[] obstaclePrefabs;
         [SerializeField] Obstacle finish;
         [SerializeField] bool selfInit;
+        [SerializeField] Transform obstaclesContainer;
         Obstacle[] obstacles;
 
         float score;
@@ -41,10 +42,10 @@ namespace Runner {
             if (initialized) return;
             initialized = true;
 
-            GenerateLevel();
+            StartCoroutine(GenerateLevel());
         }
 
-        void GenerateLevel() {
+        IEnumerator GenerateLevel() {
             obstacles = new Obstacle[nrObstacles + 1];
 
             for (int i = 0; i < nrObstacles; i++) {
@@ -52,8 +53,11 @@ namespace Runner {
                 obstaclePos.x = transform.position.x + Random.Range(-obstacleXOffset, obstacleXOffset + 1);
                 obstaclePos.y = 0;
                 obstaclePos.z = (i + 1) * obstacleDistance;
-                Obstacle obstacle = Instantiate(obstaclePrefabs[Random.Range(0, obstaclePrefabs.Length)], obstaclePos, Quaternion.identity);
+                Obstacle obstacle = Instantiate(obstaclePrefabs[Random.Range(0, obstaclePrefabs.Length)], obstaclesContainer);//obstaclePos, Quaternion.identity);
+                obstacle.transform.localPosition = obstaclePos;
+                obstacle.transform.rotation = Quaternion.identity;
                 obstacles[i] = obstacle;
+                yield return new WaitForSeconds(0.1f);
             }
 
             finish.transform.position = new Vector3(0, 0, (nrObstacles + 1) * obstacleDistance);
@@ -65,7 +69,7 @@ namespace Runner {
                 if (obstacle == finish) continue;
                 Destroy(obstacle.gameObject);
             }
-            GenerateLevel();
+            StartCoroutine(GenerateLevel());
         }
     }
 

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Agent : MonoBehaviour
+public abstract class BaseAgent : MonoBehaviour
 {
 
 	public bool loadData;
