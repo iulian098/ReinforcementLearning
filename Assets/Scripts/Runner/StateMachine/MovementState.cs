@@ -21,7 +21,7 @@ namespace StateMachine.Player {
         }
 
         void Move(PlayerInput playerInput) {
-            stateMachine.transform.Translate(Vector3.right * playerInput.direction.x);
+            stateMachine.transform.Translate(Vector3.right * playerInput.direction.x * stateMachine.XSpeed * Time.deltaTime);
         }
 
     }

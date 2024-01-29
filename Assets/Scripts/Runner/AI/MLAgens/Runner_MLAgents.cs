@@ -14,37 +14,48 @@ public class Runner_MLAgens : Agent
         
         player.transform.localPosition = spawnPoint.localPosition;
         player.SwitchState(new MovementState(player));
+        player.CurrentObstacle = 0;
+        player.CurrentCoin = 0;
+        player.RunnerManager.EnableCoins();
     }
 
     public override void CollectObservations(VectorSensor sensor) {
-        Obstacle currentObstacle = RunnerManager.Instance.Obstacles[player.CurrentObstacle];
-        sensor.AddObservation((int)(player.transform.localPosition.x - currentObstacle.transform.localPosition.x));
-        sensor.AddObservation((int)(currentObstacle.transform.localPosition.z - player.transform.localPosition.z));
+        Obstacle currentObstacle = player.RunnerManager.Obstacles[player.CurrentObstacle];
+        GameObject currentCoin = player.RunnerManager.Coins[player.CurrentCoin];
         sensor.AddObservation((int)currentObstacle.ObstacleType);
+        sensor.AddObservation((int)(currentObstacle.transform.localPosition.x));
+        sensor.AddObservation((int)(currentObstacle.transform.localPosition.z - player.transform.localPosition.z));
+        sensor.AddObservation((int)(currentCoin.transform.localPosition.x));
+        sensor.AddObservation((int)(currentCoin.transform.localPosition.z - player.transform.localPosition.z));
     }
 
     public override void OnActionReceived(ActionBuffers actions) {
         Debug.Log($"[Action] {actions.DiscreteActions[0]}");
         if (!player.AcceptingSteps) return;
         int action = actions.DiscreteActions[0];
+        float xInput = actions.ContinuousActions[0];
+        player.SendInput(new StateMachine.Player.PlayerInput() {
+            direction = new Vector2(xInput, 0)
+        });
         switch (action) {
             case 0:
                 //DoNothing
                 break;
-            case 1:
+            /*case 1:
                 player.SendInput(new StateMachine.Player.PlayerInput() {
-                    direction = new Vector2(-1, 0)
+                    direction = new Vector2(xInput, 0)
                 });
+
                 break;
             case 2:
                 player.SendInput(new StateMachine.Player.PlayerInput() {
-                    direction = new Vector2(1, 0)
+                    direction = new Vector2(xInput, 0)
                 });
-                break;
-            case 3:
+                break;*/
+            case 1:
                 player.SwitchState(new RollState(player));
                 break;
-            case 4:
+            case 2:
                 player.SwitchState(new JumpState(player));
                 break;
             default:
@@ -53,9 +64,9 @@ public class Runner_MLAgens : Agent
 
 
 
-        Obstacle currentObstacle = RunnerManager.Instance.Obstacles[player.CurrentObstacle];
+        Obstacle currentObstacle = player.RunnerManager.Obstacles[player.CurrentObstacle];
 
-        if (currentObstacle.ObstacleType == ObstacleType.Wall && action >= 3) {
+        /*if (currentObstacle.ObstacleType == ObstacleType.Wall && action >= 3) {
             //agent.reward = -0.01f;
             AddReward(-0.001f);
         }
@@ -72,18 +83,43 @@ public class Runner_MLAgens : Agent
 
             if (currentDistance > player.LastXDistance)
                 AddReward(-0.001f);
-            else if (currentDistance < player.LastXDistance)
+            else if (currentDistance < player.LastXDistance) {
                 player.LastXDistance = currentDistance;
+                AddReward(0.001f);
+            }
+        }*/
+        if (currentObstacle.ObstacleType == ObstacleType.Wall && action != 0) {
+            //agent.reward = -0.01f;
+            AddReward(-0.001f);
+        }
+        else if (currentObstacle.ObstacleType == ObstacleType.Slide && action == 2) {
+            //agent.reward = -0.01f;
+            AddReward(-0.001f);
+        }
+        else if (currentObstacle.ObstacleType == ObstacleType.Jump && action == 1) {
+            //agent.reward = -0.01f;
+            AddReward(-0.001f);
+        }
+        else if (currentObstacle.ObstacleType == ObstacleType.Wall && action == 0) {
+            int currentDistance = (int)Mathf.Abs(player.transform.position.x - currentObstacle.transform.position.x);
+
+            if (currentDistance > player.LastXDistance)
+                AddReward(-0.001f);
+            else if (currentDistance < player.LastXDistance) {
+                player.LastXDistance = currentDistance;
+                AddReward(0.001f);
+            }
         }
 
     }
 
     private void OnCollisionEnter(Collision collision) {
         if (collision.collider.CompareTag("Finish")) {
-            SetReward(1f);
+            SetReward(0.1f);
             EndEpisode();
+            Debug.Log("[ML-Agents] Finished", gameObject);
         }else if (collision.collider.CompareTag("Obstacle")) {
-            SetReward(-1f);
+            SetReward(-0.01f);
             EndEpisode();
         }
     }
@@ -91,6 +127,25 @@ public class Runner_MLAgens : Agent
     private void OnTriggerEnter(Collider other) {
         if (other.CompareTag("Checkpoint")) {
             AddReward(0.01f);
+        }else if (other.CompareTag("Coin")) {
+            AddReward(0.005f);
+            other.gameObject.SetActive(false);
+        }
+    }
+
+    public override void Heuristic(in ActionBuffers actionsOut) {
+        ActionSegment<float> continuousActions = actionsOut.ContinuousActions;
+        ActionSegment<int> discreteActions = actionsOut.DiscreteActions;
+
+        continuousActions[0] = Input.GetAxis("Horizontal");
+
+        if (Input.GetButton("Jump")) {
+            //player.SwitchState(new JumpState(player));
+            discreteActions[0] = 1;
+        }
+        else if (Input.GetButton("Roll")) {
+            //player.SwitchState(new RollState(player));
+            discreteActions[0] = 2;
         }
     }
 }

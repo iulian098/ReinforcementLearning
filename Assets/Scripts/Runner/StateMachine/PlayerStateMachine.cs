@@ -15,10 +15,12 @@ namespace StateMachine.Player {
         [SerializeField] CapsuleCollider coll;
         [SerializeField] Rigidbody characterRigidbody;
         [SerializeField] float speed;
+        [SerializeField] float xSpeed;
         [SerializeField] float jumpForce;
         [SerializeField] LayerMask layerMask;
-
+        [SerializeField] RunnerManager runnerManager;
         int currentObstacle;
+        int currentCoin;
         int lastXDistance;
         bool stopped;
         bool acceptingSteps;
@@ -29,11 +31,28 @@ namespace StateMachine.Player {
         public Animator Anim => anim;
         public CapsuleCollider Coll => coll;
         public Rigidbody CharacterRigidbody => characterRigidbody;
-        public int CurrentObstacle { 
-            get => currentObstacle; 
+        public RunnerManager RunnerManager => runnerManager;
+        public int CurrentObstacle {
+            get {
+                if (runnerManager != null && currentObstacle >= runnerManager.Obstacles.Length)
+                    currentObstacle = runnerManager.Obstacles.Length - 1;
+                return currentObstacle;
+            }
             set {
                 currentObstacle = value;
-                LastXDistance = (int)Mathf.Abs(transform.position.x - RunnerManager.Instance.Obstacles[currentObstacle].transform.position.x);
+                if (runnerManager != null && currentObstacle >= runnerManager.Obstacles.Length)
+                    currentObstacle = runnerManager.Obstacles.Length - 1;
+                LastXDistance = (int)Mathf.Abs(transform.position.x - runnerManager.Obstacles[currentObstacle].transform.position.x);
+            }
+        }
+        public int CurrentCoin {
+            get {
+                return currentCoin;
+            }
+            set {
+                currentCoin = value;
+                if (currentCoin >= runnerManager.Coins.Length)
+                    currentCoin = runnerManager.Coins.Length - 1;
             }
         }
         public int LastXDistance { get => lastXDistance; set => lastXDistance = value; }
@@ -41,12 +60,20 @@ namespace StateMachine.Player {
         public bool Stopped { get => stopped; set => stopped = value; }
         public bool IsGrounded => isGrounded;
         public float Speed => speed;
+        public float XSpeed => xSpeed;
         public float JumpForce => jumpForce;
+
+        private void Awake() {
+            if (runnerManager == null)
+                runnerManager = RunnerManager.Instance;
+        }
 
         protected override void Update() {
             base.Update();
-            if (transform.position.z >= RunnerManager.Instance.Obstacles[CurrentObstacle].transform.position.z - 1)
+            if (transform.position.z >= runnerManager.Obstacles[CurrentObstacle].transform.position.z - 1)
                 CurrentObstacle++;
+            if (transform.position.z >= runnerManager.Coins[CurrentCoin].transform.position.z - 1)
+                CurrentCoin++;
             GroundCheck();
 
             anim.SetBool(ANIM_GROUNDED, isGrounded);
@@ -55,7 +82,7 @@ namespace StateMachine.Player {
         }
 
         void GroundCheck() {
-            if (Physics.CheckSphere(transform.position, 0.2f, layerMask))
+            if (Physics.CheckSphere(transform.position, 0.1f, layerMask))
                 isGrounded = true;
             else
                 isGrounded = false;
