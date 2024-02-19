@@ -100,7 +100,7 @@ public class Runner_MLAgens : Agent
             //agent.reward = -0.01f;
             AddReward(-0.001f);
         }
-        else if (currentObstacle.ObstacleType == ObstacleType.Wall && action == 0) {
+        /*else if (currentObstacle.ObstacleType == ObstacleType.Wall && action == 0) {
             int currentDistance = (int)Mathf.Abs(player.transform.position.x - currentObstacle.transform.position.x);
 
             if (currentDistance > player.LastXDistance)
@@ -109,13 +109,13 @@ public class Runner_MLAgens : Agent
                 player.LastXDistance = currentDistance;
                 AddReward(0.001f);
             }
-        }
+        }*/
 
     }
 
     private void OnCollisionEnter(Collision collision) {
         if (collision.collider.CompareTag("Finish")) {
-            SetReward(0.1f);
+            AddReward(0.1f);
             EndEpisode();
             Debug.Log("[ML-Agents] Finished", gameObject);
         }else if (collision.collider.CompareTag("Obstacle")) {
