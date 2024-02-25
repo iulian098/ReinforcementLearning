@@ -15,8 +15,6 @@ public class Vehicle : MonoBehaviour
 
     bool reverse;
     bool isAgent;
-    public int currentCheckpoint;
-    public int currentPlacement;
 
     public Rigidbody VehicleRigidBody => rb;
 
