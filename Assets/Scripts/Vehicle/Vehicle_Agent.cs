@@ -28,6 +28,7 @@ public class Vehicle_Agent : Agent
     float prevYRotation;
 
     bool finishReached = false;
+    bool loop = false;
     bool leftSensor = false, rightSensor = false, frontSensor = false, backSensor = false;
 
     Vector3 nextCheckpointPosition;
@@ -44,7 +45,7 @@ public class Vehicle_Agent : Agent
         vehicle.transform.SetLocalPositionAndRotation(startingPos, startingRot);
         vehicle.currentCheckpoint = 0;
 
-        nextCheckpointPosition = VehicleCheckpoints.Instance.Checkpoints[vehicle.currentCheckpoint].transform.position;
+        nextCheckpointPosition = VehicleCheckpointsContainer.Instance.Checkpoints[vehicle.currentCheckpoint].transform.position;
         lastCheckpointDistance = Vector3.Distance(vehicle.transform.position, nextCheckpointPosition);
         farthestDistance = Vector3.Distance(vehicle.transform.position, nextCheckpointPosition);
 
@@ -134,9 +135,9 @@ public class Vehicle_Agent : Agent
         if (velocityMagnitude <= 0.3f)
             AddReward(-0.005f);
 
-        if (vehicle.currentCheckpoint < VehicleCheckpoints.Instance.Checkpoints.Length - 1 && checkpointDistance < 5) {
+        if (vehicle.currentCheckpoint < VehicleCheckpointsContainer.Instance.Checkpoints.Length - 1 && checkpointDistance < 5) {
             vehicle.currentCheckpoint++;
-            nextCheckpointPosition = VehicleCheckpoints.Instance.Checkpoints[vehicle.currentCheckpoint].transform.position;
+            nextCheckpointPosition = VehicleCheckpointsContainer.Instance.Checkpoints[vehicle.currentCheckpoint].transform.position;
             checkpointDistance = Vector3.Distance(vehicle.transform.position, nextCheckpointPosition);
             lastCheckpointDistance = checkpointDistance;
             AddReward(0.25f);
@@ -163,7 +164,7 @@ public class Vehicle_Agent : Agent
     }
 
     private void OnTriggerEnter(Collider other) {
-        if (!finishReached && other.CompareTag("Finish") && vehicle.currentCheckpoint == VehicleCheckpoints.Instance.Checkpoints.Length - 1) {
+        if (!finishReached && other.CompareTag("Finish") && vehicle.currentCheckpoint == VehicleCheckpointsContainer.Instance.Checkpoints.Length - 1) {
             AddReward(1f);
             AddReward(1 - StepCount / MaxStep);
             finishReached = true;

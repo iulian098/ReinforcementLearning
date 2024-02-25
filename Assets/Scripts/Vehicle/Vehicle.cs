@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
+using Unity.MLAgents.Policies;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class Vehicle : MonoBehaviour
 {
-
     [SerializeField] float maxSteerAngle;
     [SerializeField] float maxTorque;
     [SerializeField] float maxReverseTorque;
@@ -17,14 +15,14 @@ public class Vehicle : MonoBehaviour
 
     bool reverse;
     bool isAgent;
-    float velocityMagnitude;
     public int currentCheckpoint;
+    public int currentPlacement;
 
     public Rigidbody VehicleRigidBody => rb;
 
     void Start()
     {
-        if (TryGetComponent(out Vehicle_Agent agent))
+        if (TryGetComponent(out Vehicle_Agent agent) || TryGetComponent(out BehaviorParameters behavior))
             isAgent = true;
     }
 
@@ -38,12 +36,11 @@ public class Vehicle : MonoBehaviour
 
     private void FixedUpdate() {
         if (isAgent) return;
-        velocityMagnitude = rb.velocity.magnitude;
-        if (Vector3.Distance(transform.position, VehicleCheckpoints.Instance.Checkpoints[currentCheckpoint].position) < 2) {
+       /* if (Vector3.Distance(transform.position, VehicleCheckpoints.Instance.Checkpoints[currentCheckpoint].position) < 2) {
             currentCheckpoint++;
             if (currentCheckpoint >= VehicleCheckpoints.Instance.Checkpoints.Length)
                 currentCheckpoint = VehicleCheckpoints.Instance.Checkpoints.Length - 1;
-        }
+        }*/
     }
 
     public void Steer(float val) {

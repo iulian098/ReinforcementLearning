@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class VehicleCheckpoints : MonoBehaviour {
+public class VehicleCheckpointsContainer : MonoBehaviour {
 
     #region Singleton
 
-    public static VehicleCheckpoints Instance;
+    public static VehicleCheckpointsContainer Instance;
 
     private void Awake() {
         if (Instance != null && Instance != this)
