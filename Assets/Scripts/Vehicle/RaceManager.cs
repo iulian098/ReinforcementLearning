@@ -2,20 +2,12 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class RaceManager : MonoBehaviour
-{
-    #region Singleton
-
+public class RaceManager : MonoBehaviour {
     public static RaceManager Instance;
 
-    #endregion
-
-    //TODO: Checkpoint controlled inside Vehicle
     [SerializeField] VehicleCheckpointsContainer vehicleCheckpoints;
     [SerializeField] List<VehicleCheckpointManager> vehicles;
     [SerializeField] int startingCheckpointIndex = 0;
-
-    Transform currentCheckpoint, nextCheckpoint;
     float[] distances;
 
     public float[] Distances => distances;
@@ -25,10 +17,9 @@ public class RaceManager : MonoBehaviour
             Destroy(gameObject);
         else
             Instance = this;
+    }
 
-        currentCheckpoint = vehicleCheckpoints.Checkpoints[startingCheckpointIndex];
-        nextCheckpoint = vehicleCheckpoints.Checkpoints[startingCheckpointIndex + 1];
-
+    private void Start() {
         distances = new float[vehicleCheckpoints.Checkpoints.Length + 1];
 
         for (int i = 1; i < distances.Length; i++) {
@@ -37,16 +28,27 @@ public class RaceManager : MonoBehaviour
             else
                 distances[i] = distances[i - 1] + Vector3.Distance(vehicleCheckpoints.Checkpoints[i - 1].position, vehicleCheckpoints.Checkpoints[0].position);
         }
+
+        UpdateVehiclesPlacements(false);
+
+        foreach (var vehicle in vehicles)
+            vehicle.Init();
     }
 
     private void FixedUpdate() {
+        UpdateVehiclesPlacements(true);
+    }
+
+    public void UpdateVehiclesPlacements(bool sendCallback) {
         vehicles = vehicles.OrderByDescending(x => x.vehicleData.loopCount).ThenByDescending(x => x.vehicleData.totalDistance).ToList();
 
         for (int i = 0; i < vehicles.Count; i++) {
-            if (i > vehicles[i].currentPlacement)
-                vehicles[i].OnPlacementChanged?.Invoke(true);
-            else if (i < vehicles[i].currentPlacement)
-                vehicles[i].OnPlacementChanged?.Invoke(false);
+            if (vehicles[i].Initialized && sendCallback) {
+                if (i > vehicles[i].currentPlacement)
+                    vehicles[i].OnPlacementChanged?.Invoke(true);
+                else if (i < vehicles[i].currentPlacement)
+                    vehicles[i].OnPlacementChanged?.Invoke(false);
+            }
 
             vehicles[i].currentPlacement = i;
         }
@@ -177,4 +179,11 @@ public class RaceManager : MonoBehaviour
         }
 
     }*/
+    private void OnDrawGizmos() {
+        Gizmos.color = Color.white;
+        int checkpointsCount = vehicleCheckpoints.Checkpoints.Length;
+        for (int i = 0; i < checkpointsCount; i++) {
+            Gizmos.DrawLine(vehicleCheckpoints.Checkpoints[i].position, vehicleCheckpoints.Checkpoints[i + 1 > checkpointsCount - 1 ? 0 : i + 1].position);
+        }
+    }
 }

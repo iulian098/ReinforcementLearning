@@ -86,7 +86,7 @@ GameObject:
   - component: {fileID: 8819145988303956915}
   - component: {fileID: 7807650288661440575}
   - component: {fileID: 1326361188604777354}
-  - component: {fileID: 8256028251876577224}
+  - component: {fileID: 3964649193893516381}
   m_Layer: 8
   m_Name: VehicleV2
   m_TagString: Untagged
@@ -154,23 +154,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9e2e8fa41f90e142b39b632d6b3c427, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSteerAngle: 45
-  maxTorque: 1000
   maxReverseTorque: 300
   maxBrakeTorque: 1000
+  steerRadius: 5
+  downForce: 50
+  gears:
+  - 4
+  - 3
+  - 2
+  - 1.5
+  - 0.8
+  maxRPM: 5600
+  minRPM: 3000
+  differentialRatio: 7.5
+  enginePowerCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 100
+      inSlope: 0.028301898
+      outSlope: 0.028301898
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.105401605
+    - serializedVersion: 3
+      time: 4500
+      value: 500
+      inSlope: 0.00080523023
+      outSlope: 0.00080523023
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.12567006
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 6000
+      value: 8.140015
+      inSlope: -0.7809254
+      outSlope: -0.7809254
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.029762045
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   rb: {fileID: 5526707923062661442}
-  wheelsColls:
-  - {fileID: 4150689398078469539}
-  - {fileID: 1865490602160949294}
-  - {fileID: 5185447406883115860}
-  - {fileID: 4767197952082583513}
-  wheelsTransforms:
-  - {fileID: 3218109562731653316}
-  - {fileID: 4648103777822807686}
-  - {fileID: 1279376002806365055}
-  - {fileID: 7506674780200289688}
-  currentCheckpoint: 0
-  currentPlacement: 0
+  frontWheels:
+  - wheelCollider: {fileID: 4150689398078469539}
+    wheelVisual: {fileID: 3218109562731653316}
+  - wheelCollider: {fileID: 1865490602160949294}
+    wheelVisual: {fileID: 4648103777822807686}
+  rearWheels:
+  - wheelCollider: {fileID: 5185447406883115860}
+    wheelVisual: {fileID: 1279376002806365055}
+  - wheelCollider: {fileID: 4767197952082583513}
+    wheelVisual: {fileID: 7506674780200289688}
 --- !u!114 &8622531910035623962
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -221,6 +261,7 @@ MonoBehaviour:
   velocitySensorMultiplier: 0.5
   loopTrack: 1
   showDebug: 0
+  vehicleSensor: {fileID: 3964649193893516381}
   velocityMagnitude: 0
 --- !u!114 &7807650288661440575
 MonoBehaviour:
@@ -249,7 +290,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 10
+    VectorObservationSize: 14
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -263,10 +304,10 @@ MonoBehaviour:
   m_BehaviorType: 0
   m_BehaviorName: MyAgents
   TeamId: 0
-  m_UseChildSensors: 1
+  m_UseChildSensors: 0
   m_UseChildActuators: 1
   m_ObservableAttributeHandling: 0
---- !u!114 &8256028251876577224
+--- !u!114 &3964649193893516381
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -275,23 +316,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 983316312307855009}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bb6b867a41448888c1cd4f99643ad71, type: 3}
+  m_Script: {fileID: 11500000, guid: 2eb7e2ad890599348b8bdb8521ad3772, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_SensorName: RayPerceptionSensor
-  m_DetectableTags: []
-  m_RaysPerDirection: 3
-  m_MaxRayDegrees: 70
-  m_SphereCastRadius: 0.5
-  m_RayLength: 15
-  m_RayLayerMask:
+  raysPerDirection: 3
+  raysAngle: 70
+  sensorsLength: 15
+  sensorsCastRadius: 0.5
+  sensorMask:
     serializedVersion: 2
-    m_Bits: 4294964873
-  m_ObservationStacks: 1
-  rayHitColor: {r: 1, g: 0, b: 0, a: 1}
-  rayMissColor: {r: 1, g: 1, b: 1, a: 1}
-  m_StartVerticalOffset: 0
-  m_EndVerticalOffset: 0
+    m_Bits: 1
 --- !u!1 &2053095717695122476
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,7 +5,6 @@ using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class Vehicle_Agent_v2 : Agent
 {
@@ -18,8 +17,9 @@ public class Vehicle_Agent_v2 : Agent
     [SerializeField] float frontSensorsDistance;
     [SerializeField] float velocitySensorMultiplier = 0.5f;
 
-    [SerializeField]bool loopTrack = false;
+    [SerializeField] bool loopTrack = false;
     [SerializeField] bool showDebug = false;
+    [SerializeField] VehicleSensor vehicleSensor;
 
     [Header("Debugging")]
     [SerializeField] float velocityMagnitude;
@@ -30,6 +30,7 @@ public class Vehicle_Agent_v2 : Agent
     float lastCheckpointDistance;
     float normalizedYRotation;
     float checkpointDirection;
+    float roadCenterDirection;
 
     bool finishReached = false;
     bool leftSensor = false, rightSensor = false, frontSensor = false, backSensor = false;
@@ -43,25 +44,37 @@ public class Vehicle_Agent_v2 : Agent
     private void Start() {
         startingPos = vehicle.transform.position;
         startingRot = vehicle.transform.rotation;
-        checkpointManager.OnCheckpointReached += OnCheckpointReached;
+        checkpointManager.OnNextCheckpointReached += OnCheckpointReached;
+        checkpointManager.OnPreviousCheckpointReached += OnPreviousCheckpointReached;
         checkpointManager.OnPlacementChanged += OnPlacementChanged;
         checkpointManager.OnFinishReached += OnFinishReached;
     }
 
+
     private void OnFinishReached() {
         AddReward(1);
+        Debug.Log("OnLoopComplete");
     }
 
-    private void OnPlacementChanged(bool obj) { }
+    private void OnPlacementChanged(bool obj) {
+        //Debug.Log("OnPlacementChanged");
+    }
+
+    private void OnPreviousCheckpointReached() {
+        Debug.Log("Previous checkpoint reached");
+        AddReward(-0.25f);
+    }
 
     private void OnCheckpointReached() {
         AddReward(0.25f);
+        nextCheckpointPosition = checkpointManager.vehicleData.nextCheckpoint.position;
+        lastCheckpointDistance = Vector3.Distance(vehicle.transform.position, checkpointManager.vehicleData.nextCheckpoint.position);
+
     }
 
     public override void OnEpisodeBegin() {
         vehicle.ResetVehicle();
         vehicle.transform.SetLocalPositionAndRotation(startingPos, startingRot);
-        //vehicle.currentCheckpoint = 0;
         checkpointManager.ResetVehicleData();
         nextCheckpointPosition = checkpointManager.vehicleData.nextCheckpoint.position;//VehicleCheckpointsContainer.Instance.Checkpoints[vehicle.currentCheckpoint].transform.position;
         lastCheckpointDistance = Vector3.Distance(vehicle.transform.position, nextCheckpointPosition);
@@ -75,8 +88,11 @@ public class Vehicle_Agent_v2 : Agent
 
     public override void CollectObservations(VectorSensor sensor) {
         sensor.AddObservation(new Vector2(vehicleVelocity.x, vehicleVelocity.z));
+        sensor.AddObservation(vehicleSensor.HitFractions);
         sensor.AddObservation(checkpointDirection);
+        sensor.AddObservation(roadCenterDirection);
         sensor.AddObservation(normalizedYRotation);
+        sensor.AddObservation(vehicle.SideSlip);
         sensor.AddObservation(backSensor);
     }
 
@@ -138,7 +154,7 @@ public class Vehicle_Agent_v2 : Agent
 
     private void FixedUpdate() {
         if (finishReached) return;
-
+        nextCheckpointPosition = checkpointManager.vehicleData.nextCheckpoint.position;
         float checkpointDistance = Vector3.Distance(vehicle.transform.position, nextCheckpointPosition);
         velocityMagnitude = vehicle.VehicleRigidBody.velocity.magnitude;
 
@@ -168,32 +184,10 @@ public class Vehicle_Agent_v2 : Agent
         if (velocityMagnitude <= 0.3f)
             AddReward(-0.005f);
 
-        /*if (checkpointDistance < 5) {
-            if (loopTrack) { //Loop
-                vehicle.currentCheckpoint++;
-                if (vehicle.currentCheckpoint == VehicleCheckpoints.Instance.Checkpoints.Length) {
-                    vehicle.currentCheckpoint = 0;
-                    //TODO: Add reward based on time
-                    AddReward(1f);
-                    Debug.Log("<color=green>Loop complete</color>");
-                }
-                nextCheckpointPosition = VehicleCheckpoints.Instance.Checkpoints[vehicle.currentCheckpoint].transform.position;
-                checkpointDistance = Vector3.Distance(vehicle.transform.position, nextCheckpointPosition);
-                lastCheckpointDistance = checkpointDistance;
-                AddReward(0.25f);
-            }
-            else if(vehicle.currentCheckpoint < VehicleCheckpoints.Instance.Checkpoints.Length - 1) { //Sprint
-                vehicle.currentCheckpoint++;
-                nextCheckpointPosition = VehicleCheckpoints.Instance.Checkpoints[vehicle.currentCheckpoint].transform.position;
-                checkpointDistance = Vector3.Distance(vehicle.transform.position, nextCheckpointPosition);
-                lastCheckpointDistance = checkpointDistance;
-                AddReward(0.25f);
-            }
-
-        }*/
-
         Vector3 checkpointDirectionVector = vehicle.transform.position - nextCheckpointPosition;
         checkpointDirection = (Vector3.SignedAngle(vehicle.transform.forward, checkpointDirectionVector, Vector3.up) + 180) / 360;
+        Vector3 roadCenterDirectionVector = vehicle.transform.position - checkpointManager.vehicleData.RoadCenter;
+        roadCenterDirection = (Vector3.SignedAngle(vehicle.transform.forward, roadCenterDirectionVector, Vector3.up) + 180) / 360;
 
         if (checkpointDistance < lastCheckpointDistance - 0.2f){
             lastCheckpointDistance = checkpointDistance;

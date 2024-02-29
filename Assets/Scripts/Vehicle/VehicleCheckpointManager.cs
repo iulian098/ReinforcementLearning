@@ -7,10 +7,16 @@ public class VehicleCheckpointManager : MonoBehaviour
 
     public VehicleData vehicleData;
     public int currentPlacement;
+    float nextCheckpointDistance;
+    float prevCheckpointDistance;
 
-    public Action OnCheckpointReached;
+    public Action OnNextCheckpointReached;
+    public Action OnPreviousCheckpointReached;
     public Action OnFinishReached;
     public Action<bool> OnPlacementChanged;
+
+    bool initialized = false;
+    public bool Initialized => initialized;
 
     VehicleCheckpointsContainer checkpointsContainer;
     VehicleCheckpointsContainer CheckpointsContainer { get {
@@ -20,11 +26,17 @@ public class VehicleCheckpointManager : MonoBehaviour
         } 
     }
 
-    private void Start() {
+    public void Init() {
         ResetVehicleData();
+
+        initialized = true;
     }
 
     void Update() {
+        if (!initialized) return;
+
+        nextCheckpointDistance = Vector3.Distance(vehicle.transform.position, vehicleData.nextCheckpoint.position);
+        prevCheckpointDistance = Vector3.Distance(vehicle.transform.position, vehicleData.currentCheckpoint.position);
         float checkpointDist = GetCurrentCheckpointDistance(vehicleData.Vehicle.transform.position, vehicleData.currentCheckpoint.position, vehicleData.nextCheckpoint.position);
         float dist = Vector3.Distance(vehicleData.currentCheckpoint.position, vehicleData.nextCheckpoint.position);
         float distFactor = checkpointDist == 0 ? 0 : checkpointDist / dist;
@@ -42,18 +54,21 @@ public class VehicleCheckpointManager : MonoBehaviour
             OnFinishReached?.Invoke();
         }
 
-        if (distFactor >= 1f && goingForward)
-            SetNextCheckpoint(goingForward);
-        else if (distFactor <= 0 && !goingForward)
-            SetPreviousCheckpoint(goingForward);
+        if (nextCheckpointDistance < CheckpointsContainer.CheckpointRadius || prevCheckpointDistance < CheckpointsContainer.CheckpointRadius) {
+            if (distFactor >= 1f && goingForward)
+                SetNextCheckpoint(goingForward);
+            else if (distFactor <= 0 && !goingForward)
+                SetPreviousCheckpoint(goingForward);
+        }
     }
 
     void SetNextCheckpoint(bool goingForward) {
         if (!goingForward) return;
+        bool checkpointAdded = false;
 
         if (CheckpointsContainer.Checkpoints[vehicleData.PassedCheckpoints.Count] == vehicleData.currentCheckpoint) {
             vehicleData.PassedCheckpoints.Add(vehicleData.currentCheckpoint);
-            OnCheckpointReached?.Invoke();
+            checkpointAdded = true;
         }
 
         vehicleData.currentCheckpoint = vehicleData.nextCheckpoint;
@@ -64,17 +79,22 @@ public class VehicleCheckpointManager : MonoBehaviour
             vehicleData.checkpointIndex++;
 
         vehicleData.nextCheckpoint = CheckpointsContainer.Checkpoints[vehicleData.checkpointIndex + 1 >= CheckpointsContainer.Checkpoints.Length ? 0 : vehicleData.checkpointIndex + 1];
+        
+        if (checkpointAdded)
+            OnNextCheckpointReached?.Invoke();
     }
 
     void SetPreviousCheckpoint(bool goingForward) {
         if (goingForward) return;
-
+        
         vehicleData.nextCheckpoint = vehicleData.currentCheckpoint;
         if (vehicleData.checkpointIndex - 1 < 0)
             vehicleData.checkpointIndex = CheckpointsContainer.Checkpoints.Length - 1;
         else
             vehicleData.checkpointIndex--;
         vehicleData.currentCheckpoint = CheckpointsContainer.Checkpoints[vehicleData.checkpointIndex];
+
+        OnPreviousCheckpointReached?.Invoke();
     }
 
     bool PassedAllCheckpoints() {
@@ -109,6 +129,7 @@ public class VehicleCheckpointManager : MonoBehaviour
 
     float GetC(float ip, float c2) {
         float t = ip * ip - c2 * c2;
+        if (t < 0) t = 0;
         return Mathf.Sqrt(t) * (t < 0 ? -1 : 1);
     }
 

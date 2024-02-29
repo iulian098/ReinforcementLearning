@@ -18,14 +18,15 @@ public class VehicleCheckpointsContainer : MonoBehaviour {
     #endregion
 
     [SerializeField] Transform[] checkpoints;
+    [SerializeField] float checkpointRaidus = 5;
 
     public Transform[] Checkpoints => checkpoints;
-
+    public float CheckpointRadius => checkpointRaidus;
     private void OnDrawGizmosSelected() {
         foreach (var checkpoint in checkpoints) {
 
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(checkpoint.transform.position, 5);
+            Gizmos.DrawWireSphere(checkpoint.transform.position, checkpointRaidus);
         }
     }
 }
