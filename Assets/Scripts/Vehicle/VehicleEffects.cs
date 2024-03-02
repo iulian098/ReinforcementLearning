@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -8,35 +6,33 @@ public class VehicleEffects : MonoBehaviour
     [System.Serializable]
     public class WheelEffect {
         public WheelCollider wheelColl;
-        //public ParticleSystem smoke;
         public VisualEffect smokeVFX;
     }
     [SerializeField] Vehicle vehicle;
     [SerializeField] ParticleSystem[] exhaustParticles;
     [SerializeField] WheelEffect[] wheelCollider;
+    [SerializeField] VisualEffect sparksEffect;
 
-    private void Start() {
-        
-    }
+    float sideSlip;
 
     void FixedUpdate()
     {
-        for (int i = 0; i < exhaustParticles.Length; i++) {
+        for (int i = 0; i < exhaustParticles.Length; i++)
             UpdateExhaust(exhaustParticles[i]);
-        }
-        for (int i = 0;i < wheelCollider.Length; i++) {
+
+        for (int i = 0;i < wheelCollider.Length; i++)
             UpdateWheelSmole(wheelCollider[i]);
-        }
     }
 
     void UpdateWheelSmole(WheelEffect wheelEffect) {
         wheelEffect.wheelColl.GetGroundHit(out WheelHit hit);
-        if (Mathf.Abs(hit.sidewaysSlip) > 0.5f) {
+        if(wheelEffect == wheelCollider[0])
+            sideSlip = hit.sidewaysSlip;
+        if(vehicle.VehicleRigidBody.velocity.magnitude > 10 && Mathf.Abs(hit.sidewaysSlip) > 0.5f) {
             wheelEffect.smokeVFX.Play();
-            wheelEffect.smokeVFX.SetInt("SpawnRate", 40 + (int)(Mathf.Abs(hit.sidewaysSlip) * 25));
+            wheelEffect.smokeVFX.SetInt("SpawnRate", 40 + (int)(Mathf.Abs(hit.sidewaysSlip) * 30));
         }
         else{
-            
             wheelEffect.smokeVFX.Stop();
         }
     }
@@ -53,5 +49,39 @@ public class VehicleEffects : MonoBehaviour
         float lifetime = 0.5f - Mathf.Abs(vehicle.Velocity.z) / 10;
         lifetime = Mathf.Clamp(lifetime, 0, 0.5f);
         mainModule.startLifetime = lifetime;
+    }
+
+    private void OnCollisionEnter(Collision collision) {
+        if (Mathf.Abs(vehicle.Velocity.z) < 10)
+            return;
+        UpdateSparks(collision.GetContact(0).point, collision.GetContact(0).normal);
+        sparksEffect.SetInt("SpawnRate", 50 + (int)(vehicle.Velocity.z * 2));
+        sparksEffect.SendEvent("SpawnBurst");
+    }
+
+    private void OnCollisionStay(Collision collision) {
+        if (Mathf.Abs(vehicle.Velocity.z) < 2) {
+            if (sparksEffect.HasAnySystemAwake())
+                sparksEffect.SendEvent("StopSpawn");
+            return;
+        }
+        UpdateSparks(collision.GetContact(0).point, collision.GetContact(0).normal);
+        sparksEffect.SetInt("SpawnRate", 50 + (int)(vehicle.Velocity.z * 5));
+        sparksEffect.SendEvent("StartSpawn");
+    }
+
+    void UpdateSparks(Vector3 point, Vector3 normal) {
+        sparksEffect.transform.position = point;
+
+        float dotProduct = Vector3.Dot(normal, vehicle.VehicleRigidBody.velocity.normalized);
+        float crossProduct = Vector3.Cross(normal, vehicle.VehicleRigidBody.velocity.normalized).y;
+        float angleDegrees = (float)(Mathf.Atan2(crossProduct, dotProduct) * (180f / Mathf.PI)) + 90;
+        float angle = (angleDegrees + 360) % 360;
+
+        sparksEffect.transform.localRotation = Quaternion.Euler(0, angle, 0);
+    }
+
+    private void OnCollisionExit(Collision collision) {
+        sparksEffect.SendEvent("StopSpawn");
     }
 }
