@@ -138,7 +138,11 @@ public class Vehicle_Agent_v2 : Agent
             Debug.Log($"[VehicleAgent]Acc: {acc}");
         }
 
-        vehicle.ReceiveInput(steer, acc);
+        vehicle.ReceiveInput(new Vehicle.InputData() {
+            steer = steer,
+            acceleration = acc,
+            handbrake = false
+        });
 
 
         if (!frontSensor && acc > 0 && velocityMagnitude > 1f)

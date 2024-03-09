@@ -4,6 +4,12 @@ using UnityEngine.Assertions.Comparers;
 
 public class Vehicle : MonoBehaviour
 {
+    public enum Drivetrain {
+        FWD,
+        RWD,
+        AWD
+    }
+
     [System.Serializable]
     public class WheelData {
         [SerializeField] WheelCollider wheelCollider;
@@ -26,8 +32,17 @@ public class Vehicle : MonoBehaviour
             return hit.forwardSlip;
         }
     }
-    [SerializeField] float maxReverseTorque;
-    [SerializeField] float maxBrakeTorque;
+
+    public struct InputData {
+        public float steer;
+        public float acceleration;
+        public bool handbrake;
+    }
+
+    [SerializeField] Drivetrain drivetrain;
+    [SerializeField] float maxReverseTorque = 200;
+    [SerializeField] float maxBrakeTorque = 500;
+    [SerializeField] float handbrakeTorque = 1000;
     [SerializeField] float steerRadius;
     [SerializeField] float downForce;
     [SerializeField] float[] gears;
@@ -54,9 +69,11 @@ public class Vehicle : MonoBehaviour
     bool tcsTriggered;
 
     WheelData[] allWheels;
+    WheelData[] drivingWheels;
     Vector3 velocity;
     bool reverse;
     bool isAgent;
+    bool applyHandbrake;
     float totalPower;
     float engineRPM;
     float sideSlip;
@@ -83,6 +100,18 @@ public class Vehicle : MonoBehaviour
             isAgent = true;
 
         allWheels = GetAllWheels();
+
+        switch (drivetrain) {
+            case Drivetrain.FWD:
+                drivingWheels = frontWheels; 
+                break;
+            case Drivetrain.RWD:
+                drivingWheels = rearWheels;
+                break;
+            case Drivetrain.AWD:
+                drivingWheels = allWheels;
+                break;
+        }
     }
 
     void Update()
@@ -108,7 +137,11 @@ public class Vehicle : MonoBehaviour
             currentGear--;
 
         if (isAgent) return;
-        ReceiveInput(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+        ReceiveInput(new InputData() {
+            steer = Input.GetAxis("Horizontal"),
+            acceleration = Input.GetAxis("Vertical"),
+            handbrake = Input.GetButton("Jump")
+        });
     }
 
     WheelData[] GetAllWheels() {
@@ -142,11 +175,11 @@ public class Vehicle : MonoBehaviour
         if (rb.velocity.magnitude < 0.1f)
             reverse = val < 0;
 
-        float torque = totalPower / 4;
+        float torque = totalPower / drivingWheels.Length;
         float brake = ABSBrake(maxBrakeTorque * Mathf.Abs(val));
 
         if (val < 0) {
-            foreach (var wData in allWheels) {
+            foreach (var wData in drivingWheels) {
                 wData.WheelCollider.motorTorque = reverse ? maxReverseTorque * val : 0;
                 if (reverse)
                     wData.WheelCollider.brakeTorque = 0;
@@ -155,17 +188,22 @@ public class Vehicle : MonoBehaviour
             }
         }
         else if(val > 0){
-            foreach (var wData in allWheels) {
+            foreach (var wData in drivingWheels) {
                 wData.WheelCollider.motorTorque = reverse ? 0 : TCSAcceleration(wData, torque * val);
                 wData.WheelCollider.brakeTorque = reverse ? maxBrakeTorque * Mathf.Abs(val) : 0;
             }
         }
         else {
-            foreach (var wData in allWheels) {
+            foreach (var wData in drivingWheels) {
                 wData.WheelCollider.motorTorque = 0;
                 wData.WheelCollider.brakeTorque = 0;
             }
         }
+    }
+
+    void Handbrake(bool val) {
+        foreach (var wheel in allWheels)
+            wheel.WheelCollider.brakeTorque = val ? handbrakeTorque : wheel.WheelCollider.brakeTorque;
     }
 
     void UpdateWheels() {
@@ -244,8 +282,9 @@ public class Vehicle : MonoBehaviour
         rb.angularVelocity = Vector3.zero;
     }
 
-    public void ReceiveInput(float steering, float acc) {
-        Steer(steering);
-        Accelerate(acc);
+    public void ReceiveInput(InputData input) {
+        Steer(input.steer);
+        Accelerate(input.acceleration);
+        Handbrake(input.handbrake);
     }
 }
