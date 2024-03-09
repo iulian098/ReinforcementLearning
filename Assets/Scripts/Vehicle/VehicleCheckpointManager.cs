@@ -16,6 +16,7 @@ public class VehicleCheckpointManager : MonoBehaviour
     public Action<bool> OnPlacementChanged;
 
     bool initialized = false;
+
     public bool Initialized => initialized;
 
     VehicleCheckpointsContainer checkpointsContainer;
@@ -34,7 +35,6 @@ public class VehicleCheckpointManager : MonoBehaviour
 
     void Update() {
         if (!initialized) return;
-
         nextCheckpointDistance = Vector3.Distance(vehicle.transform.position, vehicleData.nextCheckpoint.position);
         prevCheckpointDistance = Vector3.Distance(vehicle.transform.position, vehicleData.currentCheckpoint.position);
         float checkpointDist = GetCurrentCheckpointDistance(vehicleData.Vehicle.transform.position, vehicleData.currentCheckpoint.position, vehicleData.nextCheckpoint.position);

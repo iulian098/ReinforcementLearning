@@ -1,3 +1,4 @@
+using System.Linq;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
@@ -5,6 +6,8 @@ using UnityEngine;
 
 public class Vehicle_Agent_v2 : Agent
 {
+    public int agentID;
+
     [SerializeField] Vehicle vehicle;
     [SerializeField] VehicleCheckpointManager checkpointManager;
     [SerializeField] Transform spawnPoint;
@@ -23,6 +26,8 @@ public class Vehicle_Agent_v2 : Agent
 
     float acc;
     float steer;
+    float lapTime;
+    float bestLapTime;
 
     float lastCheckpointDistance;
     float normalizedYRotation;
@@ -43,18 +48,24 @@ public class Vehicle_Agent_v2 : Agent
         startingRot = vehicle.transform.rotation;
         checkpointManager.OnNextCheckpointReached += OnCheckpointReached;
         checkpointManager.OnPreviousCheckpointReached += OnPreviousCheckpointReached;
-        checkpointManager.OnPlacementChanged += OnPlacementChanged;
         checkpointManager.OnFinishReached += OnFinishReached;
     }
-
 
     private void OnFinishReached() {
         AddReward(1);
         Debug.Log("OnLoopComplete");
+        if (bestLapTime != -1 && lapTime < bestLapTime) {
+            AddReward(1);
+            bestLapTime = lapTime;
+        }
+        else if (bestLapTime == -1)
+            bestLapTime = lapTime;
+        lapTime = 0;
     }
 
     private void OnPlacementChanged(bool obj) {
-        //Debug.Log("OnPlacementChanged");
+        Debug.Log("OnPlacementChanged");
+        AddReward(obj ? 0.75f : -0.75f);
     }
 
     private void OnPreviousCheckpointReached() {
@@ -70,17 +81,18 @@ public class Vehicle_Agent_v2 : Agent
     }
 
     public override void OnEpisodeBegin() {
-        vehicle.ResetVehicle();
-        vehicle.transform.SetLocalPositionAndRotation(startingPos, startingRot);
-        checkpointManager.ResetVehicleData();
-        nextCheckpointPosition = checkpointManager.vehicleData.nextCheckpoint.position;//VehicleCheckpointsContainer.Instance.Checkpoints[vehicle.currentCheckpoint].transform.position;
-        lastCheckpointDistance = Vector3.Distance(vehicle.transform.position, nextCheckpointPosition);
+        checkpointManager.OnPlacementChanged -= OnPlacementChanged;
 
+        ResetVehicleData();
         finishReached = false;
         leftSensor = false;
         rightSensor = false;
         frontSensor = false;
         backSensor = false;
+        bestLapTime = -1;
+        lapTime = 0;
+
+        checkpointManager.OnPlacementChanged += OnPlacementChanged;
     }
 
     public override void CollectObservations(VectorSensor sensor) {
@@ -89,8 +101,9 @@ public class Vehicle_Agent_v2 : Agent
         sensor.AddObservation(checkpointDirection);
         sensor.AddObservation(roadCenterDirection);
         sensor.AddObservation(normalizedYRotation);
-        sensor.AddObservation(vehicle.SideSlip);
+        sensor.AddObservation(RearSideSlip());
         sensor.AddObservation(backSensor);
+        sensor.AddObservation(vehicleSensor.TagHit);
     }
 
     public override void OnActionReceived(ActionBuffers actions) {
@@ -128,7 +141,7 @@ public class Vehicle_Agent_v2 : Agent
         vehicle.ReceiveInput(steer, acc);
 
 
-        if (!frontSensor && acc > 0 && velocityMagnitude > 0.3f)
+        if (!frontSensor && acc > 0 && velocityMagnitude > 1f)
             AddReward(0.005f);
 
         if (frontSensor && acc > 0)
@@ -143,10 +156,19 @@ public class Vehicle_Agent_v2 : Agent
 
     }
 
+    public void ResetVehicleData() {
+        vehicle.ResetVehicle();
+        vehicle.transform.SetLocalPositionAndRotation(startingPos, startingRot);
+        checkpointManager.ResetVehicleData();
+        nextCheckpointPosition = checkpointManager.vehicleData.nextCheckpoint.position;
+        lastCheckpointDistance = Vector3.Distance(vehicle.transform.position, nextCheckpointPosition);
+    }
+
     private void Update() {
         normalizedYRotation = vehicle.transform.rotation.eulerAngles.y / 180f - 1f;
         vehicleVelocity = vehicle.transform.InverseTransformDirection(vehicle.VehicleRigidBody.velocity);
         vehicleAngularVelocity = vehicle.VehicleRigidBody.angularVelocity;
+        lapTime += Time.deltaTime;
     }
 
     private void FixedUpdate() {
@@ -196,15 +218,35 @@ public class Vehicle_Agent_v2 : Agent
 
     }
 
+    float RearSideSlip() {
+        float sum = 0;
+        for (int i = 0; i < vehicle.RearWheels.Length; i++)
+            sum += vehicle.RearWheels[i].GetSideSlip();
+
+        return Mathf.Clamp(sum / 2f, -1f, 1f);
+    }
+
     float CalcSensorDistance(float dist, float vel, float mult) {
         return dist + Mathf.Abs(vel * mult);
     }
 
     private void OnCollisionEnter(Collision collision) {
+
+        if (collision.collider.CompareTag("Player")) {
+            if(Vector3.Dot(transform.forward, transform.position - collision.collider.transform.position) < 0)
+                AddReward(-0.5f);
+            else
+                Debug.Log("RearHit", gameObject);
+            return;
+        }
+
         AddReward(-1f);
     }
 
     private void OnCollisionStay(Collision collision) {
+        if (collision.collider.CompareTag("Player")) {
+            return;
+        }
         AddReward(-0.01f);
     }
 
@@ -217,7 +259,6 @@ public class Vehicle_Agent_v2 : Agent
         Gizmos.DrawLine(vehicle.transform.position, vehicle.transform.position - Vector3.Scale(vehicle.transform.right, new Vector3(1, 0, 1)) * (vehicleAngularVelocity.y >= 0 ? sideSensorsDistance : sideSensorCalc));
         Gizmos.DrawLine(vehicle.transform.position, vehicle.transform.position + Vector3.Scale(vehicle.transform.forward, new Vector3(1, 0, 1)) * (vehicleVelocity.z <= 0 ? frontSensorsDistance : frontSensorCalc));
         Gizmos.DrawLine(vehicle.transform.position, vehicle.transform.position - Vector3.Scale(vehicle.transform.forward, new Vector3(1, 0, 1)) * (vehicleVelocity.z >= 0 ? frontSensorsDistance : frontSensorCalc));
-
     }
 
     public override void Heuristic(in ActionBuffers actionsOut) {

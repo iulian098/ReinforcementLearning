@@ -1,5 +1,6 @@
 using Unity.MLAgents.Policies;
 using UnityEngine;
+using UnityEngine.Assertions.Comparers;
 
 public class Vehicle : MonoBehaviour
 {
@@ -40,6 +41,18 @@ public class Vehicle : MonoBehaviour
     [SerializeField] WheelData[] frontWheels;
     [SerializeField] WheelData[] rearWheels;
 
+    [Header("ABS")]
+    [SerializeField] bool useABS;
+    [SerializeField] float absThreshold = 0.2f;
+    [SerializeField] float absBrakeFarctor = 0.5f;
+    bool absTriggered;
+
+    [Header("TCS")]
+    [SerializeField] bool useTCS;
+    [SerializeField] float tcsThreshold = 0.8f;
+    [SerializeField] float tcsFactor = 0.5f;
+    bool tcsTriggered;
+
     WheelData[] allWheels;
     Vector3 velocity;
     bool reverse;
@@ -53,9 +66,16 @@ public class Vehicle : MonoBehaviour
     int currentGear;
 
     public Rigidbody VehicleRigidBody => rb;
+    public WheelData[] FrontWheels => frontWheels;
+    public WheelData[] RearWheels => rearWheels;
     public Vector3 Velocity => velocity;
     public float SideSlip => sideSlip;
     public int Kmph => kmph;
+    public float WheelRPM => wheelRPM;
+    public float EngineRPM => engineRPM;
+    public int CurrentGear => currentGear;
+    public bool ABS => absTriggered;
+    public bool TCS => tcsTriggered;
 
     void Start()
     {
@@ -77,7 +97,7 @@ public class Vehicle : MonoBehaviour
         float temp = 0;
         wheelRPM = GetWheelsRPM();
         totalPower = enginePowerCurve.Evaluate(engineRPM) * gears[currentGear];
-        engineRPM = Mathf.SmoothDamp(engineRPM, 1000 + (Mathf.Abs(wheelRPM) * differentialRatio * gears[currentGear]), ref temp, 0.1f);
+        engineRPM = Mathf.SmoothDamp(engineRPM, 1000 + (Mathf.Abs(wheelRPM) * differentialRatio * gears[currentGear]), ref temp, 0.01f);
 
         if (engineRPM > maxRPM && currentGear < gears.Length - 1)
             currentGear++;
@@ -86,11 +106,6 @@ public class Vehicle : MonoBehaviour
 
         if (isAgent) return;
         ReceiveInput(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-    }
-
-    private void FixedUpdate() {
-
-        if (isAgent) return;
     }
 
     WheelData[] GetAllWheels() {
@@ -125,23 +140,27 @@ public class Vehicle : MonoBehaviour
             reverse = val < 0;
 
         float torque = totalPower / 4;
+        float brake = ABSBrake(maxBrakeTorque * Mathf.Abs(val));
 
         if (val < 0) {
-            foreach (var wColl in allWheels) {
-                wColl.WheelCollider.motorTorque = reverse ? maxReverseTorque * val : 0;
-                wColl.WheelCollider.brakeTorque = reverse ? 0 : maxBrakeTorque * Mathf.Abs(val);
+            foreach (var wData in allWheels) {
+                wData.WheelCollider.motorTorque = reverse ? maxReverseTorque * val : 0;
+                if (reverse)
+                    wData.WheelCollider.brakeTorque = 0;
+                else
+                    wData.WheelCollider.brakeTorque = brake;//ABSBrake(wData, maxBrakeTorque * Mathf.Abs(val));
             }
         }
         else if(val > 0){
-            foreach (var wColl in allWheels) {
-                wColl.WheelCollider.motorTorque = reverse ? 0 : torque * val;
-                wColl.WheelCollider.brakeTorque = reverse ? maxBrakeTorque * Mathf.Abs(val) : 0;
+            foreach (var wData in allWheels) {
+                wData.WheelCollider.motorTorque = reverse ? 0 : TCSAcceleration(wData, torque * val);
+                wData.WheelCollider.brakeTorque = reverse ? maxBrakeTorque * Mathf.Abs(val) : 0;
             }
         }
         else {
-            foreach (var wColl in allWheels) {
-                wColl.WheelCollider.motorTorque = 0;
-                wColl.WheelCollider.brakeTorque = 0;
+            foreach (var wData in allWheels) {
+                wData.WheelCollider.motorTorque = 0;
+                wData.WheelCollider.brakeTorque = 0;
             }
         }
     }
@@ -157,22 +176,50 @@ public class Vehicle : MonoBehaviour
         rb.AddForce(-transform.up * downForce * rb.velocity.magnitude, ForceMode.Force);
     }
 
+    float ABSBrake(float brakeForce) {
+        if (!useABS) return brakeForce;
+
+        float sum = 0;
+        for (int i = 0; i < allWheels.Length; i++)
+            sum += Mathf.Abs(allWheels[i].GetForwardSlip()) + Mathf.Abs(allWheels[i].GetSideSlip());
+
+        float avg = sum / allWheels.Length;
+
+        if (avg >= absThreshold) {
+            absTriggered = true;
+            return brakeForce * absBrakeFarctor;
+        }
+        else
+            absTriggered = false;
+        return brakeForce;
+    }
+
+    float TCSAcceleration(WheelData wheel, float acc) {
+        if (!useABS) return acc;
+
+        if(Mathf.Abs(wheel.GetForwardSlip()) >= tcsThreshold) {
+            tcsTriggered = true;
+            return acc * tcsFactor;
+        }else
+            tcsTriggered = false;
+
+        return acc;
+    }
+
     float GetForwardSlip(WheelData[] wheels) {
         float sum = 0;
-        for (int i = 0; i < wheels.Length; i++) {
+        for (int i = 0; i < wheels.Length; i++)
             sum += wheels[i].GetForwardSlip();
-        }
 
         return sum / wheels.Length;
     }
 
     float GetSideSlip(WheelData[] wheels) {
-        float totalSideSlip = 0;
-        foreach (var wheel in wheels) {
-            totalSideSlip += wheel.GetSideSlip();
-        }
+        float sum = 0;
+        foreach (var wheel in wheels)
+            sum += wheel.GetSideSlip();
 
-        return Mathf.Clamp(totalSideSlip / wheels.Length, -1f, 1f);
+        return Mathf.Clamp(sum / wheels.Length, -1f, 1f);
     }
 
     float GetWheelsRPM() {
@@ -191,6 +238,7 @@ public class Vehicle : MonoBehaviour
         }
 
         rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
     }
 
     public void ReceiveInput(float steering, float acc) {

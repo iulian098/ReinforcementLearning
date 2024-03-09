@@ -201,7 +201,7 @@ GameObject:
   - component: {fileID: 6674014154391042158}
   m_Layer: 8
   m_Name: VehicleV2
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -327,6 +327,12 @@ MonoBehaviour:
     wheelVisual: {fileID: 1279376002806365055}
   - wheelCollider: {fileID: 4767197952082583513}
     wheelVisual: {fileID: 7506674780200289688}
+  useABS: 1
+  absThreshold: 0.5
+  absBrakeFarctor: 0.8
+  useTCS: 1
+  tcsThreshold: 0.8
+  tcsFactor: 0.5
 --- !u!114 &8622531910035623962
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -406,7 +412,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 14
+    VectorObservationSize: 21
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -415,7 +421,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 3b4c3e1ac9868774ca0293611fdd7c9f, type: 3}
+  m_Model: {fileID: 0}
   m_InferenceDevice: 2
   m_BehaviorType: 0
   m_BehaviorName: MyAgents
@@ -437,11 +443,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   raysPerDirection: 3
   raysAngle: 70
-  sensorsLength: 15
+  sensorsLength: 25
   sensorsCastRadius: 0.5
+  tags:
+  - Player
   sensorMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 257
 --- !u!114 &6674014154391042158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -894,7 +902,7 @@ GameObject:
   - component: {fileID: 5858479501001811055}
   m_Layer: 8
   m_Name: Chassis
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
