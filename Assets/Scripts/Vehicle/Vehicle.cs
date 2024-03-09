@@ -95,7 +95,10 @@ public class Vehicle : MonoBehaviour
         sideSlip = GetSideSlip(rearWheels);
         forwardSlip = GetForwardSlip(allWheels);
         float temp = 0;
-        wheelRPM = GetWheelsRPM();
+
+        float av = velocity.magnitude / frontWheels[0].WheelCollider.radius;
+        wheelRPM = (av / (2 * Mathf.PI)) * 60;
+
         totalPower = enginePowerCurve.Evaluate(engineRPM) * gears[currentGear];
         engineRPM = Mathf.SmoothDamp(engineRPM, 1000 + (Mathf.Abs(wheelRPM) * differentialRatio * gears[currentGear]), ref temp, 0.01f);
 
@@ -148,7 +151,7 @@ public class Vehicle : MonoBehaviour
                 if (reverse)
                     wData.WheelCollider.brakeTorque = 0;
                 else
-                    wData.WheelCollider.brakeTorque = brake;//ABSBrake(wData, maxBrakeTorque * Mathf.Abs(val));
+                    wData.WheelCollider.brakeTorque = brake;
             }
         }
         else if(val > 0){
