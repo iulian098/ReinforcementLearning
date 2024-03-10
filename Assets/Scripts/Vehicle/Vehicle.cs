@@ -74,6 +74,7 @@ public class Vehicle : MonoBehaviour
     bool reverse;
     bool isAgent;
     bool applyHandbrake;
+    float targetSteer;
     float totalPower;
     float engineRPM;
     float sideSlip;
@@ -137,6 +138,7 @@ public class Vehicle : MonoBehaviour
             currentGear--;
 
         if (isAgent) return;
+
         ReceiveInput(new InputData() {
             steer = Input.GetAxis("Horizontal"),
             acceleration = Input.GetAxis("Vertical"),
@@ -283,7 +285,8 @@ public class Vehicle : MonoBehaviour
     }
 
     public void ReceiveInput(InputData input) {
-        Steer(input.steer);
+        targetSteer = Mathf.Lerp(targetSteer, input.steer, Time.deltaTime * 25);
+        Steer(targetSteer);
         Accelerate(input.acceleration);
         Handbrake(input.handbrake);
     }
