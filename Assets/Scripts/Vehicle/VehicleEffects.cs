@@ -60,11 +60,13 @@ public class VehicleEffects : MonoBehaviour
     }
 
     private void OnCollisionStay(Collision collision) {
-        if (Mathf.Abs(vehicle.Velocity.z) < 2) {
+        if ((collision.rigidbody == null && Mathf.Abs(vehicle.Velocity.z) < 2) &&
+            (collision.rigidbody != null && collision.rigidbody.velocity.magnitude - vehicle.VehicleRigidBody.velocity.magnitude < 2)) {
             if (sparksEffect.HasAnySystemAwake())
                 sparksEffect.SendEvent("StopSpawn");
             return;
         }
+    
         UpdateSparks(collision.GetContact(0).point, collision.GetContact(0).normal);
         sparksEffect.SetInt("SpawnRate", 50 + (int)(vehicle.Velocity.z * 5));
         sparksEffect.SendEvent("StartSpawn");
