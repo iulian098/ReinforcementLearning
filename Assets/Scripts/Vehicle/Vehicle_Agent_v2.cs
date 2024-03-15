@@ -33,6 +33,7 @@ public class Vehicle_Agent_v2 : Agent
     float normalizedYRotation;
     float checkpointDirection;
     float roadCenterDirection;
+    float checkpointDotProduct;
 
     bool finishReached = false;
     bool leftSensor = false, rightSensor = false, frontSensor = false, backSensor = false;
@@ -64,7 +65,9 @@ public class Vehicle_Agent_v2 : Agent
     }
 
     private void OnPlacementChanged(bool obj) {
-        Debug.Log("OnPlacementChanged");
+
+        if(showDebug)
+            Debug.Log($"OnPlacementChanged {obj}");
         AddReward(obj ? 0.75f : -0.75f);
     }
 
@@ -158,6 +161,11 @@ public class Vehicle_Agent_v2 : Agent
         if(leftSensor && steer < 0)
             AddReward(-0.005f);
 
+        if(checkpointDotProduct < 0) 
+            AddReward(-0.001f);
+
+        if (velocityMagnitude <= 0.3f)
+            AddReward(-0.005f);
     }
 
     public void ResetVehicleData() {
@@ -172,6 +180,7 @@ public class Vehicle_Agent_v2 : Agent
         normalizedYRotation = vehicle.transform.rotation.eulerAngles.y / 180f - 1f;
         vehicleVelocity = vehicle.transform.InverseTransformDirection(vehicle.VehicleRigidBody.velocity);
         vehicleAngularVelocity = vehicle.VehicleRigidBody.angularVelocity;
+        checkpointDotProduct = Vector3.Dot(vehicle.transform.forward, nextCheckpointPosition - vehicle.transform.position);
         lapTime += Time.deltaTime;
     }
 
@@ -183,6 +192,7 @@ public class Vehicle_Agent_v2 : Agent
 
         float sideSensorCalc = CalcSensorDistance(sideSensorsDistance, vehicleAngularVelocity.y, velocitySensorMultiplier);
         float frontSensorCalc = CalcSensorDistance(frontSensorsDistance, vehicleVelocity.z, velocitySensorMultiplier);
+
         rightSensor = Physics.Raycast(vehicle.transform.position,
             Vector3.Scale(vehicle.transform.right, new Vector3(1, 0, 1)),
             vehicleAngularVelocity.y <= 0 ? sideSensorsDistance : sideSensorCalc,
@@ -203,9 +213,6 @@ public class Vehicle_Agent_v2 : Agent
             -Vector3.Scale(vehicle.transform.forward, new Vector3(1, 0, 1)),
             vehicleVelocity.z >= 0 ? frontSensorsDistance : frontSensorCalc,
             forwardLayers);
-
-        if (velocityMagnitude <= 0.3f)
-            AddReward(-0.005f);
 
         Vector3 checkpointDirectionVector = vehicle.transform.position - nextCheckpointPosition;
         checkpointDirection = (Vector3.SignedAngle(vehicle.transform.forward, checkpointDirectionVector, Vector3.up) + 180) / 360;
@@ -239,8 +246,6 @@ public class Vehicle_Agent_v2 : Agent
         if (collision.collider.CompareTag("Player")) {
             if(Vector3.Dot(transform.forward, transform.position - collision.collider.transform.position) < 0)
                 AddReward(-0.5f);
-            else
-                Debug.Log("RearHit", gameObject);
             return;
         }
 

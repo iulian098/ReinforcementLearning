@@ -51,27 +51,6 @@ public class VehicleEffects : MonoBehaviour
         mainModule.startLifetime = lifetime;
     }
 
-    private void OnCollisionEnter(Collision collision) {
-        if (Mathf.Abs(vehicle.Velocity.z) < 10)
-            return;
-        UpdateSparks(collision.GetContact(0).point, collision.GetContact(0).normal);
-        sparksEffect.SetInt("SpawnRate", 50 + (int)(vehicle.Velocity.z * 2));
-        sparksEffect.SendEvent("SpawnBurst");
-    }
-
-    private void OnCollisionStay(Collision collision) {
-        if ((collision.rigidbody == null && Mathf.Abs(vehicle.Velocity.z) < 2) &&
-            (collision.rigidbody != null && collision.rigidbody.velocity.magnitude - vehicle.VehicleRigidBody.velocity.magnitude < 2)) {
-            if (sparksEffect.HasAnySystemAwake())
-                sparksEffect.SendEvent("StopSpawn");
-            return;
-        }
-    
-        UpdateSparks(collision.GetContact(0).point, collision.GetContact(0).normal);
-        sparksEffect.SetInt("SpawnRate", 50 + (int)(vehicle.Velocity.z * 5));
-        sparksEffect.SendEvent("StartSpawn");
-    }
-
     void UpdateSparks(Vector3 point, Vector3 normal) {
         sparksEffect.transform.position = point;
 
@@ -81,6 +60,27 @@ public class VehicleEffects : MonoBehaviour
         float angle = (angleDegrees + 360) % 360;
 
         sparksEffect.transform.localRotation = Quaternion.Euler(0, angle, 0);
+    }
+
+    private void OnCollisionEnter(Collision collision) {
+        if (Mathf.Abs(vehicle.Velocity.z) < 10)
+            return;
+        UpdateSparks(collision.GetContact(0).point, collision.GetContact(0).normal);
+        sparksEffect.SetInt("SpawnRate", 50 + (int)(vehicle.Velocity.z * 2));
+        sparksEffect.SendEvent("SpawnBurst");
+    }
+
+    private void OnCollisionStay(Collision collision) {
+        if ((collision.rigidbody == null && Mathf.Abs(vehicle.Velocity.z) < 2) ||
+            (collision.rigidbody != null && Mathf.Abs(collision.rigidbody.velocity.magnitude - vehicle.VehicleRigidBody.velocity.magnitude) < 2)) {
+            if (sparksEffect.HasAnySystemAwake())
+                sparksEffect.SendEvent("StopSpawn");
+            return;
+        }
+    
+        UpdateSparks(collision.GetContact(0).point, collision.GetContact(0).normal);
+        sparksEffect.SetInt("SpawnRate", 50 + (int)(vehicle.Velocity.z * 5));
+        sparksEffect.SendEvent("StartSpawn");
     }
 
     private void OnCollisionExit(Collision collision) {
