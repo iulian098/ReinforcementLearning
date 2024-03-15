@@ -71,15 +71,19 @@ public class Vehicle : MonoBehaviour
     WheelData[] allWheels;
     WheelData[] drivingWheels;
     Vector3 velocity;
+
     bool reverse;
     bool isAgent;
     bool applyHandbrake;
+    bool braking;
+
     float targetSteer;
     float totalPower;
     float engineRPM;
     float sideSlip;
     float forwardSlip;
     float wheelRPM;
+
     int kmph;
     int currentGear;
 
@@ -87,13 +91,14 @@ public class Vehicle : MonoBehaviour
     public WheelData[] FrontWheels => frontWheels;
     public WheelData[] RearWheels => rearWheels;
     public Vector3 Velocity => velocity;
-    public float SideSlip => sideSlip;
-    public int Kmph => kmph;
-    public float WheelRPM => wheelRPM;
-    public float EngineRPM => engineRPM;
-    public int CurrentGear => currentGear;
     public bool ABS => absTriggered;
     public bool TCS => tcsTriggered;
+    public bool Braking => braking;
+    public float EngineRPM => engineRPM;
+    public float SideSlip => sideSlip;
+    public float WheelRPM => wheelRPM;
+    public int Kmph => kmph;
+    public int CurrentGear => currentGear;
 
     void Start()
     {
@@ -183,23 +188,23 @@ public class Vehicle : MonoBehaviour
         if (val < 0) {
             foreach (var wData in drivingWheels) {
                 wData.WheelCollider.motorTorque = reverse ? maxReverseTorque * val : 0;
-                if (reverse)
-                    wData.WheelCollider.brakeTorque = 0;
-                else
-                    wData.WheelCollider.brakeTorque = brake;
+                wData.WheelCollider.brakeTorque = reverse ? 0 : brake;
             }
+            braking = !reverse;
         }
         else if(val > 0){
             foreach (var wData in drivingWheels) {
                 wData.WheelCollider.motorTorque = reverse ? 0 : TCSAcceleration(wData, torque * val);
                 wData.WheelCollider.brakeTorque = reverse ? maxBrakeTorque * Mathf.Abs(val) : 0;
             }
+            braking = reverse;
         }
         else {
             foreach (var wData in drivingWheels) {
                 wData.WheelCollider.motorTorque = 0;
                 wData.WheelCollider.brakeTorque = 0;
             }
+            braking = false;
         }
     }
 

@@ -1,19 +1,29 @@
+using System;
 using UnityEngine;
 using UnityEngine.VFX;
 
 public class VehicleEffects : MonoBehaviour
 {
+    const string BRAKING_EMISSION = "_EmissionPower";
+
     [System.Serializable]
     public class WheelEffect {
         public WheelCollider wheelColl;
         public VisualEffect smokeVFX;
     }
+
     [SerializeField] Vehicle vehicle;
+    [SerializeField] MeshRenderer chassisMesh;
     [SerializeField] ParticleSystem[] exhaustParticles;
     [SerializeField] WheelEffect[] wheelCollider;
     [SerializeField] VisualEffect sparksEffect;
+    Material brakingMaterial;
 
     float sideSlip;
+
+    private void Start() {
+        brakingMaterial = Array.Find(chassisMesh.materials, x => x.name.Contains("Braking"));
+    }
 
     void FixedUpdate()
     {
@@ -21,10 +31,13 @@ public class VehicleEffects : MonoBehaviour
             UpdateExhaust(exhaustParticles[i]);
 
         for (int i = 0;i < wheelCollider.Length; i++)
-            UpdateWheelSmole(wheelCollider[i]);
+            UpdateWheelSmoke(wheelCollider[i]);
+
+        if(brakingMaterial != null)
+            brakingMaterial.SetFloat(BRAKING_EMISSION, Mathf.Lerp(brakingMaterial.GetFloat(BRAKING_EMISSION), vehicle.Braking ? 1 : 0, Time.deltaTime * 25f));
     }
 
-    void UpdateWheelSmole(WheelEffect wheelEffect) {
+    void UpdateWheelSmoke(WheelEffect wheelEffect) {
         wheelEffect.wheelColl.GetGroundHit(out WheelHit hit);
         if(wheelEffect == wheelCollider[0])
             sideSlip = hit.sidewaysSlip;
