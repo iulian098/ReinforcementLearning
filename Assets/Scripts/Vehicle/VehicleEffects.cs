@@ -1,19 +1,27 @@
+using System;
 using UnityEngine;
 using UnityEngine.VFX;
 
 public class VehicleEffects : MonoBehaviour
 {
-    [System.Serializable]
+    const string BRAKING_EMISSION = "_EmissionPower";
+
+    [Serializable]
     public class WheelEffect {
         public WheelCollider wheelColl;
         public VisualEffect smokeVFX;
     }
+
     [SerializeField] Vehicle vehicle;
+    [SerializeField] MeshRenderer chassisMesh;
     [SerializeField] ParticleSystem[] exhaustParticles;
     [SerializeField] WheelEffect[] wheelCollider;
     [SerializeField] VisualEffect sparksEffect;
+    Material brakingMaterial;
 
-    float sideSlip;
+    private void Start() {
+        brakingMaterial = Array.Find(chassisMesh.materials, x => x.name.Contains("Braking"));
+    }
 
     void FixedUpdate()
     {
@@ -21,13 +29,15 @@ public class VehicleEffects : MonoBehaviour
             UpdateExhaust(exhaustParticles[i]);
 
         for (int i = 0;i < wheelCollider.Length; i++)
-            UpdateWheelSmole(wheelCollider[i]);
+            UpdateWheelSmoke(wheelCollider[i]);
+
+        if(brakingMaterial != null)
+            brakingMaterial.SetFloat(BRAKING_EMISSION, Mathf.Lerp(brakingMaterial.GetFloat(BRAKING_EMISSION), vehicle.Braking ? 1 : 0, Time.deltaTime * 25f));
     }
 
-    void UpdateWheelSmole(WheelEffect wheelEffect) {
+    void UpdateWheelSmoke(WheelEffect wheelEffect) {
         wheelEffect.wheelColl.GetGroundHit(out WheelHit hit);
-        if(wheelEffect == wheelCollider[0])
-            sideSlip = hit.sidewaysSlip;
+
         if(vehicle.VehicleRigidBody.velocity.magnitude > 10 && Mathf.Abs(hit.sidewaysSlip) > 0.5f) {
             wheelEffect.smokeVFX.Play();
             wheelEffect.smokeVFX.SetInt("SpawnRate", 40 + (int)(Mathf.Abs(hit.sidewaysSlip) * 30));
@@ -51,25 +61,6 @@ public class VehicleEffects : MonoBehaviour
         mainModule.startLifetime = lifetime;
     }
 
-    private void OnCollisionEnter(Collision collision) {
-        if (Mathf.Abs(vehicle.Velocity.z) < 10)
-            return;
-        UpdateSparks(collision.GetContact(0).point, collision.GetContact(0).normal);
-        sparksEffect.SetInt("SpawnRate", 50 + (int)(vehicle.Velocity.z * 2));
-        sparksEffect.SendEvent("SpawnBurst");
-    }
-
-    private void OnCollisionStay(Collision collision) {
-        if (Mathf.Abs(vehicle.Velocity.z) < 2) {
-            if (sparksEffect.HasAnySystemAwake())
-                sparksEffect.SendEvent("StopSpawn");
-            return;
-        }
-        UpdateSparks(collision.GetContact(0).point, collision.GetContact(0).normal);
-        sparksEffect.SetInt("SpawnRate", 50 + (int)(vehicle.Velocity.z * 5));
-        sparksEffect.SendEvent("StartSpawn");
-    }
-
     void UpdateSparks(Vector3 point, Vector3 normal) {
         sparksEffect.transform.position = point;
 
@@ -79,6 +70,27 @@ public class VehicleEffects : MonoBehaviour
         float angle = (angleDegrees + 360) % 360;
 
         sparksEffect.transform.localRotation = Quaternion.Euler(0, angle, 0);
+    }
+
+    private void OnCollisionEnter(Collision collision) {
+        if (Mathf.Abs(vehicle.Velocity.z) < 10)
+            return;
+        UpdateSparks(collision.GetContact(0).point, collision.GetContact(0).normal);
+        sparksEffect.SetInt("SpawnRate", 50 + (int)(vehicle.Velocity.z * 2));
+        sparksEffect.SendEvent("SpawnBurst");
+    }
+
+    private void OnCollisionStay(Collision collision) {
+        if ((collision.rigidbody == null && Mathf.Abs(vehicle.Velocity.z) < 2) ||
+            (collision.rigidbody != null && Mathf.Abs(collision.rigidbody.velocity.magnitude - vehicle.VehicleRigidBody.velocity.magnitude) < 2)) {
+            if (sparksEffect.HasAnySystemAwake())
+                sparksEffect.SendEvent("StopSpawn");
+            return;
+        }
+    
+        UpdateSparks(collision.GetContact(0).point, collision.GetContact(0).normal);
+        sparksEffect.SetInt("SpawnRate", 50 + (int)(vehicle.Velocity.z * 5));
+        sparksEffect.SendEvent("StartSpawn");
     }
 
     private void OnCollisionExit(Collision collision) {

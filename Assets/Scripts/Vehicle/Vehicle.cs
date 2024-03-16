@@ -4,6 +4,12 @@ using UnityEngine.Assertions.Comparers;
 
 public class Vehicle : MonoBehaviour
 {
+    public enum Drivetrain {
+        FWD,
+        RWD,
+        AWD
+    }
+
     [System.Serializable]
     public class WheelData {
         [SerializeField] WheelCollider wheelCollider;
@@ -26,8 +32,17 @@ public class Vehicle : MonoBehaviour
             return hit.forwardSlip;
         }
     }
-    [SerializeField] float maxReverseTorque;
-    [SerializeField] float maxBrakeTorque;
+
+    public struct InputData {
+        public float steer;
+        public float acceleration;
+        public bool handbrake;
+    }
+
+    [SerializeField] Drivetrain drivetrain;
+    [SerializeField] float maxReverseTorque = 200;
+    [SerializeField] float maxBrakeTorque = 500;
+    [SerializeField] float handbrakeTorque = 1000;
     [SerializeField] float steerRadius;
     [SerializeField] float downForce;
     [SerializeField] float[] gears;
@@ -54,14 +69,21 @@ public class Vehicle : MonoBehaviour
     bool tcsTriggered;
 
     WheelData[] allWheels;
+    WheelData[] drivingWheels;
     Vector3 velocity;
+
     bool reverse;
     bool isAgent;
+    bool applyHandbrake;
+    bool braking;
+
+    float targetSteer;
     float totalPower;
     float engineRPM;
     float sideSlip;
     float forwardSlip;
     float wheelRPM;
+
     int kmph;
     int currentGear;
 
@@ -69,13 +91,14 @@ public class Vehicle : MonoBehaviour
     public WheelData[] FrontWheels => frontWheels;
     public WheelData[] RearWheels => rearWheels;
     public Vector3 Velocity => velocity;
-    public float SideSlip => sideSlip;
-    public int Kmph => kmph;
-    public float WheelRPM => wheelRPM;
-    public float EngineRPM => engineRPM;
-    public int CurrentGear => currentGear;
     public bool ABS => absTriggered;
     public bool TCS => tcsTriggered;
+    public bool Braking => braking;
+    public float EngineRPM => engineRPM;
+    public float SideSlip => sideSlip;
+    public float WheelRPM => wheelRPM;
+    public int Kmph => kmph;
+    public int CurrentGear => currentGear;
 
     void Start()
     {
@@ -83,6 +106,18 @@ public class Vehicle : MonoBehaviour
             isAgent = true;
 
         allWheels = GetAllWheels();
+
+        switch (drivetrain) {
+            case Drivetrain.FWD:
+                drivingWheels = frontWheels; 
+                break;
+            case Drivetrain.RWD:
+                drivingWheels = rearWheels;
+                break;
+            case Drivetrain.AWD:
+                drivingWheels = allWheels;
+                break;
+        }
     }
 
     void Update()
@@ -95,7 +130,10 @@ public class Vehicle : MonoBehaviour
         sideSlip = GetSideSlip(rearWheels);
         forwardSlip = GetForwardSlip(allWheels);
         float temp = 0;
-        wheelRPM = GetWheelsRPM();
+
+        float av = velocity.magnitude / frontWheels[0].WheelCollider.radius;
+        wheelRPM = (av / (2 * Mathf.PI)) * 60;
+
         totalPower = enginePowerCurve.Evaluate(engineRPM) * gears[currentGear];
         engineRPM = Mathf.SmoothDamp(engineRPM, 1000 + (Mathf.Abs(wheelRPM) * differentialRatio * gears[currentGear]), ref temp, 0.01f);
 
@@ -105,7 +143,12 @@ public class Vehicle : MonoBehaviour
             currentGear--;
 
         if (isAgent) return;
-        ReceiveInput(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+
+        ReceiveInput(new InputData() {
+            steer = Input.GetAxis("Horizontal"),
+            acceleration = Input.GetAxis("Vertical"),
+            handbrake = Input.GetButton("Jump")
+        });
     }
 
     WheelData[] GetAllWheels() {
@@ -139,30 +182,35 @@ public class Vehicle : MonoBehaviour
         if (rb.velocity.magnitude < 0.1f)
             reverse = val < 0;
 
-        float torque = totalPower / 4;
+        float torque = totalPower / drivingWheels.Length;
         float brake = ABSBrake(maxBrakeTorque * Mathf.Abs(val));
 
         if (val < 0) {
-            foreach (var wData in allWheels) {
+            foreach (var wData in drivingWheels) {
                 wData.WheelCollider.motorTorque = reverse ? maxReverseTorque * val : 0;
-                if (reverse)
-                    wData.WheelCollider.brakeTorque = 0;
-                else
-                    wData.WheelCollider.brakeTorque = brake;//ABSBrake(wData, maxBrakeTorque * Mathf.Abs(val));
+                wData.WheelCollider.brakeTorque = reverse ? 0 : brake;
             }
+            braking = !reverse;
         }
         else if(val > 0){
-            foreach (var wData in allWheels) {
+            foreach (var wData in drivingWheels) {
                 wData.WheelCollider.motorTorque = reverse ? 0 : TCSAcceleration(wData, torque * val);
                 wData.WheelCollider.brakeTorque = reverse ? maxBrakeTorque * Mathf.Abs(val) : 0;
             }
+            braking = reverse;
         }
         else {
-            foreach (var wData in allWheels) {
+            foreach (var wData in drivingWheels) {
                 wData.WheelCollider.motorTorque = 0;
                 wData.WheelCollider.brakeTorque = 0;
             }
+            braking = false;
         }
+    }
+
+    void Handbrake(bool val) {
+        foreach (var wheel in allWheels)
+            wheel.WheelCollider.brakeTorque = val ? handbrakeTorque : wheel.WheelCollider.brakeTorque;
     }
 
     void UpdateWheels() {
@@ -241,8 +289,10 @@ public class Vehicle : MonoBehaviour
         rb.angularVelocity = Vector3.zero;
     }
 
-    public void ReceiveInput(float steering, float acc) {
-        Steer(steering);
-        Accelerate(acc);
+    public void ReceiveInput(InputData input) {
+        targetSteer = Mathf.Lerp(targetSteer, input.steer, Time.deltaTime * 25);
+        Steer(targetSteer);
+        Accelerate(input.acceleration);
+        Handbrake(input.handbrake);
     }
 }
