@@ -6,7 +6,7 @@ public class VehicleEffects : MonoBehaviour
 {
     const string BRAKING_EMISSION = "_EmissionPower";
 
-    [System.Serializable]
+    [Serializable]
     public class WheelEffect {
         public WheelCollider wheelColl;
         public VisualEffect smokeVFX;
@@ -18,8 +18,6 @@ public class VehicleEffects : MonoBehaviour
     [SerializeField] WheelEffect[] wheelCollider;
     [SerializeField] VisualEffect sparksEffect;
     Material brakingMaterial;
-
-    float sideSlip;
 
     private void Start() {
         brakingMaterial = Array.Find(chassisMesh.materials, x => x.name.Contains("Braking"));
@@ -39,8 +37,7 @@ public class VehicleEffects : MonoBehaviour
 
     void UpdateWheelSmoke(WheelEffect wheelEffect) {
         wheelEffect.wheelColl.GetGroundHit(out WheelHit hit);
-        if(wheelEffect == wheelCollider[0])
-            sideSlip = hit.sidewaysSlip;
+
         if(vehicle.VehicleRigidBody.velocity.magnitude > 10 && Mathf.Abs(hit.sidewaysSlip) > 0.5f) {
             wheelEffect.smokeVFX.Play();
             wheelEffect.smokeVFX.SetInt("SpawnRate", 40 + (int)(Mathf.Abs(hit.sidewaysSlip) * 30));
