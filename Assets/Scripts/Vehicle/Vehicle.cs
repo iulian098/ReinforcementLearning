@@ -1,3 +1,4 @@
+using System;
 using Unity.MLAgents.Policies;
 using UnityEngine;
 using UnityEngine.Assertions.Comparers;
@@ -68,13 +69,13 @@ public class Vehicle : MonoBehaviour
     [SerializeField] float tcsFactor = 0.5f;
     bool tcsTriggered;
 
+    InputData currentInput;
     WheelData[] allWheels;
     WheelData[] drivingWheels;
     Vector3 velocity;
 
     bool reverse;
     bool isAgent;
-    bool applyHandbrake;
     bool braking;
 
     float targetSteer;
@@ -90,15 +91,21 @@ public class Vehicle : MonoBehaviour
     public Rigidbody VehicleRigidBody => rb;
     public WheelData[] FrontWheels => frontWheels;
     public WheelData[] RearWheels => rearWheels;
+    public InputData CurrentInput => currentInput;
     public Vector3 Velocity => velocity;
     public bool ABS => absTriggered;
     public bool TCS => tcsTriggered;
     public bool Braking => braking;
+    public float MaxRPM => maxRPM;
+    public float MinRPM => minRPM;
     public float EngineRPM => engineRPM;
     public float SideSlip => sideSlip;
     public float WheelRPM => wheelRPM;
+    public int GearsCount => gears.Length;
     public int Kmph => kmph;
     public int CurrentGear => currentGear;
+
+    public Action OnGearChanged;
 
     void Start()
     {
@@ -135,7 +142,11 @@ public class Vehicle : MonoBehaviour
         wheelRPM = (av / (2 * Mathf.PI)) * 60;
 
         totalPower = enginePowerCurve.Evaluate(engineRPM) * gears[currentGear];
-        engineRPM = Mathf.SmoothDamp(engineRPM, 1000 + (Mathf.Abs(wheelRPM) * differentialRatio * gears[currentGear]), ref temp, 0.01f);
+
+        if (currentInput.handbrake)
+            engineRPM = 1000;
+        else
+            engineRPM = Mathf.SmoothDamp(engineRPM, 1000 + (Mathf.Abs(wheelRPM) * differentialRatio * gears[currentGear]), ref temp, 0.01f);
 
         if (engineRPM > maxRPM && currentGear < gears.Length - 1)
             currentGear++;
@@ -182,6 +193,11 @@ public class Vehicle : MonoBehaviour
         if (rb.velocity.magnitude < 0.1f)
             reverse = val < 0;
 
+        if (currentInput.handbrake) {
+            ApplyHandbrake();
+            return;
+        }
+
         float torque = totalPower / drivingWheels.Length;
         float brake = ABSBrake(maxBrakeTorque * Mathf.Abs(val));
 
@@ -208,9 +224,11 @@ public class Vehicle : MonoBehaviour
         }
     }
 
-    void Handbrake(bool val) {
-        foreach (var wheel in allWheels)
-            wheel.WheelCollider.brakeTorque = val ? handbrakeTorque : wheel.WheelCollider.brakeTorque;
+    void ApplyHandbrake() {
+        foreach (var wheel in drivingWheels) {
+            wheel.WheelCollider.brakeTorque = handbrakeTorque;
+            wheel.WheelCollider.motorTorque = 0;
+        }
     }
 
     void UpdateWheels() {
@@ -290,9 +308,9 @@ public class Vehicle : MonoBehaviour
     }
 
     public void ReceiveInput(InputData input) {
+        currentInput = input;
         targetSteer = Mathf.Lerp(targetSteer, input.steer, Time.deltaTime * 25);
         Steer(targetSteer);
         Accelerate(input.acceleration);
-        Handbrake(input.handbrake);
     }
 }

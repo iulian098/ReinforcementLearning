@@ -26,6 +26,7 @@ public class Vehicle_Agent_v2 : Agent
 
     float acc;
     float steer;
+    bool handbrake;
     float lapTime;
     float bestLapTime;
 
@@ -111,7 +112,7 @@ public class Vehicle_Agent_v2 : Agent
 
     public override void OnActionReceived(ActionBuffers actions) {
         if (finishReached) return;
-
+        handbrake = false;
         switch (actions.DiscreteActions[0]) {
             case 0:
                 acc = 0;
@@ -119,8 +120,12 @@ public class Vehicle_Agent_v2 : Agent
             case 1:
                 acc = 1;
                 break;
-             case 2:
+            case 2:
                 acc = -1;
+                break;
+            case 3: //Not used
+                acc = 0;
+                handbrake = true;
                 break;
         }
 
@@ -144,7 +149,7 @@ public class Vehicle_Agent_v2 : Agent
         vehicle.ReceiveInput(new Vehicle.InputData() {
             steer = steer,
             acceleration = acc,
-            handbrake = false
+            handbrake = handbrake
         });
 
 
@@ -275,6 +280,7 @@ public class Vehicle_Agent_v2 : Agent
 
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
+        bool handbrake = Input.GetButton("Jump");
 
         if (horizontal > 0)
             discreteActions[1] = 1;
@@ -283,12 +289,18 @@ public class Vehicle_Agent_v2 : Agent
         else
             discreteActions[1] = 0;
 
-        if (vertical > 0)
-            discreteActions[0] = 1;
-        else if(vertical < 0)
-            discreteActions[0] = 2;
-        else 
-            discreteActions[0] = 0;
+        if (handbrake) {
+            discreteActions[0] = 3;
+        }
+        else {
+            if (vertical > 0)
+                discreteActions[0] = 1;
+            else if (vertical < 0)
+                discreteActions[0] = 2;
+            else
+                discreteActions[0] = 0;
+        }
+        
     }
 
 
