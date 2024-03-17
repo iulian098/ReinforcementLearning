@@ -199,6 +199,7 @@ GameObject:
   - component: {fileID: 1326361188604777354}
   - component: {fileID: 3964649193893516381}
   - component: {fileID: 6674014154391042158}
+  - component: {fileID: 8095909374374143239}
   m_Layer: 8
   m_Name: VehicleV2
   m_TagString: Player
@@ -273,7 +274,7 @@ MonoBehaviour:
   drivetrain: 1
   maxReverseTorque: 300
   maxBrakeTorque: 500
-  handbrakeTorque: 1000
+  handbrakeTorque: 90000
   steerRadius: 5
   downForce: 50
   gears:
@@ -490,6 +491,46 @@ MonoBehaviour:
   - wheelColl: {fileID: 4767197952082583513}
     smokeVFX: {fileID: 1558068865324205571}
   sparksEffect: {fileID: 1778506282070210702}
+--- !u!114 &8095909374374143239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 983316312307855009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90000799199c9974c8f2afbc01bf906a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vehicle: {fileID: 5634309148492109163}
+  lowSounds:
+    on: {fileID: 8300000, guid: 75fa27e467267c74f91f1f6f4e74ff88, type: 3}
+    off: {fileID: 8300000, guid: bb683044c23cd50438d45fe475089c84, type: 3}
+    minPitch: 0.75
+    maxPitch: 1.2
+    maxVolume: 0.3
+  highSounds:
+    on: {fileID: 8300000, guid: 22cd46996da3b624bb08935264560d8c, type: 3}
+    off: {fileID: 8300000, guid: 30ab19edabbfdea499f3db426001e120, type: 3}
+    minPitch: 0.9
+    maxPitch: 1.2
+    maxVolume: 0.3
+  hitSound:
+    settings:
+      minDistance: 2
+      maxDistance: 20
+      rolloffMode: 0
+    clip: {fileID: 8300000, guid: a1f7abf0dd920704dab30efe19ec8631, type: 3}
+    loop: 0
+    randomPitch: 1
+    minPitch: 0.9
+    maxPitch: 1
+    volume: 0.5
+  engineAudioSettings:
+    minDistance: 3
+    maxDistance: 25
+    rolloffMode: 0
 --- !u!1 &1231824978706075175
 GameObject:
   m_ObjectHideFlags: 0

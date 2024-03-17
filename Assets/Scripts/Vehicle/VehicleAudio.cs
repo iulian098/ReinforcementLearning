@@ -5,14 +5,13 @@ public class VehicleAudio : MonoBehaviour
 {
     [Serializable]
     public class AudioSettings {
-        public float engineMinDistance;
-        public float engineMaxDistance;
+        public float minDistance;
+        public float maxDistance;
         public AudioRolloffMode rolloffMode;
     }
 
     [Serializable]
     public class EngineSoundData {
-        [SerializeField] string name;
         [SerializeField] AudioClip on;
         [SerializeField] AudioClip off;
 
@@ -36,10 +35,38 @@ public class VehicleAudio : MonoBehaviour
         }
     }
 
+    [Serializable]
+    public class AudioData {
+        [SerializeField] AudioSettings settings;
+        public AudioClip clip;
+        public bool loop;
+        public bool randomPitch;
+        public float minPitch;
+        public float maxPitch;
+        public float volume;
+
+        AudioSource audioSource;
+
+        public AudioSource AudioSource => audioSource;
+
+        public void SetAudioSource(AudioSource source) {
+            audioSource = source;
+            audioSource.maxDistance = settings.maxDistance;
+            audioSource.minDistance = settings.minDistance;
+        }
+
+        public void PlayOnce() {
+            if (randomPitch)
+                audioSource.pitch = UnityEngine.Random.Range(minPitch, maxPitch);
+            audioSource.PlayOneShot(clip);
+        }
+
+    }
+
     [SerializeField] Vehicle vehicle;
-    [SerializeField] EngineSoundData[] engineSounds;
     [SerializeField] EngineSoundData lowSounds;
     [SerializeField] EngineSoundData highSounds;
+    [SerializeField] AudioData hitSound;
     [SerializeField] AudioSettings engineAudioSettings;
 
     float pitch;
@@ -48,6 +75,7 @@ public class VehicleAudio : MonoBehaviour
     private void Start() {
         CreateEngineAudioSource(lowSounds);
         CreateEngineAudioSource(highSounds);
+        CreateAudioSource(hitSound);
     }
 
     private void Update() {
@@ -87,15 +115,36 @@ public class VehicleAudio : MonoBehaviour
             audioSource.volume = 0;
             audioSource.spatialBlend = 1;
             audioSource.rolloffMode = engineAudioSettings.rolloffMode;
-            audioSource.maxDistance = engineAudioSettings.engineMaxDistance;
-            audioSource.minDistance = engineAudioSettings.engineMinDistance;
+            audioSource.maxDistance = engineAudioSettings.maxDistance;
+            audioSource.minDistance = engineAudioSettings.minDistance;
             audioSource.Play();
             audioSources[i] = audioSource;
         }
         engineSound.SetAudioSource(audioSources[0], audioSources[1]);
     }
 
+    void CreateAudioSource(AudioData audioData) {
+        AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.clip = audioData.clip;
+        audioSource.volume = audioData.volume;
+        audioSource.loop = true;
+        audioSource.volume = 0;
+        audioSource.spatialBlend = 1;
+        audioSource.rolloffMode = engineAudioSettings.rolloffMode;
+        audioSource.maxDistance = engineAudioSettings.maxDistance;
+        audioSource.minDistance = engineAudioSettings.minDistance;
+        audioSource.Play();
+        audioData.SetAudioSource(audioSource);
+    }
+
     public float ULerp(float from, float to, float value) {
         return (1f - value) * from + to * value;
+    }
+
+    private void OnCollisionEnter(Collision collision) {
+        if (vehicle.Kmph > 15) {
+            hitSound.AudioSource.volume = Mathf.InverseLerp(0.05f, 0.4f, vehicle.Kmph / 30);
+            hitSound.PlayOnce();
+        }
     }
 }
