@@ -41,32 +41,38 @@ public class Vehicle : MonoBehaviour
     }
 
     [SerializeField] Drivetrain drivetrain;
+    [SerializeField] Rigidbody rb;
+    [SerializeField] float maxSpeed;
+    [Header("Torque")]
     [SerializeField] float maxReverseTorque = 200;
     [SerializeField] float maxBrakeTorque = 500;
     [SerializeField] float handbrakeTorque = 1000;
-    [SerializeField] float steerRadius;
-    [SerializeField] float downForce;
-    [SerializeField] float[] gears;
-    [SerializeField] float maxRPM;
-    [SerializeField] float minRPM;
-    [SerializeField] float differentialRatio = 3.6f;
-
     [SerializeField] AnimationCurve enginePowerCurve;
 
-    [SerializeField] Rigidbody rb;
+    [Header("Gears")]
+    [SerializeField] float[] gears;
+    [SerializeField] float shiftUpRPM = 5600;
+    [SerializeField] float shiftDownRPM = 2500;
+    [SerializeField] float differentialRatio = 3.6f;
+
+    [Header("Wheels")]
     [SerializeField] WheelData[] frontWheels;
     [SerializeField] WheelData[] rearWheels;
 
-    [Header("ABS")]
+    [Space, Header("ABS")]
     [SerializeField] bool useABS;
     [SerializeField] float absThreshold = 0.2f;
     [SerializeField] float absBrakeFarctor = 0.5f;
     bool absTriggered;
 
-    [Header("TCS")]
+    [Space, Header("TCS")]
     [SerializeField] bool useTCS;
     [SerializeField] float tcsThreshold = 0.8f;
     [SerializeField] float tcsFactor = 0.5f;
+
+    [Space]
+    [SerializeField] float steerRadius;
+    [SerializeField] float downForce;
     bool tcsTriggered;
 
     InputData currentInput;
@@ -96,8 +102,8 @@ public class Vehicle : MonoBehaviour
     public bool ABS => absTriggered;
     public bool TCS => tcsTriggered;
     public bool Braking => braking;
-    public float MaxRPM => maxRPM;
-    public float MinRPM => minRPM;
+    public float ShiftUpRPM => shiftUpRPM;
+    public float ShiftDownRPM => shiftDownRPM;
     public float EngineRPM => engineRPM;
     public float SideSlip => sideSlip;
     public float WheelRPM => wheelRPM;
@@ -131,7 +137,6 @@ public class Vehicle : MonoBehaviour
     {
         UpdateWheels();
         ApplyDownForce();
-
         velocity = transform.InverseTransformDirection(rb.velocity);
         kmph = Mathf.FloorToInt(rb.velocity.magnitude * 3.6f);
         sideSlip = GetSideSlip(rearWheels);
@@ -148,9 +153,9 @@ public class Vehicle : MonoBehaviour
         else
             engineRPM = Mathf.SmoothDamp(engineRPM, 1000 + (Mathf.Abs(wheelRPM) * differentialRatio * gears[currentGear]), ref temp, 0.01f);
 
-        if (engineRPM > maxRPM && currentGear < gears.Length - 1)
+        if (engineRPM > shiftUpRPM && currentGear < gears.Length - 1)
             currentGear++;
-        else if (engineRPM < minRPM && currentGear > 0)
+        else if (engineRPM < shiftDownRPM && currentGear > 0)
             currentGear--;
 
         if (isAgent) return;
@@ -174,7 +179,7 @@ public class Vehicle : MonoBehaviour
 
     void Steer(float val) {
 
-        //Ackerman steering
+        //Ackerman
         if (val > 0) {
             frontWheels[0].WheelCollider.steerAngle = Mathf.Rad2Deg * Mathf.Atan(2.55f / (steerRadius + (1.5f / 2))) * val;
             frontWheels[1].WheelCollider.steerAngle = Mathf.Rad2Deg * Mathf.Atan(2.55f / (steerRadius - (1.5f / 2))) * val;
@@ -200,6 +205,9 @@ public class Vehicle : MonoBehaviour
 
         float torque = totalPower / drivingWheels.Length;
         float brake = ABSBrake(maxBrakeTorque * Mathf.Abs(val));
+
+        if (val > 0 && kmph >= maxSpeed)
+            val = 0;
 
         if (val < 0) {
             foreach (var wData in drivingWheels) {
@@ -308,6 +316,7 @@ public class Vehicle : MonoBehaviour
     }
 
     public void ReceiveInput(InputData input) {
+        if (RaceManager.Instance.CurrentState != RaceManager.State.Playing) return;
         currentInput = input;
         targetSteer = Mathf.Lerp(targetSteer, input.steer, Time.deltaTime * 25);
         Steer(targetSteer);

@@ -79,7 +79,7 @@ public class VehicleAudio : MonoBehaviour
     }
 
     private void Update() {
-        pitch = ULerp(lowSounds.minPitch, lowSounds.maxPitch, vehicle.EngineRPM / vehicle.MaxRPM);
+        pitch = ULerp(lowSounds.minPitch, lowSounds.maxPitch, vehicle.EngineRPM / vehicle.ShiftUpRPM);
         currentAcc = Mathf.Lerp(currentAcc, vehicle.Braking ? 0 : Mathf.Abs(vehicle.CurrentInput.acceleration), Time.deltaTime * 30);
 
         lowSounds.AccSource.pitch = pitch;
@@ -90,7 +90,7 @@ public class VehicleAudio : MonoBehaviour
         float accFade = currentAcc;
         float decFade = 1 - accFade;
 
-        float highFade = Mathf.InverseLerp(0.2f, 0.8f, vehicle.EngineRPM / vehicle.MaxRPM);
+        float highFade = Mathf.InverseLerp(0.2f, 0.8f, vehicle.EngineRPM / vehicle.ShiftUpRPM);
         float lowFade = 1 - highFade;
 
         highFade = 1 - ((1 - highFade) * (1 - highFade));

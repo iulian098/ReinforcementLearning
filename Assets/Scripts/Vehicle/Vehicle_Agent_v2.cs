@@ -45,6 +45,10 @@ public class Vehicle_Agent_v2 : Agent
     Vector3 vehicleAngularVelocity;
     Quaternion startingRot;
 
+    private void Reset() {
+        vehicle = GetComponent<Vehicle>();
+    }
+
     private void Start() {
         startingPos = vehicle.transform.position;
         startingRot = vehicle.transform.rotation;
