@@ -9,9 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cbc9ba03c9f15f14c9f7752f6d95ab75, type: 3}
-  m_Name: TestRaceData
+  m_Script: {fileID: 11500000, guid: bea4a3d128465874388dc8c5a6e1ef9a, type: 3}
+  m_Name: RacersNames
   m_EditorClassIdentifier: 
-  raceType: 0
-  maxLoops: 3
-  coinsReward: e8030000f4010000fa000000
+  names: []
