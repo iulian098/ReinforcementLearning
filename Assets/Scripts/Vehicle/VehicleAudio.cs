@@ -127,7 +127,7 @@ public class VehicleAudio : MonoBehaviour
         AudioSource audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.clip = audioData.clip;
         audioSource.volume = audioData.volume;
-        audioSource.loop = true;
+        audioSource.loop = audioData.loop;
         audioSource.volume = 0;
         audioSource.spatialBlend = 1;
         audioSource.rolloffMode = engineAudioSettings.rolloffMode;

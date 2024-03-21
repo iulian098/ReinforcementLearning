@@ -10,7 +10,6 @@ public class Vehicle_Agent_v2 : Agent
 
     [SerializeField] Vehicle vehicle;
     [SerializeField] VehicleCheckpointManager checkpointManager;
-    [SerializeField] Transform spawnPoint;
     [SerializeField] LayerMask layers;
     [SerializeField] LayerMask forwardLayers;
     [SerializeField] float sideSensorsDistance;
@@ -225,6 +224,7 @@ public class Vehicle_Agent_v2 : Agent
 
         Vector3 checkpointDirectionVector = vehicle.transform.position - nextCheckpointPosition;
         checkpointDirection = (Vector3.SignedAngle(vehicle.transform.forward, checkpointDirectionVector, Vector3.up) + 180) / 360;
+
         Vector3 roadCenterDirectionVector = vehicle.transform.position - checkpointManager.vehicleData.RoadCenter;
         roadCenterDirection = (Vector3.SignedAngle(vehicle.transform.forward, roadCenterDirectionVector, Vector3.up) + 180) / 360;
 
