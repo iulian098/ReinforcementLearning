@@ -346,6 +346,7 @@ MonoBehaviour:
   tcsFactor: 0.5
   steerRadius: 5
   downForce: 50
+  isAgent: 1
 --- !u!114 &8622531910035623962
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -355,9 +356,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 983316312307855009}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6640d97111c5cf645976c23e29cfc964, type: 3}
+  m_Script: {fileID: 11500000, guid: e54de39e900b5a64393ebbb74385de8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isPlayer: 0
   vehicle: {fileID: 5634309148492109163}
   vehicleData:
     currentCheckpoint: {fileID: 0}
@@ -385,7 +387,6 @@ MonoBehaviour:
   agentID: 0
   vehicle: {fileID: 5634309148492109163}
   checkpointManager: {fileID: 8622531910035623962}
-  spawnPoint: {fileID: 0}
   layers:
     serializedVersion: 2
     m_Bits: 2049
@@ -435,7 +436,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: d6709588667fceb4ab05196e7a0bef68, type: 3}
   m_InferenceDevice: 2
   m_BehaviorType: 0
   m_BehaviorName: MyAgents

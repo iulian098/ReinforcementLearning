@@ -9,7 +9,7 @@ public class Vehicle_Agent_v2 : Agent
     public int agentID;
 
     [SerializeField] Vehicle vehicle;
-    [SerializeField] VehicleCheckpointManager checkpointManager;
+    [SerializeField] VehicleManager checkpointManager;
     [SerializeField] LayerMask layers;
     [SerializeField] LayerMask forwardLayers;
     [SerializeField] float sideSensorsDistance;

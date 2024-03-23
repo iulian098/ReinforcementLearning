@@ -1,7 +1,6 @@
 using System;
 using Unity.MLAgents.Policies;
 using UnityEngine;
-using UnityEngine.Assertions.Comparers;
 
 public class Vehicle : MonoBehaviour
 {
@@ -15,8 +14,14 @@ public class Vehicle : MonoBehaviour
     public class WheelData {
         [SerializeField] WheelCollider wheelCollider;
         [SerializeField] Transform wheelVisual;
+        Skidmarks skidmarks;
+        int lastSkidIndex;
 
         public WheelCollider WheelCollider => wheelCollider;
+
+        public void Init() {
+            skidmarks = RaceManager.Instance.SkidmarksManager.Skidmarks;
+        }
 
         public void UpdateVisual() {
             wheelCollider.GetWorldPose(out Vector3 pos, out Quaternion rot);
@@ -31,6 +36,16 @@ public class Vehicle : MonoBehaviour
         public float GetForwardSlip() {
             wheelCollider.GetGroundHit(out WheelHit hit);
             return hit.forwardSlip;
+        }
+
+        public void UpdateSkidmarks(float velocity) {
+            if (skidmarks == null) return;
+
+            wheelCollider.GetGroundHit(out WheelHit hit);
+            if (velocity > 10 && (Mathf.Abs(hit.sidewaysSlip) > 0.5f || Mathf.Abs(hit.forwardSlip) > 0.5f))
+                lastSkidIndex = skidmarks.Add(hit.point, hit.normal, 1, lastSkidIndex);
+            else
+                lastSkidIndex = -1;
         }
     }
 
@@ -81,7 +96,7 @@ public class Vehicle : MonoBehaviour
     Vector3 velocity;
 
     bool reverse;
-    bool isAgent;
+    [SerializeField] bool isAgent;
     bool braking;
 
     float targetSteer;
@@ -115,10 +130,14 @@ public class Vehicle : MonoBehaviour
 
     void Start()
     {
-        if (TryGetComponent(out BehaviorParameters _))
-            isAgent = true;
+       // if (TryGetComponent(out BehaviorParameters _))
+        //    isAgent = true;
 
         allWheels = GetAllWheels();
+
+        foreach (var wheel in allWheels) {
+            wheel.Init();
+        }
 
         switch (drivetrain) {
             case Drivetrain.FWD:
@@ -157,6 +176,9 @@ public class Vehicle : MonoBehaviour
             currentGear++;
         else if (engineRPM < shiftDownRPM && currentGear > 0)
             currentGear--;
+
+        foreach (var wheel in allWheels)
+            wheel.UpdateSkidmarks(VehicleRigidBody.velocity.magnitude);
 
         if (isAgent) return;
 

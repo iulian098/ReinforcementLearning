@@ -1,8 +1,9 @@
 using System;
 using UnityEngine;
 
-public class VehicleCheckpointManager : MonoBehaviour
+public class VehicleManager : MonoBehaviour
 {
+    [SerializeField] bool isPlayer;
     [SerializeField] Vehicle vehicle;
 
     public VehicleData vehicleData;
@@ -14,18 +15,15 @@ public class VehicleCheckpointManager : MonoBehaviour
     public Action OnPreviousCheckpointReached;
     public Action OnFinishReached;
     public Action<bool> OnPlacementChanged;
+    public Action<VehicleManager> OnRaceFinished;
 
     bool initialized = false;
 
     public bool Initialized => initialized;
+    public bool IsPlayer => isPlayer;
 
-    VehicleCheckpointsContainer checkpointsContainer;
-    VehicleCheckpointsContainer CheckpointsContainer { get {
-            if (checkpointsContainer == null)
-                checkpointsContainer = VehicleCheckpointsContainer.Instance;
-            return checkpointsContainer;
-        } 
-    }
+    public Vehicle Vehicle => vehicle;
+    VehicleCheckpointsContainer CheckpointsContainer => VehicleCheckpointsContainer.Instance;
 
     public void Init() {
         ResetVehicleData();
@@ -37,21 +35,23 @@ public class VehicleCheckpointManager : MonoBehaviour
         if (!initialized) return;
         nextCheckpointDistance = Vector3.Distance(vehicle.transform.position, vehicleData.nextCheckpoint.position);
         prevCheckpointDistance = Vector3.Distance(vehicle.transform.position, vehicleData.currentCheckpoint.position);
-        float checkpointDist = GetCurrentCheckpointDistance(vehicleData.Vehicle.transform.position, vehicleData.currentCheckpoint.position, vehicleData.nextCheckpoint.position);
+        float checkpointDist = GetCurrentCheckpointDistance(vehicle.transform.position, vehicleData.currentCheckpoint.position, vehicleData.nextCheckpoint.position);
         float dist = Vector3.Distance(vehicleData.currentCheckpoint.position, vehicleData.nextCheckpoint.position);
         float distFactor = checkpointDist == 0 ? 0 : checkpointDist / dist;
         vehicleData.totalDistance = RaceManager.Instance.Distances[vehicleData.checkpointIndex] + distFactor * dist;
 
         //Set vehicle road center
-        vehicleData.RoadCenter = GetRoadCenter(vehicleData.Vehicle.transform.position, vehicleData.currentCheckpoint.position, vehicleData.nextCheckpoint.position);
+        vehicleData.RoadCenter = GetRoadCenter(vehicle.transform.position, vehicleData.currentCheckpoint.position, vehicleData.nextCheckpoint.position);
 
-        bool goingForward = vehicleData.Vehicle.VehicleRigidBody.velocity.magnitude >= 0.1f && Vector3.Dot(vehicleData.Vehicle.VehicleRigidBody.velocity, (vehicleData.nextCheckpoint.position - vehicleData.currentCheckpoint.position).normalized) > 0;
+        bool goingForward = vehicle.VehicleRigidBody.velocity.magnitude >= 0.1f && Vector3.Dot(vehicle.VehicleRigidBody.velocity, (vehicleData.nextCheckpoint.position - vehicleData.currentCheckpoint.position).normalized) > 0;
 
         // Check if the vehicle is moving forward based on velocity
-        if (vehicleData.checkpointIndex == 0 && vehicleData.PassedCheckpoints.Count >= CheckpointsContainer.Checkpoints.Length && goingForward && PassedAllCheckpoints()) {
+        if (!vehicleData.finished && vehicleData.checkpointIndex == 0 && vehicleData.PassedCheckpoints.Count >= CheckpointsContainer.Checkpoints.Length && goingForward && PassedAllCheckpoints()) {
             vehicleData.loopCount++;
             vehicleData.PassedCheckpoints.Clear();
             OnFinishReached?.Invoke();
+            if (vehicleData.loopCount >= RaceManager.Instance.RaceData.MaxLoops)
+                OnRaceFinished?.Invoke(this);
         }
 
         if (nextCheckpointDistance < CheckpointsContainer.CheckpointRadius || prevCheckpointDistance < CheckpointsContainer.CheckpointRadius) {
@@ -99,7 +99,7 @@ public class VehicleCheckpointManager : MonoBehaviour
 
     bool PassedAllCheckpoints() {
         for (int i = 0; i < vehicleData.PassedCheckpoints.Count; i++)
-            if (vehicleData.PassedCheckpoints[i] != checkpointsContainer.Checkpoints[i])
+            if (vehicleData.PassedCheckpoints[i] != CheckpointsContainer.Checkpoints[i])
                 return false;
 
         return true;
@@ -140,18 +140,21 @@ public class VehicleCheckpointManager : MonoBehaviour
     }
 
     private void OnDrawGizmos() {
+
+        if (vehicleData.currentCheckpoint == null || vehicleData.nextCheckpoint == null) return;
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(vehicleData.RoadCenter, 0.5f);
+        Gizmos.DrawLine(vehicle.transform.position, vehicleData.RoadCenter);
+
         Gizmos.color = Color.yellow;
         if(vehicleData.currentCheckpoint != null && vehicleData.nextCheckpoint != null)
             Gizmos.DrawLine(vehicleData.currentCheckpoint.position, vehicleData.nextCheckpoint.position);
 
-        Gizmos.DrawSphere(vehicleData.RoadCenter, 0.5f);
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(vehicle.transform.position, vehicleData.RoadCenter);
-
     }
 
     public void ResetVehicleData() {
-        vehicleData = new VehicleData(vehicle, CheckpointsContainer.Checkpoints[0], CheckpointsContainer.Checkpoints[1]);
+        vehicleData = new VehicleData(CheckpointsContainer.Checkpoints[0], CheckpointsContainer.Checkpoints[1]);
     }
 
 }

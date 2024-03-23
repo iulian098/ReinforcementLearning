@@ -8,16 +8,14 @@ public class VehicleData {
     public int checkpointIndex;
     public int loopCount;
     public float totalDistance;
+    public bool finished;
 
     List<Transform> passedCheckpoints = new List<Transform>();
-    Vehicle vehicle;
 
-    public Vehicle Vehicle => vehicle;
     public List<Transform> PassedCheckpoints => passedCheckpoints;
     public Vector3 RoadCenter { get; set; }
 
-    public VehicleData(Vehicle vehicle, Transform currentCheckpoint, Transform nextCheckpoint) {
-        this.vehicle = vehicle;
+    public VehicleData(Transform currentCheckpoint, Transform nextCheckpoint) {
         this.currentCheckpoint = currentCheckpoint;
         this.nextCheckpoint = nextCheckpoint;
     }

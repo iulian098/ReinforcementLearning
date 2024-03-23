@@ -1,5 +1,4 @@
 using TMPro;
-using UnityEditor.Build.Content;
 using UnityEngine;
 
 public class UIManager : MonoBehaviour
@@ -9,6 +8,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] TMP_Text gearText;
     [SerializeField] TMP_Text rpmText;
     [SerializeField] TMP_Text startingTimeText;
+    [SerializeField] ResultScreen resultScreen;
+
+    public void Init() {
+        resultScreen.Init(RaceManager.Instance.Vehicles);
+    }
 
     void FixedUpdate()
     {
@@ -24,5 +28,18 @@ public class UIManager : MonoBehaviour
         kmText.text = "Km/h: " + vehicle.Kmph;
         gearText.text = "Gear: " + vehicle.CurrentGear;
         rpmText.text = "RPM: " + vehicle.EngineRPM;
+    }
+
+    public void RaceFinished(VehicleManager vehicle, bool isPlayer) {
+        resultScreen.SetResult(vehicle.currentPlacement, 
+            new ResultData() {
+                placement = vehicle.currentPlacement,
+                time = RaceManager.Instance.RaceTimeSeconds,
+                vehicleManager = vehicle
+            }
+        );
+
+        if (isPlayer)
+            resultScreen.Show();
     }
 }

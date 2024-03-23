@@ -8,9 +8,9 @@ public class UILeaderboard : MonoBehaviour
     [SerializeField] Transform itemsContainer;
 
     Coroutine leaderboardUpdateCoroutine;
-    List<(VehicleCheckpointManager, UILeaderboardItem)> spawnedItems = new List<(VehicleCheckpointManager, UILeaderboardItem)>();
+    List<(VehicleManager, UILeaderboardItem)> spawnedItems = new List<(VehicleManager, UILeaderboardItem)>();
 
-    public void Init(List<VehicleCheckpointManager> items) {
+    public void Init(List<VehicleManager> items) {
         for (int i = 0; i < items.Count; i++) {
             UILeaderboardItem item = Instantiate(leaderboardItem, itemsContainer);
 

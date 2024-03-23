@@ -1,35 +1,72 @@
+using Cinemachine;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.MLAgents.Policies;
 using UnityEngine;
 
 public class RaceManager : MonoBehaviour {
-    public static RaceManager Instance;
 
+    public static RaceManager Instance;
+    const int STARTING_TIME = 3;
+
+    public enum State {
+        Init,
+        Starting,
+        Playing,
+        End,
+        Learning = 999
+    }
+
+    [SerializeField] bool enableLearning;
+
+    [SerializeField] SkidmarksManager skidmarksManager;
+
+    [SerializeField] RaceData currentRaceData;
+    [SerializeField] Vehicle playerVehicle;
+    [SerializeField] CinemachineVirtualCamera cam;
     [SerializeField] UIManager uiManager;
     [SerializeField] UILeaderboard leaderboard;
     [SerializeField] VehicleCheckpointsContainer vehicleCheckpoints;
-    [SerializeField] List<VehicleCheckpointManager> vehicles;
+    [SerializeField] Animator cinemachineAnimator;
     [SerializeField] int startingCheckpointIndex = 0;
-    [SerializeField] bool useSelfPlay;
+
+
+    List<VehicleManager> vehicles;
+    Coroutine changingStateCoroutine;
+    State currentState;
+    int currentStartingTime;
     float[] distances;
+    float raceTimeSeconds;
     bool stopUpdate;
 
+    public RaceData RaceData => currentRaceData;
+    public SkidmarksManager SkidmarksManager => skidmarksManager;
+    public List<VehicleManager> Vehicles => vehicles;
+    public State CurrentState => currentState;
     public float[] Distances => distances;
+    public float CurrentStartingTime => currentStartingTime;
+    public float RaceTimeSeconds => raceTimeSeconds;
     public bool StopUpdate { get { return stopUpdate; } set {  stopUpdate = value; } }
+
+    private void OnDestroy() {
+        foreach (var vehicle in vehicles)
+            vehicle.OnRaceFinished -= OnVehicleFinish;
+    }
+
     private void Awake() {
         if (Instance != null && Instance != this)
             Destroy(gameObject);
         else
             Instance = this;
-
-        if (useSelfPlay) {
-            for (int i = 0; i < vehicles.Count; ++i)
-                vehicles[i].GetComponent<BehaviorParameters>().TeamId = i;
-        }
     }
 
     private void Start() {
+        vehicles = FindObjectsOfType<VehicleManager>().ToList();
+
+        foreach (var vehicle in vehicles)
+            vehicle.OnRaceFinished += OnVehicleFinish;
+
         distances = new float[vehicleCheckpoints.Checkpoints.Length + 1];
 
         for (int i = 1; i < distances.Length; i++) {
@@ -45,9 +82,18 @@ public class RaceManager : MonoBehaviour {
             vehicle.Init();
 
         leaderboard.Init(vehicles);
+        uiManager.Init();
+        if (enableLearning)
+            ChangeState(State.Playing);
+        else
+            ChangeState(State.Init);
+
+        cam.LookAt = cam.Follow = playerVehicle.transform;
     }
 
     private void FixedUpdate() {
+        if (currentState == State.Playing)
+            raceTimeSeconds += Time.deltaTime;
         if (stopUpdate) return;
         UpdateVehiclesPlacements(true);
     }
@@ -56,18 +102,53 @@ public class RaceManager : MonoBehaviour {
         vehicles = vehicles.OrderByDescending(x => x.vehicleData.loopCount).ThenByDescending(x => x.vehicleData.totalDistance).ToList();
 
         for (int i = 0; i < vehicles.Count; i++) {
-            if (vehicles[i].Initialized && sendCallback) {
-                if (i > vehicles[i].currentPlacement) {
-                    Debug.Log($"[RaceManager] {vehicles[i].name} Current placement {vehicles[i].currentPlacement} increased to {i}");
+            if (vehicles[i].Initialized && sendCallback && !vehicles[i].vehicleData.finished) {
+                if (i > vehicles[i].currentPlacement)
                     vehicles[i].OnPlacementChanged?.Invoke(false);
-                }
-                else if (i < vehicles[i].currentPlacement) {
-                    Debug.Log($"[RaceManager] {vehicles[i].name} Current placement {vehicles[i].currentPlacement} decreased to {i}");
+                else if (i < vehicles[i].currentPlacement)
                     vehicles[i].OnPlacementChanged?.Invoke(true);
-                }
             }
 
             vehicles[i].currentPlacement = i;
+        }
+    }
+
+    public void ChangeState(State state, float delay = 0f) {
+        if(changingStateCoroutine != null)
+            StopCoroutine(changingStateCoroutine);
+        changingStateCoroutine = StartCoroutine(ChangeStateCoroutine(state, delay));
+    }
+
+    IEnumerator ChangeStateCoroutine(State state, float delay) {
+        yield return new WaitForSeconds(delay);
+
+        currentState = state;
+
+        switch (state) {
+            case State.Init:
+
+                currentStartingTime = STARTING_TIME;
+                yield return new WaitForSeconds(1f);
+                ChangeState(State.Starting);
+
+                break;
+            case State.Starting:
+
+                while (currentStartingTime > 0) {
+                    yield return new WaitForSeconds(1);
+                    currentStartingTime--;
+                }
+                ChangeState(State.Playing);
+
+                break;
+            case State.Playing:
+
+                break;
+            case State.End:
+
+                break;
+            default:
+                break;
         }
     }
 
@@ -77,5 +158,12 @@ public class RaceManager : MonoBehaviour {
         for (int i = 0; i < checkpointsCount; i++) {
             Gizmos.DrawLine(vehicleCheckpoints.Checkpoints[i].position, vehicleCheckpoints.Checkpoints[i + 1 > checkpointsCount - 1 ? 0 : i + 1].position);
         }
+    }
+
+    private void OnVehicleFinish(VehicleManager vehicleManager) {
+        if (vehicleManager.IsPlayer)
+            cinemachineAnimator.Play("Finish");
+        vehicleManager.vehicleData.finished = true;
+        uiManager.RaceFinished(vehicleManager, vehicleManager.IsPlayer);
     }
 }
