@@ -8,10 +8,12 @@ public class RaceData : ScriptableObject
         Sprint
     }
 
+    [SerializeField] Track prefab;
     [SerializeField] RaceType raceType;
     [SerializeField] int maxLoops;
     [SerializeField] int[] coinsReward;
 
+    public Track Prefab => prefab;
     public RaceType Type => raceType;
     public int MaxLoops => maxLoops;
     public int[] CoinsRewards => coinsReward;

@@ -1,32 +1,20 @@
-using Runner.RL;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
+    [SerializeField] string playScene;
 
-    [SerializeField] RunnerBaseAgent[] agents;
-    [SerializeField] RunnerEnvironment environment;
-    [SerializeField] GameObject mainMenuPanel;
-    [SerializeField] GameObject trainingMenuPanel;
+    [SerializeField] Image imgTest;
+    [SerializeField] GameObject prefabTest;
 
-    int selectedAgent;
-
-    public void BeginTraining() {
-        environment.SetAgent(agents[selectedAgent]);
-        environment.BeginNewGame();
-        mainMenuPanel.SetActive(false);
-        trainingMenuPanel.SetActive(true);
+    public void OnPlay() {
+        SceneManager.LoadScene(playScene);
     }
 
-    public void StopTraining() {
-        environment.StopTraining();
-        mainMenuPanel.SetActive(true);
-        trainingMenuPanel.SetActive(false);
-    }
 
-    public void ChangeAgent(int val) {
-        selectedAgent = val;
+    public void OnTest() {
+        imgTest.sprite = IconCreator.CreateSprite(prefabTest, new Vector3(0, 0, -5), new Vector3(0, 90, 0), new Rect(0, 0, 512, 512));
     }
 }

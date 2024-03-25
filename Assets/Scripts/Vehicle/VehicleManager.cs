@@ -50,11 +50,11 @@ public class VehicleManager : MonoBehaviour
             vehicleData.loopCount++;
             vehicleData.PassedCheckpoints.Clear();
             OnFinishReached?.Invoke();
-            if (vehicleData.loopCount >= RaceManager.Instance.RaceData.MaxLoops)
+            if (vehicleData.loopCount >= RaceManager.Instance.RaceData.MaxLoops && !RaceManager.Instance.enableLearning)
                 OnRaceFinished?.Invoke(this);
         }
 
-        if (nextCheckpointDistance < CheckpointsContainer.CheckpointRadius || prevCheckpointDistance < CheckpointsContainer.CheckpointRadius) {
+        if (!CheckpointsContainer.UseTriggers && (nextCheckpointDistance < CheckpointsContainer.CheckpointRadius || prevCheckpointDistance < CheckpointsContainer.CheckpointRadius)) {
             if (distFactor >= 1f && goingForward)
                 SetNextCheckpoint(goingForward);
             else if (distFactor <= 0 && !goingForward)
@@ -157,4 +157,17 @@ public class VehicleManager : MonoBehaviour
         vehicleData = new VehicleData(CheckpointsContainer.Checkpoints[0], CheckpointsContainer.Checkpoints[1]);
     }
 
+    private void OnTriggerEnter(Collider other) {
+        if (CheckpointsContainer.UseTriggers) {
+
+            if (other.CompareTag("Checkpoint")) {
+                bool goingForward = vehicle.VehicleRigidBody.velocity.magnitude >= 0.1f && Vector3.Dot(vehicle.VehicleRigidBody.velocity, (vehicleData.nextCheckpoint.position - vehicleData.currentCheckpoint.position).normalized) > 0;
+
+                if (other.transform == vehicleData.nextCheckpoint && goingForward)
+                    SetNextCheckpoint(goingForward);
+                else if (other.transform == vehicleData.currentCheckpoint && !goingForward)
+                    SetPreviousCheckpoint(goingForward);
+            }
+        }
+    }
 }

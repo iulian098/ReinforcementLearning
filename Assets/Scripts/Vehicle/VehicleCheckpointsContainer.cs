@@ -17,11 +17,25 @@ public class VehicleCheckpointsContainer : MonoBehaviour {
 
     #endregion
 
+    [SerializeField] Transform checkpointsContainer;
     [SerializeField] Transform[] checkpoints;
     [SerializeField] float checkpointRaidus = 5;
+    [SerializeField] bool useTriggers;
 
     public Transform[] Checkpoints => checkpoints;
     public float CheckpointRadius => checkpointRaidus;
+    public bool UseTriggers => useTriggers;
+
+    private void Start() {
+        if (checkpointsContainer != null) {
+            checkpoints = new Transform[checkpointsContainer.childCount];
+            for (int i = 0; i < checkpointsContainer.childCount; i++) {
+                checkpoints[i] = checkpointsContainer.GetChild(i);
+            }
+            //checkpoints = checkpointsContainer.GetComponentsInChildren<Transform>();
+        }
+    }
+
     private void OnDrawGizmosSelected() {
         foreach (var checkpoint in checkpoints) {
 

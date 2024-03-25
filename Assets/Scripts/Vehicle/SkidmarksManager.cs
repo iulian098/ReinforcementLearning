@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Skidmarks))]
-public class SkidmarksManager : MonoBehaviour
+public class SkidmarksManager : MonoSingleton<SkidmarksManager>
 {
     [SerializeField] Skidmarks skidmarks;
 

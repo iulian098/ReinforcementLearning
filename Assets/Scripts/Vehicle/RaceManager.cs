@@ -5,9 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class RaceManager : MonoBehaviour {
+public class RaceManager : MonoSingleton<RaceManager> {
 
-    public static RaceManager Instance;
     const int STARTING_TIME = 3;
 
     public enum State {
@@ -18,9 +17,7 @@ public class RaceManager : MonoBehaviour {
         Learning = 999
     }
 
-    [SerializeField] bool enableLearning;
-
-    [SerializeField] SkidmarksManager skidmarksManager;
+    public bool enableLearning;
 
     [SerializeField] RaceData currentRaceData;
     [SerializeField] Vehicle playerVehicle;
@@ -29,8 +26,6 @@ public class RaceManager : MonoBehaviour {
     [SerializeField] UILeaderboard leaderboard;
     [SerializeField] VehicleCheckpointsContainer vehicleCheckpoints;
     [SerializeField] Animator cinemachineAnimator;
-    [SerializeField] int startingCheckpointIndex = 0;
-
 
     List<VehicleManager> vehicles;
     Coroutine changingStateCoroutine;
@@ -41,7 +36,6 @@ public class RaceManager : MonoBehaviour {
     bool stopUpdate;
 
     public RaceData RaceData => currentRaceData;
-    public SkidmarksManager SkidmarksManager => skidmarksManager;
     public List<VehicleManager> Vehicles => vehicles;
     public State CurrentState => currentState;
     public float[] Distances => distances;
@@ -52,13 +46,6 @@ public class RaceManager : MonoBehaviour {
     private void OnDestroy() {
         foreach (var vehicle in vehicles)
             vehicle.OnRaceFinished -= OnVehicleFinish;
-    }
-
-    private void Awake() {
-        if (Instance != null && Instance != this)
-            Destroy(gameObject);
-        else
-            Instance = this;
     }
 
     private void Start() {
@@ -102,7 +89,7 @@ public class RaceManager : MonoBehaviour {
         vehicles = vehicles.OrderByDescending(x => x.vehicleData.loopCount).ThenByDescending(x => x.vehicleData.totalDistance).ToList();
 
         for (int i = 0; i < vehicles.Count; i++) {
-            if (vehicles[i].Initialized && sendCallback && !vehicles[i].vehicleData.finished) {
+            if (vehicles[i].Initialized && sendCallback && (!vehicles[i].vehicleData.finished || enableLearning)) {
                 if (i > vehicles[i].currentPlacement)
                     vehicles[i].OnPlacementChanged?.Invoke(false);
                 else if (i < vehicles[i].currentPlacement)
@@ -126,9 +113,10 @@ public class RaceManager : MonoBehaviour {
 
         switch (state) {
             case State.Init:
-
                 currentStartingTime = STARTING_TIME;
+
                 yield return new WaitForSeconds(1f);
+
                 ChangeState(State.Starting);
 
                 break;
@@ -153,11 +141,11 @@ public class RaceManager : MonoBehaviour {
     }
 
     private void OnDrawGizmos() {
+        if (vehicleCheckpoints == null) return;
         Gizmos.color = Color.white;
         int checkpointsCount = vehicleCheckpoints.Checkpoints.Length;
-        for (int i = 0; i < checkpointsCount; i++) {
+        for (int i = 0; i < checkpointsCount; i++)
             Gizmos.DrawLine(vehicleCheckpoints.Checkpoints[i].position, vehicleCheckpoints.Checkpoints[i + 1 > checkpointsCount - 1 ? 0 : i + 1].position);
-        }
     }
 
     private void OnVehicleFinish(VehicleManager vehicleManager) {

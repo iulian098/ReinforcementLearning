@@ -10403,62 +10403,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   drivetrain: 1
+  vehicleConfig: {fileID: 0}
   rb: {fileID: 6260421608971829181}
-  maxSpeed: 185
-  maxReverseTorque: 300
-  maxBrakeTorque: 500
-  handbrakeTorque: 90000
-  enginePowerCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 400
-      inSlope: 0.0602185
-      outSlope: 0.0602185
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.097367115
-    - serializedVersion: 3
-      time: 4500
-      value: 1250
-      inSlope: 0.00080523023
-      outSlope: 0.00080523023
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.12567006
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 5585.8203
-      value: 607.07965
-      inSlope: -1.6799965
-      outSlope: -1.6799965
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.046782926
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 6000
-      value: 8.140015
-      inSlope: -0.7809254
-      outSlope: -0.7809254
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.029762045
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  gears:
-  - 4
-  - 2.5
-  - 2
-  - 1.3
-  - 0.75
-  shiftUpRPM: 5600
-  shiftDownRPM: 2500
-  differentialRatio: 3
+  isAgent: 0
   frontWheels:
   - wheelCollider: {fileID: 5709610120147997697}
     wheelVisual: {fileID: 805152199856512623}
@@ -10469,14 +10416,7 @@ MonoBehaviour:
     wheelVisual: {fileID: 7217835867553111783}
   - wheelCollider: {fileID: 6550064713855505053}
     wheelVisual: {fileID: 7843850746602023341}
-  useABS: 1
-  absThreshold: 0.5
-  absBrakeFarctor: 0.8
-  useTCS: 1
-  tcsThreshold: 0.8
-  tcsFactor: 0.5
-  steerRadius: 5
-  downForce: 50
+  steeringHelper: 0
 --- !u!114 &7711129789335239034
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10486,9 +10426,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3496148512035913140}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6640d97111c5cf645976c23e29cfc964, type: 3}
+  m_Script: {fileID: 11500000, guid: e54de39e900b5a64393ebbb74385de8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isPlayer: 0
   vehicle: {fileID: 5221659334162597407}
   vehicleData:
     currentCheckpoint: {fileID: 0}
@@ -10496,6 +10437,7 @@ MonoBehaviour:
     checkpointIndex: 0
     loopCount: 0
     totalDistance: 0
+    finished: 0
   currentPlacement: 0
 --- !u!114 &6250580918819344204
 MonoBehaviour:
@@ -10649,7 +10591,6 @@ MonoBehaviour:
     maxVolume: 0.3
   hitSound:
     settings:
-      loop: 0
       minDistance: 2
       maxDistance: 20
       rolloffMode: 0
@@ -10660,7 +10601,6 @@ MonoBehaviour:
     maxPitch: 1
     volume: 0.5
   engineAudioSettings:
-    loop: 1
     minDistance: 3
     maxDistance: 25
     rolloffMode: 0

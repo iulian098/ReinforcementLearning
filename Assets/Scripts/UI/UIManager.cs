@@ -27,7 +27,7 @@ public class UIManager : MonoBehaviour
 
         kmText.text = "Km/h: " + vehicle.Kmph;
         gearText.text = "Gear: " + vehicle.CurrentGear;
-        rpmText.text = "RPM: " + vehicle.EngineRPM;
+        rpmText.text = "RPM: " + (int)vehicle.EngineRPM;
     }
 
     public void RaceFinished(VehicleManager vehicle, bool isPlayer) {
