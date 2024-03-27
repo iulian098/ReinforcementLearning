@@ -40,6 +40,8 @@ public class VehicleSelection : MonoBehaviour
             }
         }
 
+        UpdateEquip();
+
     }
 
     private void OnVehicleSelected(VehicleShopItem item) {
@@ -57,7 +59,6 @@ public class VehicleSelection : MonoBehaviour
         selectedSaveData = vehiclesContainer.vehicleSaveDatas.Find(x => x.vehicleIndex == Array.IndexOf(vehiclesContainer.Vehicles, item.Config));
         selectedVehicleConfig = item.Config;
         UpdateUI();
-
         vehicleStats.UpdateValues(equippedVehicleConfig, selectedVehicleConfig);
     }
 
@@ -65,6 +66,11 @@ public class VehicleSelection : MonoBehaviour
         buyButton.SetActive(selectedSaveData == null);
         equipButton.SetActive(selectedSaveData != null && vehiclesContainer.GetEquippedVehicle() != selectedItem.Config);
         upgradeButton.SetActive(selectedSaveData != null);
+    }
+
+    void UpdateEquip() {
+        for (int i = 0; i < spawnedItems.Length; i++)
+            spawnedItems[i].Equip(vehiclesContainer.selectedVehicle == i);
     }
 
     public void OnBuyVehicle() {
@@ -88,9 +94,14 @@ public class VehicleSelection : MonoBehaviour
         equippedVehicleConfig = selectedItem.Config;
         vehiclesContainer.selectedVehicle = Array.IndexOf(vehiclesContainer.Vehicles, selectedItem.Config);
         UpdateUI();
+        UpdateEquip();
     }
 
-    public void OnUpgradeVehicle() {
+    public void OpenUpgradeMenu() {
+        throw new NotImplementedException();
+    }
+
+    public void OpenLevelsMenu() {
         throw new NotImplementedException();
     }
 }

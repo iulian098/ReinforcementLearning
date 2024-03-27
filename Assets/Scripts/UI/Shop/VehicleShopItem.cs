@@ -33,6 +33,10 @@ public class VehicleShopItem : MonoBehaviour
 
     }
 
+    public void Equip(bool val) {
+        price.text = val ? "Equipped" : $"{config.Price}$";
+    }
+
     public void OnItemSelected() {
         OnSelected?.Invoke(this);
     }
