@@ -18,4 +18,13 @@ public class VehiclesContainer : ScriptableObject
 
         return saveData;
     }
+
+    public VehicleConfig GetEquippedVehicle() {
+        return vehicles[selectedVehicle];
+    }
+
+    public VehicleSaveData GetSaveData(VehicleConfig vehicleConfig) {
+        int configIndex = System.Array.IndexOf(vehicles, vehicleConfig);
+        return vehicleSaveDatas.Find(x => x.vehicleIndex ==  configIndex);
+    }
 }

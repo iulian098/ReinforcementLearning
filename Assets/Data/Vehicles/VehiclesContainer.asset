@@ -21,3 +21,9 @@ MonoBehaviour:
     accelerationLevel: 0
     nosLevel: 0
     handlingLevel: 0
+  - vehicleIndex: 1
+    engineLevel: 0
+    accelerationLevel: 0
+    nosLevel: 0
+    handlingLevel: 0
+  selectedVehicle: 0
