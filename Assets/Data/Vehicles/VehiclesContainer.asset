@@ -15,3 +15,9 @@ MonoBehaviour:
   vehicles:
   - {fileID: 11400000, guid: 62a167404f3632f4b9da9b49824e2859, type: 2}
   - {fileID: 11400000, guid: e696fb110e1d11047aa3522de37bb367, type: 2}
+  vehicleSaveDatas:
+  - vehicleIndex: 0
+    engineLevel: 0
+    accelerationLevel: 0
+    nosLevel: 0
+    handlingLevel: 0

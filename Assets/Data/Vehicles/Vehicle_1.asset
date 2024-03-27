@@ -85,8 +85,27 @@ MonoBehaviour:
   tcsFactor: 0.5
   nosPowerMultiplier: 0
   nosAmount: 0
-  enginePowerBonus: []
-  accelerationBonus: []
-  nosPowerBonus: []
-  nosAmountBonus: []
-  wheelHandlingBonus: []
+  enginePowerBonus:
+  - 0.05
+  - 0.1
+  - 0.15
+  accelerationBonus:
+  - 0.1
+  - 0.15
+  - 0.175
+  - 0.2
+  nosPowerBonus:
+  - 100
+  - 150
+  - 200
+  - 250
+  nosAmountBonus:
+  - 10
+  - 30
+  - 60
+  - 100
+  wheelHandlingBonus:
+  - 0.1
+  - 0.15
+  - 0.25
+  - 0.4
