@@ -48,11 +48,13 @@ public class VehicleConfig : ScriptableObject
     [SerializeField] float nosAmount;
 
     [Space, Header("Upgrades")]
-    [SerializeField] float[] enginePowerBonus;
-    [SerializeField] float[] accelerationBonus;
-    [SerializeField] float[] nosPowerBonus;
-    [SerializeField] float[] nosAmountBonus;
-    [SerializeField] float[] wheelHandlingBonus;
+    [SerializeField] UpgradeData[] enginePowerBonus;
+    [SerializeField] UpgradeData[] accelerationBonus;
+    [SerializeField] UpgradeData[] nosPowerBonus;
+    [SerializeField] UpgradeData[] nosAmountBonus;
+    [SerializeField] UpgradeData[] wheelHandlingBonus;
+
+    [SerializeField] UpgradeData[] upgrades;
 
     public Vehicle Prefab => prefab;
     public GameObject PreviewPrefab => previewPrefab;
@@ -85,9 +87,12 @@ public class VehicleConfig : ScriptableObject
     public float NosPowerMultiplier => nosPowerMultiplier;
     public float NosAmount => nosAmount;
 
-    public float[] EnginePowerBonus => enginePowerBonus;
-    public float[] AccelerationBonus => accelerationBonus;
-    public float[] NosPowerBonus => nosPowerBonus;
-    public float[] NosAmountBonus => nosAmountBonus;
-    public float[] WheelHandlingBonus => wheelHandlingBonus;
+    public UpgradeData[] EnginePowerBonus => enginePowerBonus;
+    public UpgradeData[] AccelerationBonus => accelerationBonus;
+    public UpgradeData[] NosPowerBonus => nosPowerBonus;
+    public UpgradeData[] NosAmountBonus => nosAmountBonus;
+    public UpgradeData[] WheelHandlingBonus => wheelHandlingBonus;
+
+    public UpgradeData[] Upgrades => upgrades;
+
 }
