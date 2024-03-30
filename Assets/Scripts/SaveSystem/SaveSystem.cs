@@ -1,20 +1,19 @@
-using System;
 using System.Collections;
 using System.IO;
-using System.Runtime.InteropServices;
 using UnityEngine;
+using Newtonsoft.Json;
 
+[DefaultExecutionOrder(-50)]
 public class SaveSystem : MonoBehaviour
 {
     const string FILE_NAME = "saveFile.data";
 
     [SerializeField] VehiclesContainer vehiclesContainer;
 
-    string path;
     string filePath;
     SaveFile saveFile;
 
-    void Start()
+    void Awake()
     {
         DontDestroyOnLoad(this);
         filePath = Path.Combine(Application.persistentDataPath, FILE_NAME);
@@ -34,11 +33,13 @@ public class SaveSystem : MonoBehaviour
 
     void LoadGameData() {
         if (saveFile == null) {
-            Debug.LogError("No save file found, creating new one");
+            Debug.LogError("[SaveSystem] No save file found, creating new one");
             saveFile = new SaveFile();
         }
 
-        vehiclesContainer.vehicleSaveDatas = saveFile.vehicleSaveData;
+        UserManager.playerData = saveFile.playerData;
+        //vehiclesContainer.vehicleSaveDatas = saveFile.vehicleSaveData;
+        vehiclesContainer.SetSaveData(saveFile.vehicleSaveData);
     }
 
     #region Save/Load
@@ -47,17 +48,12 @@ public class SaveSystem : MonoBehaviour
         SaveFile file;
 
         string data;
-
-        /*#if UNITY_WEBGL && !UNITY_EDITOR
-                data = LoadData();
-                file = JsonUtility.FromJson<SaveFile>(data);
-                Debug.Log("LoadData = " + data);
-        #else*/
+        
         if (File.Exists(filePath)) {
             try {
                 using (var reader = new StreamReader(filePath)) {
                     data = reader.ReadToEnd();
-                    file = JsonUtility.FromJson<SaveFile>(data);
+                    file = JsonConvert.DeserializeObject(data, typeof(SaveFile)) as SaveFile;
                 }
                 Debug.Log("[SaveSystem] Save file loaded");
             }
@@ -71,36 +67,20 @@ public class SaveSystem : MonoBehaviour
             file = new SaveFile();
             Debug.Log("[SaveSystem] Created new save file");
         }
-        //#endif
         
         return file;
     }
 
     void SaveFile() {
-//#if UNITY_WEBGL && !UNITY_EDITOR
-        //string data = JsonUtility.ToJson(saveFile);
-        //SaveData($"'{data}'");
-        //Debug.Log("SaveData = " + data);
-
-//#else
         try {
             using (StreamWriter sw = new StreamWriter(filePath))
-                sw.Write(JsonUtility.ToJson(saveFile));
+                sw.Write(JsonConvert.SerializeObject(saveFile));
         }catch(IOException ex) {
             Debug.LogError(ex.Message);
         }
+
         Debug.Log("[SaveSystem] Saved");
-        //#endif
     }
-
-#if UNITY_WEBGL && !UNITY_EDITOR
-        [DllImport("__Internal")]
-        public static extern void SaveData(string data);
-
-        [DllImport("__Internal")]
-        public static extern string LoadData();
-#endif
-
 
     #endregion
 

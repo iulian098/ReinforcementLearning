@@ -33,8 +33,17 @@ public class VehicleShopItem : MonoBehaviour
 
     }
 
-    public void Equip(bool val) {
-        price.text = val ? "Equipped" : $"{config.Price}$";
+    public void SetState(ShopItemState state) {
+        switch (state) {
+            case ShopItemState.Purchased:
+                price.text = "Purchased";
+                break;
+            case ShopItemState.Equipped:
+                price.text = "Equipped";
+                break;
+            default:
+                break;
+        }
     }
 
     public void OnItemSelected() {

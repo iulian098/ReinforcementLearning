@@ -15,6 +15,6 @@ public class VehicleStats : MonoBehaviour
         acceleration.SetValue(currentConfig.AccelerationForce / 2, newConfig.AccelerationForce / 2);
         speed.SetValue(currentConfig.MaxSpeed / 300, newConfig.MaxSpeed / 300);
         nos.SetValue(currentConfig.NosPowerMultiplier / 3, newConfig.NosPowerMultiplier / 3);
-        handling.SetValue(currentConfig.WheelHandlingBonus[0] / 2, newConfig.WheelHandlingBonus[0] / 2);
+        //handling.SetValue(currentConfig.WheelHandlingBonus[0].val[0] / 2, newConfig.WheelHandlingBonus[0].val[0] / 2);
     }
 }
