@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Android;
 
 public class RaceManager : MonoSingleton<RaceManager> {
 
@@ -13,27 +14,29 @@ public class RaceManager : MonoSingleton<RaceManager> {
         Init,
         Starting,
         Playing,
-        End,
-        Learning = 999
+        End
     }
 
     public bool enableLearning;
 
     [SerializeField] RaceData currentRaceData;
-    [SerializeField] Vehicle playerVehicle;
+    [SerializeField] Track trackData;
+    [SerializeField] VehiclesContainer vehiclesContainer;
+    [SerializeField] VehicleManager playerVehicle;
     [SerializeField] CinemachineVirtualCamera cam;
     [SerializeField] UIManager uiManager;
     [SerializeField] UILeaderboard leaderboard;
     [SerializeField] VehicleCheckpointsContainer vehicleCheckpoints;
     [SerializeField] Animator cinemachineAnimator;
 
-    List<VehicleManager> vehicles;
+    List<VehicleManager> vehicles = new List<VehicleManager>();
     Coroutine changingStateCoroutine;
     State currentState;
     int currentStartingTime;
     float[] distances;
     float raceTimeSeconds;
     bool stopUpdate;
+    bool initialized = false;
 
     public RaceData RaceData => currentRaceData;
     public List<VehicleManager> Vehicles => vehicles;
@@ -49,7 +52,12 @@ public class RaceManager : MonoSingleton<RaceManager> {
     }
 
     private void Start() {
-        vehicles = FindObjectsOfType<VehicleManager>().ToList();
+        //TODO: Spawn vehicles
+
+        if(!enableLearning)
+            SpawnVehicles();
+        else
+            vehicles = FindObjectsOfType<VehicleManager>().ToList();
 
         foreach (var vehicle in vehicles)
             vehicle.OnRaceFinished += OnVehicleFinish;
@@ -65,8 +73,18 @@ public class RaceManager : MonoSingleton<RaceManager> {
 
         UpdateVehiclesPlacements(false);
 
-        foreach (var vehicle in vehicles)
-            vehicle.Init();
+        foreach (var vehicle in vehicles) {
+            if (!vehicle.IsPlayer) {
+                int vehicleIndex = Array.IndexOf(vehiclesContainer.Vehicles, vehicle.vehicleConfig);
+                VehicleSaveData randSaveData = new VehicleSaveData(vehicleIndex);
+                randSaveData.Randomize(vehicle.vehicleConfig);
+                vehicle.Init(randSaveData);
+            }
+            else {
+                int vehicleConfigIndex = Array.IndexOf(vehiclesContainer.Vehicles, vehicle.vehicleConfig);
+                vehicle.Init(vehiclesContainer.GetSaveData(vehicleConfigIndex));
+            }
+        }
 
         leaderboard.Init(vehicles);
         uiManager.Init();
@@ -75,14 +93,53 @@ public class RaceManager : MonoSingleton<RaceManager> {
         else
             ChangeState(State.Init);
 
-        cam.LookAt = cam.Follow = playerVehicle.transform;
+        if (playerVehicle != null)
+            cam.LookAt = cam.Follow = playerVehicle.transform;
+        else
+            cam.LookAt = cam.Follow = vehicles[0].transform;
+
+        initialized = true;
     }
 
     private void FixedUpdate() {
+        if (!initialized) return;
+
         if (currentState == State.Playing)
             raceTimeSeconds += Time.deltaTime;
         if (stopUpdate) return;
         UpdateVehiclesPlacements(true);
+    }
+
+    void SpawnVehicles() {
+        vehicles.Clear();
+        List<Transform> spawnPoints = trackData.GetSpawnPoints();
+
+        if(spawnPoints.Count < currentRaceData.MaxPlayers) {
+            Debug.LogError("Not enough spawn points, max players will be : " + spawnPoints.Count);
+        }
+
+        for (int i = 0; i < currentRaceData.MaxPlayers; i++) {
+            if (i > spawnPoints.Count - 1) break;
+
+            if (i == spawnPoints.Count - 1 || i == currentRaceData.MaxPlayers - 1) {
+                //Spawn Player
+                VehicleManager vehicle = Instantiate(vehiclesContainer.GetEquippedVehicle().Prefab, spawnPoints[i].position, spawnPoints[i].rotation);
+                VehicleSaveData saveData = vehiclesContainer.vehicleSaveDatas[vehiclesContainer.selectedVehicle];
+                vehicles.Add(vehicle);
+                vehicle.Init(vehiclesContainer.GetEquippedVehicle(), saveData, true);
+                playerVehicle = vehicle;
+                uiManager.SetVehicle(vehicle);
+            }
+            else {
+                //Spawn opponents
+                int vehicleIndex = UnityEngine.Random.Range(0, vehiclesContainer.Vehicles.Length);
+                VehicleManager vehicle = Instantiate(vehiclesContainer.Vehicles[vehicleIndex].Prefab, spawnPoints[i].position, spawnPoints[i].rotation);
+                VehicleSaveData saveData = new VehicleSaveData(vehicleIndex);
+                saveData.Randomize(vehiclesContainer.Vehicles[vehicleIndex]);
+                vehicles.Add(vehicle);
+                vehicle.Init(vehiclesContainer.Vehicles[vehicleIndex], saveData);
+            }
+        }
     }
 
     public void UpdateVehiclesPlacements(bool sendCallback) {
@@ -133,11 +190,19 @@ public class RaceManager : MonoSingleton<RaceManager> {
 
                 break;
             case State.End:
-
+                cinemachineAnimator.Play("Finish");
                 break;
             default:
                 break;
         }
+    }
+
+    private void OnVehicleFinish(VehicleManager vehicleManager) {
+        if (vehicleManager.IsPlayer) {
+            ChangeState(State.End);
+        }
+        vehicleManager.vehicleData.finished = true;
+        uiManager.RaceFinished(vehicleManager, vehicleManager.IsPlayer);
     }
 
     private void OnDrawGizmos() {
@@ -146,12 +211,5 @@ public class RaceManager : MonoSingleton<RaceManager> {
         int checkpointsCount = vehicleCheckpoints.Checkpoints.Length;
         for (int i = 0; i < checkpointsCount; i++)
             Gizmos.DrawLine(vehicleCheckpoints.Checkpoints[i].position, vehicleCheckpoints.Checkpoints[i + 1 > checkpointsCount - 1 ? 0 : i + 1].position);
-    }
-
-    private void OnVehicleFinish(VehicleManager vehicleManager) {
-        if (vehicleManager.IsPlayer)
-            cinemachineAnimator.Play("Finish");
-        vehicleManager.vehicleData.finished = true;
-        uiManager.RaceFinished(vehicleManager, vehicleManager.IsPlayer);
     }
 }

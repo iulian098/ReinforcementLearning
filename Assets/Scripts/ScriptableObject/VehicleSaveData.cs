@@ -37,7 +37,7 @@ public class VehicleSaveData
     public void Randomize(VehicleConfig config) {
         for (int i = 0; i < Enum.GetNames(typeof(UpgradeType)).Length; i++) {
             UpgradeData data = Array.Find(config.Upgrades, x => x.upgradeType == (UpgradeType)i);
-            EquippedLevels.Add((UpgradeType)i, Random.Range(0, data.val.Length));
+            EquippedLevels.Set((UpgradeType)i, Random.Range(0, data.val.Length));
         }
     }
 }

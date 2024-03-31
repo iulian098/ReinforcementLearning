@@ -30,6 +30,10 @@ public class UIManager : MonoBehaviour
         rpmText.text = "RPM: " + (int)vehicle.EngineRPM;
     }
 
+    public void SetVehicle(VehicleManager vehicle) {
+        this.vehicle = vehicle.Vehicle;
+    }
+
     public void RaceFinished(VehicleManager vehicle, bool isPlayer) {
         resultScreen.SetResult(vehicle.currentPlacement, 
             new ResultData() {

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab238dd907a8e774c95228de39cac413, type: 3}
   m_Name: Vehicle_2
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5467117781426886360, guid: 9361e774fd458504b9de15353ef00c6e, type: 3}
+  prefab: {fileID: 7542256589864233405, guid: 9361e774fd458504b9de15353ef00c6e, type: 3}
   previewPrefab: {fileID: 7826009185202562333, guid: 15bf7e1150259444fb36a38608720755, type: 3}
   icon: {fileID: 0}
   price: 15000

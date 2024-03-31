@@ -16,7 +16,7 @@ public class VehiclesContainer : ScriptableObject
             for (int i = 0; i < vehicles.Length; i++)
                 vehicleSaveDatas.Add(CreateSaveData(i));
         }
-        else if (this.vehicleSaveDatas.Count != vehicleSaveDatas.Count) {
+        else if (vehicleSaveDatas.Count != vehicles.Length) {
             for (int i = vehicleSaveDatas.Count; i < vehicles.Length; i++)
                 vehicleSaveDatas.Add(CreateSaveData(i));
         }

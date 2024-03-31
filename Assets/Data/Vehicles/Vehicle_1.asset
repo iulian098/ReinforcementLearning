@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab238dd907a8e774c95228de39cac413, type: 3}
   m_Name: Vehicle_1
   m_EditorClassIdentifier: 
-  prefab: {fileID: 5634309148492109163, guid: 4784162fb5b975e43bb92f058cf4c1d4, type: 3}
+  prefab: {fileID: 8622531910035623962, guid: 4784162fb5b975e43bb92f058cf4c1d4, type: 3}
   previewPrefab: {fileID: 6605176557528121422, guid: 80e5e99710ba90641b8ae82cd5b51979, type: 3}
   icon: {fileID: 0}
   price: 15000
@@ -21,7 +21,7 @@ MonoBehaviour:
   lowSpeedSteerRadius: 3.8
   highSpeedSteerRadius: 25
   downForce: 50
-  maxReverseTorque: 500
+  maxReverseTorque: 10000
   brakeTorque: 1000
   handbrakeTorque: 5000
   enginePowerCurve:
@@ -83,8 +83,8 @@ MonoBehaviour:
   useTCS: 1
   tcsThreshold: 0.8
   tcsFactor: 0.5
-  nosPowerMultiplier: 0
-  nosAmount: 0
+  nosPowerMultiplier: 0.05
+  nosAmount: 3
   enginePowerBonus:
   - upgradeType: 0
     price: 

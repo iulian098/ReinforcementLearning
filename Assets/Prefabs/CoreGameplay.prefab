@@ -309,15 +309,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableLearning: 1
-  skidmarksManager: {fileID: 2069043507953698699}
   currentRaceData: {fileID: 11400000, guid: 6ca6872b66eb02c49963668d40897cfd, type: 2}
+  vehiclesContainer: {fileID: 11400000, guid: 79c56f100b70e0348881ca282c535822, type: 2}
   playerVehicle: {fileID: 0}
   cam: {fileID: 3777663755962789037}
   uiManager: {fileID: 2133238803093698791}
   leaderboard: {fileID: 9119109143670760561}
   vehicleCheckpoints: {fileID: 0}
   cinemachineAnimator: {fileID: 8254198101364811596}
-  startingCheckpointIndex: 0
 --- !u!1 &1766807473940875643
 GameObject:
   m_ObjectHideFlags: 0

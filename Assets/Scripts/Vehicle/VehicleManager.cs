@@ -6,7 +6,9 @@ public class VehicleManager : MonoBehaviour
     [SerializeField] bool isPlayer;
     [SerializeField] Vehicle vehicle;
 
+    public VehicleConfig vehicleConfig;
     public VehicleData vehicleData;
+    public VehicleSaveData vehicleSaveData;
     public int currentPlacement;
     float nextCheckpointDistance;
     float prevCheckpointDistance;
@@ -25,10 +27,21 @@ public class VehicleManager : MonoBehaviour
     public Vehicle Vehicle => vehicle;
     VehicleCheckpointsContainer CheckpointsContainer => VehicleCheckpointsContainer.Instance;
 
-    public void Init() {
+    public void Init(VehicleSaveData vehicleSaveData, bool isPlayer = false) {
         ResetVehicleData();
-
+        this.vehicleSaveData = vehicleSaveData;
+        this.isPlayer = isPlayer;
         initialized = true;
+        vehicle.Init(vehicleConfig, vehicleSaveData);
+    }
+
+    public void Init(VehicleConfig config, VehicleSaveData vehicleSaveData, bool isPlayer = false) {
+        ResetVehicleData();
+        this.vehicleSaveData = vehicleSaveData;
+        this.isPlayer = isPlayer;
+        vehicleConfig = config;
+        initialized = true;
+        vehicle.Init(vehicleConfig, vehicleSaveData);
     }
 
     void Update() {

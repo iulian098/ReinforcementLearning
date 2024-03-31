@@ -12,6 +12,18 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 384171059568399563, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_Radius
+      value: 0.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 384171059568399563, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_SuspensionDistance
+      value: 0.12
+      objectReference: {fileID: 0}
+    - target: {fileID: 384171059568399563, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_SuspensionSpring.targetPosition
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 640810855351555407, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
       propertyPath: lowSounds.on
       value: 
@@ -41,6 +53,10 @@ PrefabInstance:
       value: 0.4750001
       objectReference: {fileID: 0}
     - target: {fileID: 1509663931802791003, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.1825
+      objectReference: {fileID: 0}
+    - target: {fileID: 1509663931802791003, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0.896
       objectReference: {fileID: 0}
@@ -61,12 +77,20 @@ PrefabInstance:
       value: 0.4750001
       objectReference: {fileID: 0}
     - target: {fileID: 3556427188956859125, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.1825
+      objectReference: {fileID: 0}
+    - target: {fileID: 3556427188956859125, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
       propertyPath: m_LocalPosition.z
       value: -0.787
       objectReference: {fileID: 0}
     - target: {fileID: 3720335817358915002, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.4750001
+      objectReference: {fileID: 0}
+    - target: {fileID: 3720335817358915002, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.1825
       objectReference: {fileID: 0}
     - target: {fileID: 3720335817358915002, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
       propertyPath: m_LocalPosition.z
@@ -84,6 +108,18 @@ PrefabInstance:
       propertyPath: enginePowerCurve.m_Curve.Array.data[0].value
       value: 450
       objectReference: {fileID: 0}
+    - target: {fileID: 5709610120147997697, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_Radius
+      value: 0.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 5709610120147997697, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_SuspensionDistance
+      value: 0.12
+      objectReference: {fileID: 0}
+    - target: {fileID: 5709610120147997697, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_SuspensionSpring.targetPosition
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 6060370201849662079, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.475
@@ -97,6 +133,10 @@ PrefabInstance:
       value: -0.4750001
       objectReference: {fileID: 0}
     - target: {fileID: 6245342367422531289, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.1825
+      objectReference: {fileID: 0}
+    - target: {fileID: 6245342367422531289, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
       propertyPath: m_LocalPosition.z
       value: -0.787
       objectReference: {fileID: 0}
@@ -108,6 +148,18 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0.8959998
       objectReference: {fileID: 0}
+    - target: {fileID: 6550064713855505053, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_Radius
+      value: 0.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 6550064713855505053, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_SuspensionDistance
+      value: 0.12
+      objectReference: {fileID: 0}
+    - target: {fileID: 6550064713855505053, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_SuspensionSpring.targetPosition
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 7217835867553111783, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.475
@@ -115,6 +167,18 @@ PrefabInstance:
     - target: {fileID: 7217835867553111783, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
       propertyPath: m_LocalPosition.z
       value: -0.78699964
+      objectReference: {fileID: 0}
+    - target: {fileID: 7652842210251330482, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_Radius
+      value: 0.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 7652842210251330482, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_SuspensionDistance
+      value: 0.12
+      objectReference: {fileID: 0}
+    - target: {fileID: 7652842210251330482, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_SuspensionSpring.targetPosition
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 7843850746602023341, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
       propertyPath: m_LocalPosition.x

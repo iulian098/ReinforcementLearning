@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbc9ba03c9f15f14c9f7752f6d95ab75, type: 3}
   m_Name: TestRaceData
   m_EditorClassIdentifier: 
+  sceneName: 
+  prefab: {fileID: 7567291806594555960, guid: dbda7d5bef810f046af0a7b54a121961, type: 3}
   raceType: 0
+  maxPlayers: 5
   maxLoops: 3
   coinsReward: e8030000f4010000fa000000
