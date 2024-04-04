@@ -12,7 +12,7 @@ public class VehicleSelection : MonoBehaviour
     [SerializeField] VehiclesContainer vehiclesContainer;
     [SerializeField] Transform itemsContainer;
     [SerializeField] Transform previewContainer;
-
+    [SerializeField] PreviewManager previewManager;
     [Space, Header("Scrolls")]
     [SerializeField] GameObject vehicleScrollPanel;
     [SerializeField] GameObject categoryScrollPanel;
@@ -33,10 +33,9 @@ public class VehicleSelection : MonoBehaviour
     UpgradeCategory[] spawnedCategoryItems;
     UpgradeItem[] spawnedUpgradeLevels;
 
-    GameObject vehiclePreview;
-
     VehicleConfig selectedVehicleConfig;
     VehicleConfig equippedVehicleConfig;
+    VehicleConfig selectedVehicleToUpgrade;
     VehicleSaveData selectedSaveData;
     VehicleShopItem selectedItem;
 
@@ -60,6 +59,7 @@ public class VehicleSelection : MonoBehaviour
         }
 
         UpdateEquip();
+        equipButton.onClick.AddListener(OnEquipVehicle);
 
     }
 
@@ -70,11 +70,8 @@ public class VehicleSelection : MonoBehaviour
         selectedItem = item;
         selectedItem.IsSelected = true;
 
-        if (vehiclePreview != null)
-            Destroy(vehiclePreview);
+        previewManager.ShowPreview(item.Config);
 
-        vehiclePreview = Instantiate(item.Config.PreviewPrefab, previewContainer);
-        vehiclePreview.transform.localScale = Vector3.one;
         selectedSaveData = vehiclesContainer.vehicleSaveDatas.Find(x => x.vehicleIndex == Array.IndexOf(vehiclesContainer.Vehicles, item.Config));
         selectedVehicleConfig = item.Config;
         UpdateUIButtons();
@@ -160,6 +157,8 @@ public class VehicleSelection : MonoBehaviour
             categoryScrollPanel.SetActive(true);
             upgradeButton.gameObject.SetActive(false);
             equipButton.gameObject.SetActive(false);
+
+            vehicleStats.UpdateValues(selectedVehicleConfig, null);
         },
         () => {
             vehicleScrollPanel.SetActive(true);

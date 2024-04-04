@@ -1,4 +1,6 @@
 using System;
+using Unity.MLAgents;
+using Unity.MLAgents.Policies;
 using UnityEngine;
 
 public class VehicleManager : MonoBehaviour
@@ -32,7 +34,16 @@ public class VehicleManager : MonoBehaviour
         this.vehicleSaveData = vehicleSaveData;
         this.isPlayer = isPlayer;
         initialized = true;
-        vehicle.Init(vehicleConfig, vehicleSaveData);
+        vehicle.Init(vehicleConfig, vehicleSaveData, isPlayer);
+
+        if (isPlayer) {
+            if (gameObject.TryGetComponent<DecisionRequester>(out var decReq))
+                DestroyImmediate(decReq);
+            if (gameObject.TryGetComponent<Vehicle_Agent_v2>(out var agent))
+                DestroyImmediate(agent);
+            if (gameObject.TryGetComponent<BehaviorParameters>(out var behaviorParameters))
+                Destroy(behaviorParameters);
+        }
     }
 
     public void Init(VehicleConfig config, VehicleSaveData vehicleSaveData, bool isPlayer = false) {
@@ -41,7 +52,16 @@ public class VehicleManager : MonoBehaviour
         this.isPlayer = isPlayer;
         vehicleConfig = config;
         initialized = true;
-        vehicle.Init(vehicleConfig, vehicleSaveData);
+        vehicle.Init(vehicleConfig, vehicleSaveData, isPlayer);
+
+        if (isPlayer) {
+            if (gameObject.TryGetComponent<DecisionRequester>(out var decReq))
+                Destroy(decReq);
+            if(gameObject.TryGetComponent<BehaviorParameters>(out var behaviorParameters))
+                Destroy(behaviorParameters);
+            if(gameObject.TryGetComponent<Vehicle_Agent_v2>(out var agent))
+                Destroy(agent);
+        }
     }
 
     void Update() {

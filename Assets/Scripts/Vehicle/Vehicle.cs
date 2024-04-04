@@ -112,9 +112,10 @@ public class Vehicle : MonoBehaviour
     public Action OnGearChanged;
     public Action OnNOS;
 
-    public void Init(VehicleConfig config, VehicleSaveData saveData) {
+    public void Init(VehicleConfig config, VehicleSaveData saveData, bool isPlayer = false) {
         vehicleConfig = config;
         vehicleSaveData = saveData;
+        isAgent = !isPlayer;
     }
 
     void Start()
@@ -151,7 +152,7 @@ public class Vehicle : MonoBehaviour
         float av = velocity.magnitude / frontWheels[0].WheelCollider.radius;
         wheelRPM = (av / (2 * Mathf.PI)) * 60;
 
-        totalPower = vehicleConfig.EnginePowerCurve.Evaluate(engineRPM) * vehicleConfig.Gears[currentGear] * enginePowerMultiplier;
+        totalPower = vehicleConfig.EnginePowerCurve.Evaluate(engineRPM) * vehicleConfig.EnginePower * vehicleConfig.Gears[currentGear] * enginePowerMultiplier;
 
         steerRadius = Mathf.Lerp(vehicleConfig.LowSpeedSteerRadius, vehicleConfig.HighSpeedSteerRadius, (velocity.z * 3.6f) / vehicleConfig.MaxSpeed);
         steerRadius = Mathf.Clamp(steerRadius, vehicleConfig.LowSpeedSteerRadius, vehicleConfig.HighSpeedSteerRadius);
@@ -207,7 +208,7 @@ public class Vehicle : MonoBehaviour
 
     void Accelerate(float val) {
 
-        if (rb.velocity.magnitude < 0.1f)
+        if (rb.velocity.magnitude < 1f)
             reverse = val < 0;
 
         if (currentInput.handbrake) {
@@ -229,12 +230,12 @@ public class Vehicle : MonoBehaviour
                 if (reverse) {
                     wData.WheelCollider.motorTorque = vehicleConfig.MaxReverseTorque * val;
                     wData.WheelCollider.brakeTorque = 0;
-                    rb.AddForce(rot * transform.forward * totalPower * vehicleConfig.AccelerationForce * val);
+                    rb.AddForce(transform.forward * totalPower * vehicleConfig.AccelerationForce * val);
                 }
                 else {
                     wData.WheelCollider.motorTorque = 0;
                     wData.WheelCollider.brakeTorque = brake;
-                    rb.AddForce(rot * transform.forward * brake * vehicleConfig.AccelerationForce * val);
+                    rb.AddForce(transform.forward * vehicleConfig.BrakeTorque * vehicleConfig.AccelerationForce * val);
                 }
             }
             braking = !reverse;
@@ -244,12 +245,12 @@ public class Vehicle : MonoBehaviour
                 if (reverse) {
                     wData.WheelCollider.motorTorque = 0;
                     wData.WheelCollider.brakeTorque = vehicleConfig.BrakeTorque * Mathf.Abs(val);
-                    rb.AddForce(rot * transform.forward * totalPower * vehicleConfig.AccelerationForce * enginePowerMultiplier * val);
+                    rb.AddForce(transform.forward * vehicleConfig.BrakeTorque * val);
                 }
                 else {
                     wData.WheelCollider.motorTorque = TCSAcceleration(wData, torque * val);
                     wData.WheelCollider.brakeTorque = 0;
-                    rb.AddForce(rot * transform.forward * totalPower * vehicleConfig.AccelerationForce * enginePowerMultiplier * val);
+                    rb.AddForce(transform.forward * totalPower * vehicleConfig.AccelerationForce * enginePowerMultiplier * val);
                 }
             }
             braking = reverse;
@@ -278,7 +279,7 @@ public class Vehicle : MonoBehaviour
         foreach (var wheel in drivingWheels) {
             wheel.WheelCollider.brakeTorque = vehicleConfig.HandbrakeTorque;
             wheel.WheelCollider.motorTorque = 0;
-            rb.AddForce(transform.forward * vehicleConfig.HandbrakeTorque * -Mathf.Clamp(-1, 1, velocity.z));
+            rb.AddForce(-transform.forward * vehicleConfig.HandbrakeTorque * Mathf.Clamp(-1, 1, velocity.z) / 10);
         }
     }
 
@@ -364,7 +365,6 @@ public class Vehicle : MonoBehaviour
         Gizmos.color = Color.red;
         var rot = Quaternion.Euler(0, (reverse ? -1 : 1) * currentInput.steer * 45, 0);
         Gizmos.DrawRay(transform.position, rot * transform.forward * totalPower * vehicleConfig.AccelerationForce * currentInput.acceleration);
-        Gizmos.DrawSphere(transform.position + transform.right * steerRadius, steerRadius);
     }
 
 }

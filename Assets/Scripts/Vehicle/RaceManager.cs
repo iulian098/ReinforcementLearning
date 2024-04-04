@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Android;
 
 public class RaceManager : MonoSingleton<RaceManager> {
 
@@ -23,11 +22,12 @@ public class RaceManager : MonoSingleton<RaceManager> {
     [SerializeField] Track trackData;
     [SerializeField] VehiclesContainer vehiclesContainer;
     [SerializeField] VehicleManager playerVehicle;
-    [SerializeField] CinemachineVirtualCamera cam;
+    [SerializeField] CinemachineStateDrivenCamera cam;
     [SerializeField] UIManager uiManager;
     [SerializeField] UILeaderboard leaderboard;
     [SerializeField] VehicleCheckpointsContainer vehicleCheckpoints;
     [SerializeField] Animator cinemachineAnimator;
+    [SerializeField] bool initOnStart;
 
     List<VehicleManager> vehicles = new List<VehicleManager>();
     Coroutine changingStateCoroutine;
@@ -52,15 +52,24 @@ public class RaceManager : MonoSingleton<RaceManager> {
     }
 
     private void Start() {
-        //TODO: Spawn vehicles
+        if (initOnStart)
+            Init();
+    }
 
-        if(!enableLearning)
+    public void Init() {
+        if(vehicleCheckpoints == null)
+            vehicleCheckpoints = VehicleCheckpointsContainer.Instance;
+
+        trackData = FindFirstObjectByType<Track>();
+
+        if (!enableLearning)
             SpawnVehicles();
         else
-            vehicles = FindObjectsOfType<VehicleManager>().ToList();
+            vehicles = FindObjectsByType<VehicleManager>(FindObjectsSortMode.None).ToList();
 
         foreach (var vehicle in vehicles)
             vehicle.OnRaceFinished += OnVehicleFinish;
+
 
         distances = new float[vehicleCheckpoints.Checkpoints.Length + 1];
 
@@ -73,16 +82,18 @@ public class RaceManager : MonoSingleton<RaceManager> {
 
         UpdateVehiclesPlacements(false);
 
-        foreach (var vehicle in vehicles) {
-            if (!vehicle.IsPlayer) {
-                int vehicleIndex = Array.IndexOf(vehiclesContainer.Vehicles, vehicle.vehicleConfig);
-                VehicleSaveData randSaveData = new VehicleSaveData(vehicleIndex);
-                randSaveData.Randomize(vehicle.vehicleConfig);
-                vehicle.Init(randSaveData);
-            }
-            else {
-                int vehicleConfigIndex = Array.IndexOf(vehiclesContainer.Vehicles, vehicle.vehicleConfig);
-                vehicle.Init(vehiclesContainer.GetSaveData(vehicleConfigIndex));
+        if (enableLearning) {
+            foreach (var vehicle in vehicles) {
+                if (!vehicle.IsPlayer) {
+                    int vehicleIndex = Array.IndexOf(vehiclesContainer.Vehicles, vehicle.vehicleConfig);
+                    VehicleSaveData randSaveData = new VehicleSaveData(vehicleIndex);
+                    randSaveData.Randomize(vehicle.vehicleConfig);
+                    vehicle.Init(randSaveData);
+                }
+                else {
+                    int vehicleConfigIndex = Array.IndexOf(vehiclesContainer.Vehicles, vehicle.vehicleConfig);
+                    vehicle.Init(vehiclesContainer.GetSaveData(vehicleConfigIndex));
+                }
             }
         }
 
