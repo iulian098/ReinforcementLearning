@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour
 {
@@ -45,5 +46,9 @@ public class UIManager : MonoBehaviour
 
         if (isPlayer)
             resultScreen.Show();
+    }
+
+    public void GoToMainMenu() {
+        SceneManager.LoadScene("MainMenu");
     }
 }
