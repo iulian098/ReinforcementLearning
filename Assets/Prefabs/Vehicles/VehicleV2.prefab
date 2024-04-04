@@ -285,6 +285,7 @@ MonoBehaviour:
     wheelVisual: {fileID: 1279376002806365055}
   - wheelCollider: {fileID: 4767197952082583513}
     wheelVisual: {fileID: 7506674780200289688}
+  showDebug: 0
 --- !u!114 &8622531910035623962
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -325,7 +326,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 3000
+  MaxStep: 0
   agentID: 0
   vehicle: {fileID: 5634309148492109163}
   checkpointManager: {fileID: 8622531910035623962}
@@ -378,7 +379,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: d6709588667fceb4ab05196e7a0bef68, type: 3}
   m_InferenceDevice: 2
   m_BehaviorType: 0
   m_BehaviorName: MyAgents

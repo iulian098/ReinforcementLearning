@@ -105,6 +105,14 @@ PrefabInstance:
       value: 190
       objectReference: {fileID: 0}
     - target: {fileID: 5221659334162597407, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: drivetrain
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5221659334162597407, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: vehicleConfig
+      value: 
+      objectReference: {fileID: 11400000, guid: e696fb110e1d11047aa3522de37bb367, type: 2}
+    - target: {fileID: 5221659334162597407, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
       propertyPath: enginePowerCurve.m_Curve.Array.data[0].value
       value: 450
       objectReference: {fileID: 0}
@@ -330,7 +338,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5749623793892822547}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 7d66dc105789a2143882f23ff02ff192, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0

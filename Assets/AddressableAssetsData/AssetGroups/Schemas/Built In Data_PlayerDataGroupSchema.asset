@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a0e1741d5598f07419abf14ba9c2b159, type: 3}
-  m_Name: TracksContainer
+  m_Script: {fileID: 11500000, guid: b1487f5d688e4f94f828f879d599dbdc, type: 3}
+  m_Name: Built In Data_PlayerDataGroupSchema
   m_EditorClassIdentifier: 
-  tracks:
-  - {fileID: 11400000, guid: 6ca6872b66eb02c49963668d40897cfd, type: 2}
+  m_Group: {fileID: 11400000, guid: dcfd0c59af83dd14fbb30179aa5a8791, type: 2}
+  m_IncludeResourcesFolders: 1
+  m_IncludeBuildSettingsScenes: 1

@@ -14,59 +14,50 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 7542256589864233405, guid: 9361e774fd458504b9de15353ef00c6e, type: 3}
   previewPrefab: {fileID: 7826009185202562333, guid: 15bf7e1150259444fb36a38608720755, type: 3}
-  icon: {fileID: 0}
   price: 15000
-  maxSpeed: 185
+  maxSpeed: 210
   maxReverseSpeed: 20
   lowSpeedSteerRadius: 3.8
   highSpeedSteerRadius: 25
   downForce: 50
   maxReverseTorque: 500
   brakeTorque: 1000
-  handbrakeTorque: 5000
+  handbrakeTorque: 1000
   enginePowerCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 400
-      inSlope: 0.0602185
-      outSlope: 0.0602185
+      value: 1
+      inSlope: 0.00061207754
+      outSlope: 0.00061207754
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.097367115
+      outWeight: 0.089358896
     - serializedVersion: 3
       time: 4500
-      value: 1250
-      inSlope: 0.00080523023
-      outSlope: 0.00080523023
+      value: 3
+      inSlope: 0.00000440656
+      outSlope: 0.00000440656
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.12567006
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 5585.8203
-      value: 607.07965
-      inSlope: -1.6799965
-      outSlope: -1.6799965
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.046782926
-      outWeight: 0.33333334
+      inWeight: 0.13281065
+      outWeight: 0.40146282
     - serializedVersion: 3
       time: 6000
-      value: 8.140015
-      inSlope: -0.7809254
-      outSlope: -0.7809254
+      value: 0.1
+      inSlope: -0.002835498
+      outSlope: -0.002835498
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0.029762045
+      inWeight: 1
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  accelerationForce: 0.5
+  enginePowerMultiplier: 450
+  accelerationForce: 0.4
   gears:
   - 4
   - 2.5
@@ -83,8 +74,8 @@ MonoBehaviour:
   useTCS: 1
   tcsThreshold: 0.8
   tcsFactor: 0.5
-  nosPowerMultiplier: 0
-  nosAmount: 0
+  nosPowerMultiplier: 0.05
+  nosAmount: 9
   enginePowerBonus:
   - upgradeType: 0
     price: 
@@ -167,11 +158,11 @@ MonoBehaviour:
   - upgradeType: 2
     price: d0070000b80b0000a00f00008813000070170000
     val:
-    - 150
-    - 200
-    - 230
-    - 280
-    - 350
+    - 0.01
+    - 0.015
+    - 0.02
+    - 0.025
+    - 0.0275
   - upgradeType: 3
     price: d0070000b80b0000a00f00008813000070170000
     val:

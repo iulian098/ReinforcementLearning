@@ -10405,7 +10405,7 @@ MonoBehaviour:
   drivetrain: 1
   vehicleConfig: {fileID: 0}
   rb: {fileID: 6260421608971829181}
-  isAgent: 0
+  isAgent: 1
   frontWheels:
   - wheelCollider: {fileID: 5709610120147997697}
     wheelVisual: {fileID: 805152199856512623}
@@ -10416,7 +10416,7 @@ MonoBehaviour:
     wheelVisual: {fileID: 7217835867553111783}
   - wheelCollider: {fileID: 6550064713855505053}
     wheelVisual: {fileID: 7843850746602023341}
-  steeringHelper: 0
+  showDebug: 0
 --- !u!114 &7711129789335239034
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10431,6 +10431,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isPlayer: 0
   vehicle: {fileID: 5221659334162597407}
+  vehicleConfig: {fileID: 0}
   vehicleData:
     currentCheckpoint: {fileID: 0}
     nextCheckpoint: {fileID: 0}
@@ -10438,6 +10439,8 @@ MonoBehaviour:
     loopCount: 0
     totalDistance: 0
     finished: 0
+  vehicleSaveData:
+    vehicleIndex: 0
   currentPlacement: 0
 --- !u!114 &6250580918819344204
 MonoBehaviour:
@@ -10454,7 +10457,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 3000
+  MaxStep: 0
   agentID: 0
   vehicle: {fileID: 5221659334162597407}
   checkpointManager: {fileID: 7711129789335239034}
@@ -10507,7 +10510,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: d6709588667fceb4ab05196e7a0bef68, type: 3}
   m_InferenceDevice: 2
   m_BehaviorType: 0
   m_BehaviorName: MyAgents
