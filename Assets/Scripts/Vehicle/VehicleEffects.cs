@@ -13,26 +13,32 @@ public class VehicleEffects : MonoBehaviour
     }
 
     [SerializeField] Vehicle vehicle;
-    [SerializeField] MeshRenderer chassisMesh;
+    [SerializeField] MeshRenderer[] chassisMesh;
     [SerializeField] ParticleSystem[] exhaustParticles;
     [SerializeField] WheelEffect[] wheelCollider;
     [SerializeField] VisualEffect sparksEffect;
-    Material brakingMaterial;
+    Material[] brakingMaterial;
 
     private void Start() {
-        brakingMaterial = Array.Find(chassisMesh.materials, x => x.name.Contains("Braking"));
+        brakingMaterial = new Material[chassisMesh.Length];
+
+        for (int i = 0; i < chassisMesh.Length; i++) {
+            brakingMaterial[i] = Array.Find(chassisMesh[i].materials, x => x.name.Contains("Braking"));
+        }
+
     }
 
-    void FixedUpdate()
-    {
+    void FixedUpdate() {
         for (int i = 0; i < exhaustParticles.Length; i++)
             UpdateExhaust(exhaustParticles[i]);
 
-        for (int i = 0;i < wheelCollider.Length; i++)
+        for (int i = 0; i < wheelCollider.Length; i++)
             UpdateWheelSmoke(wheelCollider[i]);
 
-        if(brakingMaterial != null)
-            brakingMaterial.SetFloat(BRAKING_EMISSION, Mathf.Lerp(brakingMaterial.GetFloat(BRAKING_EMISSION), vehicle.Braking ? 1 : 0, Time.deltaTime * 25f));
+
+        for (int i = 0; i < brakingMaterial.Length; i++)
+            if (brakingMaterial[i] != null)
+                brakingMaterial[i].SetFloat(BRAKING_EMISSION, Mathf.Lerp(brakingMaterial[i].GetFloat(BRAKING_EMISSION), vehicle.Braking ? 1 : 0, Time.deltaTime * 25f));
     }
 
     void UpdateWheelSmoke(WheelEffect wheelEffect) {

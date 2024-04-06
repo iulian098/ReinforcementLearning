@@ -2,6 +2,7 @@ using NPOI.POIFS.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,6 +21,7 @@ public class VehicleSelection : MonoBehaviour
 
     [Space, Header("Buttons")]
     [SerializeField] Button buyButton;
+    [SerializeField] TMP_Text priceText;
     [SerializeField] Button equipButton;
     [SerializeField] Button upgradeButton;
 
@@ -60,7 +62,7 @@ public class VehicleSelection : MonoBehaviour
 
         UpdateEquip();
         equipButton.onClick.AddListener(OnEquipVehicle);
-
+        buyButton.onClick.AddListener(OnBuyVehicle);
     }
 
     private void OnVehicleSelected(VehicleShopItem item) {
@@ -76,12 +78,13 @@ public class VehicleSelection : MonoBehaviour
         selectedVehicleConfig = item.Config;
         UpdateUIButtons();
         vehicleStats.UpdateValues(equippedVehicleConfig, selectedVehicleConfig);
+        priceText.text = $"{selectedVehicleConfig.Price}$";
     }
 
     void UpdateUIButtons() {
-        buyButton.gameObject.SetActive(selectedSaveData == null);
-        equipButton.gameObject.SetActive(selectedSaveData != null && vehiclesContainer.GetEquippedVehicle() != selectedItem.Config);
-        upgradeButton.gameObject.SetActive(selectedSaveData != null);
+        buyButton.gameObject.SetActive(selectedSaveData != null && !selectedSaveData.purchased);
+        equipButton.gameObject.SetActive(selectedSaveData != null && selectedSaveData.purchased && vehiclesContainer.GetEquippedVehicle() != selectedItem.Config);
+        upgradeButton.gameObject.SetActive(selectedSaveData != null && selectedSaveData.purchased);
     }
 
     void UpdateUpgradeUIButtons() {
@@ -91,7 +94,7 @@ public class VehicleSelection : MonoBehaviour
         for (int i = 0; i < spawnedItems.Length; i++) {
             if (vehiclesContainer.selectedVehicle == i)
                 spawnedItems[i].SetState(ShopItemState.Equipped);
-            else if(vehiclesContainer.vehicleSaveDatas.Any(x => x.vehicleIndex == i))
+            else if(vehiclesContainer.vehicleSaveDatas[i].purchased)
                 spawnedItems[i].SetState(ShopItemState.Purchased);
         }
     }
@@ -109,22 +112,29 @@ public class VehicleSelection : MonoBehaviour
     }
 
     public void OnBuyVehicle() {
-        if (selectedItem == null) return;
+        if (selectedItem == null) {
+            Debug.Log("selectedItem = null");
+            return;
+        }
         int vehicleIndex = Array.IndexOf(vehiclesContainer.Vehicles, selectedItem.Config);
         if(vehicleIndex == -1) {
             Debug.LogError("Vehicle not found");
             return;
         }
 
-        if(UserManager.playerData.GetInt("Cash") < selectedItem.Config.Price) {
+        if(UserManager.playerData.GetInt(PlayerPrefsStrings.CASH) < selectedItem.Config.Price) {
             Debug.LogError("Not enough money");
+            PopupPanel.Instance.Show("", "Not enough money.", null);
             return;
         }
 
-        VehicleSaveData newSaveData = new VehicleSaveData(vehicleIndex);
-
+        /*VehicleSaveData newSaveData = new VehicleSaveData(vehicleIndex);
+        newSaveData.purchased = true;
         vehiclesContainer.vehicleSaveDatas.Add(newSaveData);
-        selectedSaveData = newSaveData;
+        selectedSaveData = newSaveData;*/
+        vehiclesContainer.vehicleSaveDatas[vehicleIndex].purchased = true;
+        selectedSaveData = vehiclesContainer.vehicleSaveDatas[vehicleIndex];
+
         UpdateUIButtons();
     }
 

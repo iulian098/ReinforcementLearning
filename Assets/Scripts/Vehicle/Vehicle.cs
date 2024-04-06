@@ -360,6 +360,12 @@ public class Vehicle : MonoBehaviour
     }
 
     private void OnDrawGizmos() {
+
+        if (rb != null) {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(rb.centerOfMass, 0.1f);
+        }
+
         if (vehicleConfig == null || !showDebug) return;
 
         Gizmos.color = Color.red;

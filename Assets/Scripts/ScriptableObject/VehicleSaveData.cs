@@ -6,6 +6,7 @@ using Random = UnityEngine.Random;
 public class VehicleSaveData
 {
     public int vehicleIndex;
+    public bool purchased;
     public Dictionary<UpgradeType, int> equippedLevels = new Dictionary<UpgradeType, int>();
     public Dictionary<UpgradeType, List<int>> purchasedUpgrades = new Dictionary<UpgradeType, List<int>>();
 

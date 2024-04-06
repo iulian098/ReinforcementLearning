@@ -57,6 +57,7 @@ public class RaceManager : MonoSingleton<RaceManager> {
     }
 
     public void Init() {
+        Debug.Log("[RaceManager] Init");
         if(vehicleCheckpoints == null)
             vehicleCheckpoints = VehicleCheckpointsContainer.Instance;
 
@@ -211,9 +212,15 @@ public class RaceManager : MonoSingleton<RaceManager> {
     private void OnVehicleFinish(VehicleManager vehicleManager) {
         if (vehicleManager.IsPlayer) {
             ChangeState(State.End);
+            OnPlayerFinishedRace(vehicleManager.currentPlacement);
         }
         vehicleManager.vehicleData.finished = true;
         uiManager.RaceFinished(vehicleManager, vehicleManager.IsPlayer);
+    }
+
+    private void OnPlayerFinishedRace(int placement) {
+        if(placement < RaceData.CoinsRewards.Length)
+            UserManager.playerData.SetInt(PlayerPrefsStrings.CASH, UserManager.playerData.GetInt(PlayerPrefsStrings.CASH) + RaceData.CoinsRewards[placement]);
     }
 
     private void OnDrawGizmos() {

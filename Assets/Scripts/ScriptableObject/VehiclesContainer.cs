@@ -13,6 +13,7 @@ public class VehiclesContainer : ScriptableObject
     
     public void SetSaveData(List<VehicleSaveData> vehicleSaveDatas) {
         if (vehicleSaveDatas.IsNullOrEmpty()) {
+            selectedVehicle = 0;
             for (int i = 0; i < vehicles.Length; i++)
                 vehicleSaveDatas.Add(CreateSaveData(i));
         }
@@ -20,6 +21,9 @@ public class VehiclesContainer : ScriptableObject
             for (int i = vehicleSaveDatas.Count; i < vehicles.Length; i++)
                 vehicleSaveDatas.Add(CreateSaveData(i));
         }
+
+        for (int i = 0; i < vehicles.Length; i++)
+            vehicles[i].saveData = vehicleSaveDatas[i];
 
         this.vehicleSaveDatas = vehicleSaveDatas;
     }
@@ -31,6 +35,9 @@ public class VehiclesContainer : ScriptableObject
             saveData.EquippedLevels.Set((UpgradeType)i, -1);
             saveData.PurchasedUpgrades.Set((UpgradeType)i, new List<int>());
         }
+
+        if (index == 0)
+            saveData.purchased = true;
 
         return saveData;
     }

@@ -9,7 +9,7 @@ public class UIProfile : MonoBehaviour
     [SerializeField] Image levelFill;
 
     private void Start() {
-        cashText.text = UserManager.playerData.GetInt("Cash").ToString();
-        levelText.text = UserManager.playerData.GetInt("Level").ToString();
+        cashText.text = UserManager.playerData.GetInt(PlayerPrefsStrings.CASH).ToString();
+        levelText.text = UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL).ToString();
     }
 }

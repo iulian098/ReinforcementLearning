@@ -23,9 +23,15 @@ public class PanelManager : MonoSingleton<PanelManager>
 
     bool IsPanelOpen => activePanels.Count > 0;
 
+    public Action OnExitPopupShow;
+
     private void Update() {
-        if (Input.GetKeyDown(KeyCode.Escape))
-            HidePanel();
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            if (IsPanelOpen)
+                HidePanel();
+            else
+                OnExitPopupShow?.Invoke();
+        }
     }
 
     public void ShowPanel(string name, Action onShow, Action onHide) {

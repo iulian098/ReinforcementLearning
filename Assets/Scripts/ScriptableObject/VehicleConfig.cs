@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,7 +8,6 @@ public class VehicleConfig : ScriptableObject
 {
     [SerializeField] VehicleManager prefab;
     [SerializeField] GameObject previewPrefab;
-    [SerializeField] Sprite icon;
     [SerializeField] int price;
 
     [Space]
@@ -22,6 +22,7 @@ public class VehicleConfig : ScriptableObject
     [SerializeField] float brakeTorque = 500;
     [SerializeField] float handbrakeTorque = 1000;
     [SerializeField] AnimationCurve enginePowerCurve;
+    [SerializeField] float enginePowerMultiplier;
 
     [Header("Acceleration")]
     [SerializeField] float accelerationForce;
@@ -47,14 +48,10 @@ public class VehicleConfig : ScriptableObject
     [SerializeField] float nosPowerMultiplier;
     [SerializeField] float nosAmount;
 
-    [Space, Header("Upgrades")]
-    [SerializeField] UpgradeData[] enginePowerBonus;
-    [SerializeField] UpgradeData[] accelerationBonus;
-    [SerializeField] UpgradeData[] nosPowerBonus;
-    [SerializeField] UpgradeData[] nosAmountBonus;
-    [SerializeField] UpgradeData[] wheelHandlingBonus;
-
+    [Space]
     [SerializeField] UpgradeData[] upgrades;
+
+    public VehicleSaveData saveData;
 
     public VehicleManager Prefab => prefab;
     public GameObject PreviewPrefab => previewPrefab;
@@ -69,6 +66,7 @@ public class VehicleConfig : ScriptableObject
     public float BrakeTorque => brakeTorque;
     public float HandbrakeTorque => handbrakeTorque;
     public AnimationCurve EnginePowerCurve => enginePowerCurve;
+    public float EnginePower => enginePowerMultiplier;
     public float AccelerationForce => accelerationForce;
     public float[] Gears => gears;
     public float TotalRPM => totalRPM;
@@ -87,12 +85,13 @@ public class VehicleConfig : ScriptableObject
     public float NosPowerMultiplier => nosPowerMultiplier;
     public float NosAmount => nosAmount;
 
-    public UpgradeData[] EnginePowerBonus => enginePowerBonus;
-    public UpgradeData[] AccelerationBonus => accelerationBonus;
-    public UpgradeData[] NosPowerBonus => nosPowerBonus;
-    public UpgradeData[] NosAmountBonus => nosAmountBonus;
-    public UpgradeData[] WheelHandlingBonus => wheelHandlingBonus;
-
     public UpgradeData[] Upgrades => upgrades;
 
+    public float GetUpgradeValue(UpgradeType type, float currentValue, int level) {
+        if (level == -1)
+            return 0;
+
+        UpgradeData upgradeData = Array.Find(upgrades, x => x.upgradeType == type);
+        return currentValue + upgradeData.val[level] * currentValue;
+    }
 }
