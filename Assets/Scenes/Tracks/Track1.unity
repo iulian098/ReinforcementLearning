@@ -8,8 +8,8 @@ OcclusionCullingSettings:
     smallestOccluder: 5
     smallestHole: 0.25
     backfaceThreshold: 100
-  m_SceneGUID: 00000000000000000000000000000000
-  m_OcclusionCullingData: {fileID: 0}
+  m_SceneGUID: fa3d41d6057a60749ace208e035b1f7b
+  m_OcclusionCullingData: {fileID: 36300000, guid: 6bc95541beec3eb4f96867172241e698, type: 2}
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
@@ -392,6 +392,49 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 1de014002e771b84a9ff19bc335145ad, type: 3}
   m_PrefabInstance: {fileID: 840403458}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1191262952
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1191262954}
+  - component: {fileID: 1191262953}
+  m_Layer: 0
+  m_Name: OcclusionArea
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!192 &1191262953
+OcclusionArea:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1191262952}
+  serializedVersion: 2
+  m_Size: {x: 252.14243, y: 42.45262, z: 252.78926}
+  m_Center: {x: -0.4312706, y: -0.75473785, z: 1.4016228}
+  m_IsViewVolume: 1
+--- !u!4 &1191262954
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1191262952}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4.6, y: 20.4, z: 11}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1790467384
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -632,6 +675,10 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+    - target: {fileID: 6538311523731629770, guid: dbda7d5bef810f046af0a7b54a121961, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.21
+      objectReference: {fileID: 0}
     - target: {fileID: 6864476179043266562, guid: dbda7d5bef810f046af0a7b54a121961, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
@@ -861,3 +908,4 @@ SceneRoots:
   - {fileID: 203844589}
   - {fileID: 1790467384}
   - {fileID: 1952376517}
+  - {fileID: 1191262954}

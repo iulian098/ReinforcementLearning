@@ -16,7 +16,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 62a167404f3632f4b9da9b49824e2859, type: 2}
   - {fileID: 11400000, guid: e696fb110e1d11047aa3522de37bb367, type: 2}
   - {fileID: 11400000, guid: 26802b25c80567545aa90760ae0ab311, type: 2}
+  - {fileID: 11400000, guid: 6ff65f8f0f3302d4db2b8b3fffcf0d85, type: 2}
   vehicleSaveDatas:
   - vehicleIndex: 0
   - vehicleIndex: 1
-  selectedVehicle: 2
+  - vehicleIndex: 2
+  - vehicleIndex: 3
+  selectedVehicle: 3
