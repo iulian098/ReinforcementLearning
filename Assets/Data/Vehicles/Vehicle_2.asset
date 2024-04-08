@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 7542256589864233405, guid: 9361e774fd458504b9de15353ef00c6e, type: 3}
   previewPrefab: {fileID: 7826009185202562333, guid: 15bf7e1150259444fb36a38608720755, type: 3}
-  price: 15000
+  price: 20000
   maxSpeed: 210
   maxReverseSpeed: 20
   lowSpeedSteerRadius: 3.8
@@ -57,7 +57,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   enginePowerMultiplier: 450
-  accelerationForce: 0.4
+  accelerationForce: 0.375
   gears:
   - 4
   - 2.5
@@ -76,68 +76,6 @@ MonoBehaviour:
   tcsFactor: 0.5
   nosPowerMultiplier: 0.05
   nosAmount: 9
-  enginePowerBonus:
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  accelerationBonus:
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  nosPowerBonus:
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  nosAmountBonus:
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  wheelHandlingBonus:
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
   upgrades:
   - upgradeType: 0
     price: d0070000b80b0000a00f00008813000070170000
@@ -171,3 +109,6 @@ MonoBehaviour:
     - 0.1
     - 0.125
     - 0.175
+  saveData:
+    vehicleIndex: 2
+    purchased: 0

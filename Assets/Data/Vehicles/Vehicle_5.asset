@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab238dd907a8e774c95228de39cac413, type: 3}
   m_Name: Vehicle_5
   m_EditorClassIdentifier: 
-  prefab: {fileID: 7594144794929900, guid: 99e9524f6572ae643961358e3b8e71be, type: 3}
-  previewPrefab: {fileID: 2986426937015916866, guid: 242f584b449101b4fbb38af2161f8957, type: 3}
-  price: 45000
-  maxSpeed: 200
+  prefab: {fileID: 5198304273640117859, guid: 26eedfdbf8914184db102effc3d671a1, type: 3}
+  previewPrefab: {fileID: 6439221360455795780, guid: 62fcb0218a6a80b4a9086052981a22fb, type: 3}
+  price: 17500
+  maxSpeed: 190
   maxReverseSpeed: 25
   lowSpeedSteerRadius: 3.8
   highSpeedSteerRadius: 25
@@ -56,8 +56,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  enginePowerMultiplier: 500
-  accelerationForce: 0.5
+  enginePowerMultiplier: 450
+  accelerationForce: 0.35
   gears:
   - 4
   - 2.5
@@ -110,4 +110,5 @@ MonoBehaviour:
     - 0.125
     - 0.175
   saveData:
-    vehicleIndex: 3
+    vehicleIndex: 1
+    purchased: 0
