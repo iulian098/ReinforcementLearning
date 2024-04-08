@@ -40,9 +40,14 @@ public class VehicleAudio : MonoBehaviour
         [SerializeField] AudioSettings settings;
         public AudioClip clip;
         public bool loop;
+
+        [Space]
         public bool randomPitch;
         public float minPitch;
         public float maxPitch;
+
+        [Space]
+        public float pitch = 1;
         public float volume;
 
         AudioSource audioSource;
@@ -67,15 +72,33 @@ public class VehicleAudio : MonoBehaviour
     [SerializeField] EngineSoundData lowSounds;
     [SerializeField] EngineSoundData highSounds;
     [SerializeField] AudioData hitSound;
+    [SerializeField] AudioData highSpeedWindSound;
+    [SerializeField] AudioData skidSound;
+
+    [SerializeField] AudioClip nosIn;
+    [SerializeField] AudioClip nosOut;
+    [SerializeField] AudioClip nosFlame;
+    [SerializeField] AudioData nosLoopSoundSource;
+    [SerializeField] AudioData nosMiscSoundSource;
+
     [SerializeField] AudioSettings engineAudioSettings;
 
+    GameObject parent;
     float pitch;
     float currentAcc;
 
     private void Start() {
+        parent = new GameObject("Audio");
+        parent.transform.SetParent(transform);
+        parent.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+
         CreateEngineAudioSource(lowSounds);
         CreateEngineAudioSource(highSounds);
-        CreateAudioSource(hitSound);
+        CreateAudioSource(hitSound, false);
+        CreateAudioSource(highSpeedWindSound, false);
+        CreateAudioSource(skidSound, true, true);
+        CreateAudioSource(nosLoopSoundSource, false);
+        CreateAudioSource(nosMiscSoundSource, false);
     }
 
     private void Update() {
@@ -102,12 +125,36 @@ public class VehicleAudio : MonoBehaviour
         lowSounds.DecSource.volume = Mathf.Min(lowSounds.maxVolume, lowFade * decFade);
         highSounds.AccSource.volume = Mathf.Min(highSounds.maxVolume, highFade * accFade);
         highSounds.DecSource.volume = Mathf.Min(highSounds.maxVolume, highFade * decFade);
+
+        float windVolume = Mathf.Clamp(Mathf.InverseLerp(60, 150, vehicle.Kmph), 0, highSpeedWindSound.volume);
+        highSpeedWindSound.AudioSource.volume = windVolume;
+
+        float skidVolume = Mathf.Clamp(Mathf.InverseLerp(10, 75, vehicle.Kmph), 0, skidSound.volume);
+        skidSound.AudioSource.volume = vehicle.IsSliding ? skidVolume : 0;
+
+        UpdateNosSound();
+    }
+
+    bool nosActive;
+    void UpdateNosSound() {
+        if (!nosActive && vehicle.NOSActive) {
+            nosMiscSoundSource.AudioSource.PlayOneShot(nosIn);
+            nosMiscSoundSource.AudioSource.PlayOneShot(nosFlame);
+            nosLoopSoundSource.AudioSource.Play();
+
+            nosActive = true;
+        }else if(nosActive && !vehicle.NOSActive) {
+            nosMiscSoundSource.AudioSource.PlayOneShot(nosOut);
+            nosLoopSoundSource.AudioSource.Stop();
+
+            nosActive = false;
+        }
     }
 
     void CreateEngineAudioSource(EngineSoundData engineSound) {
         AudioSource[] audioSources = new AudioSource[2];
         for (int i = 0; i < 2; i++) {
-            AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+            AudioSource audioSource = parent.AddComponent<AudioSource>();
             audioSource.clip = engineSound.GetAudioClip(i == 0);
             audioSource.volume = 1.0f;
             audioSource.pitch = 1.0f;
@@ -123,17 +170,18 @@ public class VehicleAudio : MonoBehaviour
         engineSound.SetAudioSource(audioSources[0], audioSources[1]);
     }
 
-    void CreateAudioSource(AudioData audioData) {
-        AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+    void CreateAudioSource(AudioData audioData, bool autoPlay = true, bool muteOnCreate = false) {
+        AudioSource audioSource = parent.AddComponent<AudioSource>();
         audioSource.clip = audioData.clip;
-        audioSource.volume = audioData.volume;
+        audioSource.volume = muteOnCreate ? 0 : audioData.volume;
         audioSource.loop = audioData.loop;
-        audioSource.volume = 0;
         audioSource.spatialBlend = 1;
+        audioSource.pitch = audioData.pitch;
         audioSource.rolloffMode = engineAudioSettings.rolloffMode;
         audioSource.maxDistance = engineAudioSettings.maxDistance;
         audioSource.minDistance = engineAudioSettings.minDistance;
-        audioSource.Play();
+        if(autoPlay)
+            audioSource.Play();
         audioData.SetAudioSource(audioSource);
     }
 

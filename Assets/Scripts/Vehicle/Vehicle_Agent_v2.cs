@@ -26,6 +26,7 @@ public class Vehicle_Agent_v2 : Agent
     float acc;
     float steer;
     bool handbrake;
+    bool nos;
     float lapTime;
     float bestLapTime;
 
@@ -144,6 +145,9 @@ public class Vehicle_Agent_v2 : Agent
                 break;
         }
 
+        //nos = actions.DiscreteActions[2] == 1;
+            
+
         if (showDebug) {
             Debug.Log($"[VehicleAgent]Steer: {steer}");
             Debug.Log($"[VehicleAgent]Acc: {acc}");
@@ -152,7 +156,8 @@ public class Vehicle_Agent_v2 : Agent
         vehicle.ReceiveInput(new Vehicle.InputData() {
             steer = steer,
             acceleration = acc,
-            handbrake = handbrake
+            handbrake = handbrake,
+            nos = nos
         });
 
 
@@ -285,6 +290,7 @@ public class Vehicle_Agent_v2 : Agent
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
         bool handbrake = Input.GetButton("Jump");
+        bool nos = Input.GetButton("NOS");
 
         if (horizontal > 0)
             discreteActions[1] = 1;
@@ -304,6 +310,11 @@ public class Vehicle_Agent_v2 : Agent
             else
                 discreteActions[0] = 0;
         }
+
+        /*if (nos)
+            discreteActions[2] = 1;
+        else
+            discreteActions[2] = 0;*/
         
     }
 

@@ -15,8 +15,10 @@ public class Vehicle : MonoBehaviour
         [SerializeField] Transform wheelVisual;
         Skidmarks skidmarks;
         int lastSkidIndex;
+        bool isSliding;
 
         public WheelCollider WheelCollider => wheelCollider;
+        public bool IsSliding => isSliding;
 
         public void Init() {
             if(SkidmarksManager.Instance != null)
@@ -42,10 +44,14 @@ public class Vehicle : MonoBehaviour
             if (skidmarks == null) return;
 
             wheelCollider.GetGroundHit(out WheelHit hit);
-            if (velocity > 10 && (Mathf.Abs(hit.sidewaysSlip) > 0.5f || Mathf.Abs(hit.forwardSlip) > 0.5f))
+            if (velocity > 10 && (Mathf.Abs(hit.sidewaysSlip) > 0.5f || Mathf.Abs(hit.forwardSlip) > 0.5f)) {
                 lastSkidIndex = skidmarks.Add(hit.point, hit.normal, 1, lastSkidIndex);
-            else
+                isSliding = true;
+            }
+            else {
                 lastSkidIndex = -1;
+                isSliding = false;
+            }
         }
     }
 
@@ -79,6 +85,7 @@ public class Vehicle : MonoBehaviour
     bool braking;
     bool absTriggered;
     bool tcsTriggered;
+    bool isSliding;
 
     float steerRadius;
     float targetSteer;
@@ -88,6 +95,8 @@ public class Vehicle : MonoBehaviour
     float forwardSlip;
     float wheelRPM;
     float enginePowerMultiplier = 1;
+    float nosAmount;
+    float nosTime;
 
     int kmph;
     int currentGear;
@@ -100,11 +109,15 @@ public class Vehicle : MonoBehaviour
     public bool ABS => absTriggered;
     public bool TCS => tcsTriggered;
     public bool Braking => braking;
+    public bool IsSliding => isSliding;
+    public bool NOSActive => nosAmount > 0 && currentInput.nos && currentInput.acceleration > 0;
     public float ShiftUpRPM => vehicleConfig.ShiftUpRPM;
     public float ShiftDownRPM => vehicleConfig.ShiftDownRPM;
     public float EngineRPM => engineRPM;
     public float SideSlip => sideSlip;
+    public float ForwardSlip => forwardSlip;
     public float WheelRPM => wheelRPM;
+    public float NOSFraction => nosAmount / vehicleConfig.NosAmount;
     public int GearsCount => vehicleConfig.Gears.Length;
     public int Kmph => kmph;
     public int CurrentGear => currentGear;
@@ -116,6 +129,7 @@ public class Vehicle : MonoBehaviour
         vehicleConfig = config;
         vehicleSaveData = saveData;
         isAgent = !isPlayer;
+        nosAmount = config.NosAmount;
     }
 
     void Start()
@@ -148,8 +162,7 @@ public class Vehicle : MonoBehaviour
         sideSlip = GetSideSlip(rearWheels);
         forwardSlip = GetForwardSlip(allWheels);
         float temp = 0;
-
-        float av = velocity.magnitude / frontWheels[0].WheelCollider.radius;
+        float av = Mathf.Abs(velocity.z) / frontWheels[0].WheelCollider.radius;
         wheelRPM = (av / (2 * Mathf.PI)) * 60;
 
         totalPower = vehicleConfig.EnginePowerCurve.Evaluate(engineRPM) * vehicleConfig.EnginePower * vehicleConfig.Gears[currentGear] * enginePowerMultiplier;
@@ -167,8 +180,14 @@ public class Vehicle : MonoBehaviour
         else if (engineRPM < vehicleConfig.ShiftDownRPM && currentGear > 0)
             currentGear--;
 
-        foreach (var wheel in allWheels)
+        bool slidingWheelFound = false;
+        foreach (var wheel in allWheels) {
             wheel.UpdateSkidmarks(VehicleRigidBody.velocity.magnitude);
+            if(wheel.IsSliding)
+                slidingWheelFound = true;
+        }
+
+        isSliding = slidingWheelFound;
 
         if (isAgent) return;
 
@@ -216,7 +235,9 @@ public class Vehicle : MonoBehaviour
             return;
         }
 
-        float torque = totalPower / drivingWheels.Length;
+        ApplyTCS();
+
+        float torque = tcsTriggered ? 0 : totalPower / drivingWheels.Length;
         float brake = ABSBrake(vehicleConfig.BrakeTorque * Mathf.Abs(val));
         var rot = Quaternion.Euler(0, (reverse ? -1 : 1) * currentInput.steer * 45, 0);
 
@@ -265,13 +286,21 @@ public class Vehicle : MonoBehaviour
     }
 
     void ApplyNOS(bool val) {
-        if (!val) {
+        if (currentInput.acceleration <= 0) return;
+
+        nosAmount = Mathf.Clamp(nosAmount, 0, vehicleConfig.NosAmount);
+
+        if (!val || nosAmount <= 0) {
             enginePowerMultiplier = 1;
+            if (nosAmount < vehicleConfig.NosAmount) {
+                if (nosTime > 3) nosAmount += Time.deltaTime;
+                else nosTime += Time.deltaTime;
+            }
             return;
         }
-
+        nosTime = 0;
         enginePowerMultiplier = 1 + vehicleConfig.NosPowerMultiplier;
-        
+        nosAmount -= Time.deltaTime;
     }
 
     void ApplyHandbrake() {
@@ -313,6 +342,7 @@ public class Vehicle : MonoBehaviour
     }
 
     float TCSAcceleration(WheelData wheel, float acc) {
+        return acc;
         if (!vehicleConfig.UseTCS) return acc;
 
         if(Mathf.Abs(wheel.GetForwardSlip()) >= vehicleConfig.TcsThreshold) {
@@ -323,6 +353,19 @@ public class Vehicle : MonoBehaviour
 
         return acc;
     }
+
+    void ApplyTCS() {
+        if (!vehicleConfig.UseTCS) return;
+
+        foreach (var wheel in allWheels) {
+            if (Mathf.Abs(wheel.GetForwardSlip()) >= vehicleConfig.TcsThreshold)
+                tcsTriggered = true;
+            else
+                tcsTriggered = false;
+        }
+
+    }
+
 
     float GetForwardSlip(WheelData[] wheels) {
         float sum = 0;

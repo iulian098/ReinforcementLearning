@@ -17,15 +17,14 @@ public class VehicleEffects : MonoBehaviour
     [SerializeField] ParticleSystem[] exhaustParticles;
     [SerializeField] WheelEffect[] wheelCollider;
     [SerializeField] VisualEffect sparksEffect;
+    [SerializeField] VisualEffect[] nosEffects;
     Material[] brakingMaterial;
 
     private void Start() {
         brakingMaterial = new Material[chassisMesh.Length];
 
-        for (int i = 0; i < chassisMesh.Length; i++) {
+        for (int i = 0; i < chassisMesh.Length; i++)
             brakingMaterial[i] = Array.Find(chassisMesh[i].materials, x => x.name.Contains("Braking"));
-        }
-
     }
 
     void FixedUpdate() {
@@ -35,10 +34,25 @@ public class VehicleEffects : MonoBehaviour
         for (int i = 0; i < wheelCollider.Length; i++)
             UpdateWheelSmoke(wheelCollider[i]);
 
-
         for (int i = 0; i < brakingMaterial.Length; i++)
             if (brakingMaterial[i] != null)
                 brakingMaterial[i].SetFloat(BRAKING_EMISSION, Mathf.Lerp(brakingMaterial[i].GetFloat(BRAKING_EMISSION), vehicle.Braking ? 1 : 0, Time.deltaTime * 25f));
+
+        UpdateNOS(vehicle.NOSActive);
+    }
+
+    void UpdateNOS(bool value) {
+        if (nosEffects.IsNullOrEmpty()) return;
+
+        if (!nosEffects[0].HasAnySystemAwake() && value) {
+            for (int i = 0; i < nosEffects.Length; i++)
+                nosEffects[i].SendEvent("OnStart");
+        }
+        else if(nosEffects[0].HasAnySystemAwake() && !value){
+            for (int i = 0; i < nosEffects.Length; i++)
+                nosEffects[i].SendEvent("OnStop");
+        }
+
     }
 
     void UpdateWheelSmoke(WheelEffect wheelEffect) {
