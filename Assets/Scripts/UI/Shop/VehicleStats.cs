@@ -12,9 +12,27 @@ public class VehicleStats : MonoBehaviour
         if (newConfig == null)
             newConfig = currentConfig;
 
-        acceleration.SetValue(currentConfig.AccelerationForce / 2, newConfig.AccelerationForce / 2);
-        speed.SetValue(currentConfig.MaxSpeed / 300, newConfig.MaxSpeed / 300);
-        nos.SetValue(currentConfig.NosPowerMultiplier / 3, newConfig.NosPowerMultiplier / 3);
-        //handling.SetValue(currentConfig.WheelHandlingBonus[0].val[0] / 2, newConfig.WheelHandlingBonus[0].val[0] / 2);
+        acceleration.SetValue(GetAcc(currentConfig), GetAcc(newConfig));
+        speed.SetValue(GetMaxSpeed(currentConfig), GetMaxSpeed(newConfig));
+        nos.SetValue(GetNosPower(currentConfig), GetNosPower(newConfig));
+        handling.SetValue(GetHandling(currentConfig), GetHandling(newConfig));
+    }
+
+    float GetAcc(VehicleConfig config) {
+        return ((config.AccelerationForce * config.EnginePower) + config.EnginePower) / 2000;
+    }
+
+    float GetMaxSpeed(VehicleConfig config) {
+        return (config.MaxSpeed) / 300;
+    }
+
+    float GetNosPower(VehicleConfig config) {
+        return (config.NosPowerMultiplier + config.NosAmount) / 20;
+    }
+    
+    float GetHandling(VehicleConfig config) {
+        WheelCollider wheel = config.Prefab.GetComponentInChildren<WheelCollider>();
+        float total = wheel.sidewaysFriction.extremumSlip + wheel.sidewaysFriction.asymptoteSlip + wheel.forwardFriction.extremumSlip + wheel.forwardFriction.asymptoteSlip;
+        return total / 4;
     }
 }

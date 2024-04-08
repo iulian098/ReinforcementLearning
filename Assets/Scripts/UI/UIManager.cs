@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour
@@ -9,6 +10,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] TMP_Text gearText;
     [SerializeField] TMP_Text rpmText;
     [SerializeField] TMP_Text startingTimeText;
+    [SerializeField] TMP_Text nosText;
     [SerializeField] ResultScreen resultScreen;
 
     public void Init() {
@@ -29,6 +31,7 @@ public class UIManager : MonoBehaviour
         kmText.text = "Km/h: " + vehicle.Kmph;
         gearText.text = "Gear: " + vehicle.CurrentGear;
         rpmText.text = "RPM: " + (int)vehicle.EngineRPM;
+        nosText.text = "NOS: " + vehicle.NOSFraction;
     }
 
     public void SetVehicle(VehicleManager vehicle) {
@@ -45,7 +48,7 @@ public class UIManager : MonoBehaviour
         );
 
         if (isPlayer)
-            resultScreen.Show();
+            resultScreen.Show(vehicle.currentPlacement);
     }
 
     public void GoToMainMenu() {

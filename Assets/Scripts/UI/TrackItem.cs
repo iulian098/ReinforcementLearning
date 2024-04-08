@@ -9,6 +9,8 @@ public class TrackItem : MonoBehaviour
 {
     [SerializeField] Image thumbnail;
     [SerializeField] TMP_Text trackNameText;
+    [SerializeField] Sprite starFilled;
+    [SerializeField] Image[] stars;
 
     Action<RaceData> onClick;
     RaceData raceData;
@@ -19,6 +21,13 @@ public class TrackItem : MonoBehaviour
 
         thumbnail.sprite = raceData.Thumbnail;
         trackNameText.text = raceData.TrackName;
+
+        if (data.saveData.placement == -1) return;
+
+        for (int i = 0; i < stars.Length; i++) {
+            if(i < 3 - data.saveData.placement)
+                stars[i].overrideSprite = starFilled;
+        }
     }
 
     public void OnClick() {

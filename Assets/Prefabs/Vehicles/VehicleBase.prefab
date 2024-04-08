@@ -4774,6 +4774,8 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -4812,13 +4814,15 @@ ParticleSystemRenderer:
   m_RenderAlignment: 0
   m_Pivot: {x: 0, y: 0, z: 0}
   m_Flip: {x: 0, y: 0, z: 0}
-  m_UseCustomVertexStreams: 0
   m_EnableGPUInstancing: 1
   m_ApplyActiveColorSpace: 1
   m_AllowRoll: 1
   m_FreeformStretching: 0
   m_RotateWithStretchDirection: 1
+  m_UseCustomVertexStreams: 0
   m_VertexStreams: 00010304
+  m_UseCustomTrailVertexStreams: 0
+  m_TrailVertexStreams: 00010304
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   m_Mesh1: {fileID: 0}
   m_Mesh2: {fileID: 0}
@@ -4886,6 +4890,8 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -5001,6 +5007,8 @@ VFXRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_StaticBatchInfo:
@@ -5291,6 +5299,8 @@ VFXRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_StaticBatchInfo:
@@ -10087,6 +10097,8 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -10125,13 +10137,15 @@ ParticleSystemRenderer:
   m_RenderAlignment: 0
   m_Pivot: {x: 0, y: 0, z: 0}
   m_Flip: {x: 0, y: 0, z: 0}
-  m_UseCustomVertexStreams: 0
   m_EnableGPUInstancing: 1
   m_ApplyActiveColorSpace: 1
   m_AllowRoll: 1
   m_FreeformStretching: 0
   m_RotateWithStretchDirection: 1
+  m_UseCustomVertexStreams: 0
   m_VertexStreams: 00010304
+  m_UseCustomTrailVertexStreams: 0
+  m_TrailVertexStreams: 00010304
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   m_Mesh1: {fileID: 0}
   m_Mesh2: {fileID: 0}
@@ -10296,6 +10310,8 @@ VFXRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_StaticBatchInfo:
@@ -10441,6 +10457,7 @@ MonoBehaviour:
     finished: 0
   vehicleSaveData:
     vehicleIndex: 0
+    purchased: 0
   currentPlacement: 0
 --- !u!114 &6250580918819344204
 MonoBehaviour:
@@ -10553,7 +10570,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vehicle: {fileID: 5221659334162597407}
-  chassisMesh: {fileID: 0}
+  chassisMesh:
+  - {fileID: 0}
   exhaustParticles:
   - {fileID: 2627340429854741526}
   - {fileID: 4736884400966790709}
@@ -10567,6 +10585,7 @@ MonoBehaviour:
   - wheelColl: {fileID: 6550064713855505053}
     smokeVFX: {fileID: 228383476522888380}
   sparksEffect: {fileID: 225735993574510875}
+  nosEffects: []
 --- !u!114 &640810855351555407
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10602,7 +10621,59 @@ MonoBehaviour:
     randomPitch: 1
     minPitch: 0.9
     maxPitch: 1
+    pitch: 1
     volume: 0.5
+  highSpeedWindSound:
+    settings:
+      minDistance: 2
+      maxDistance: 20
+      rolloffMode: 0
+    clip: {fileID: 8300000, guid: 956f32af6b257b3438ed776dbd042cd0, type: 3}
+    loop: 1
+    randomPitch: 0
+    minPitch: 0
+    maxPitch: 0
+    pitch: 1
+    volume: 0.6
+  skidSound:
+    settings:
+      minDistance: 2
+      maxDistance: 20
+      rolloffMode: 0
+    clip: {fileID: 8300000, guid: 6808012bd9a9bb84ba636e7a854a4ed5, type: 3}
+    loop: 1
+    randomPitch: 0
+    minPitch: 0
+    maxPitch: 0
+    pitch: 1
+    volume: 0.8
+  nosIn: {fileID: 8300000, guid: e3f31cb5151435e48845f0c408ba48a5, type: 3}
+  nosOut: {fileID: 8300000, guid: 4769c7a33430da3408974f336e58b305, type: 3}
+  nosFlame: {fileID: 8300000, guid: d519c905795fc0049b33dc727d981f7d, type: 3}
+  nosLoopSoundSource:
+    settings:
+      minDistance: 2
+      maxDistance: 20
+      rolloffMode: 0
+    clip: {fileID: 8300000, guid: 9d786f15a29d41d4298dd1cdc576318c, type: 3}
+    loop: 1
+    randomPitch: 0
+    minPitch: 0
+    maxPitch: 0
+    pitch: 1
+    volume: 1
+  nosMiscSoundSource:
+    settings:
+      minDistance: 2
+      maxDistance: 20
+      rolloffMode: 0
+    clip: {fileID: 0}
+    loop: 0
+    randomPitch: 0
+    minPitch: 0
+    maxPitch: 0
+    pitch: 1
+    volume: 0.2
   engineAudioSettings:
     minDistance: 3
     maxDistance: 25
@@ -10696,6 +10767,8 @@ VFXRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_StaticBatchInfo:
@@ -10776,6 +10849,8 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -10894,6 +10969,8 @@ VFXRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_StaticBatchInfo:
@@ -11009,6 +11086,8 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -11235,6 +11314,8 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

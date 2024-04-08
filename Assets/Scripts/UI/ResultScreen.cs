@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 [System.Serializable]
@@ -11,28 +12,31 @@ public class ResultData {
 
 public class ResultScreen : MonoBehaviour
 {
-
+    [SerializeField] TMP_Text raceTypeText;
+    [SerializeField] TMP_Text cashWonText;
     [SerializeField] Transform resultItemsContainer;
     [SerializeField] ResultItem resultItemPrefab;
 
+    RaceData raceData;
     List<ResultData> results = new List<ResultData>();
     List<ResultItem> spawnedResultItems =new List<ResultItem>();
 
-    private void OnEnable() {
-
-        for (int i = 0; i < spawnedResultItems.Count; i++)
-            spawnedResultItems[i].SetData(results[i]);
-    }
-
     public void Init(List<VehicleManager> vehicles) {
+        raceData = RaceManager.Instance.RaceData;
         if (spawnedResultItems.Count < vehicles.Count) {
             ClearResults();
             SpawnResults(vehicles);
         }
     }
 
-    public void Show() {
+    public void Show(int playerPlacement) {
         gameObject.SetActive(true);
+        raceTypeText.text = raceData.Type.ToString();
+
+        if (playerPlacement < raceData.CoinsRewards.Length)
+            cashWonText.text = raceData.CoinsRewards[playerPlacement].ToString();
+        else
+            cashWonText.text = "0$";
     }
 
     public void SetResult(int index, ResultData result) {
@@ -41,7 +45,7 @@ public class ResultScreen : MonoBehaviour
     }
 
     public void SpawnResults(List<VehicleManager> vehicles) {
-        foreach (var vehicle in vehicles) {
+        for(int i = 0; i < vehicles.Count; i++) { 
             ResultItem item = Instantiate(resultItemPrefab, resultItemsContainer);
             spawnedResultItems.Add(item);
             results.Add(new ResultData());

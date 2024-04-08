@@ -219,8 +219,11 @@ public class RaceManager : MonoSingleton<RaceManager> {
     }
 
     private void OnPlayerFinishedRace(int placement) {
-        if(placement < RaceData.CoinsRewards.Length)
+        if (placement < RaceData.CoinsRewards.Length)
             UserManager.playerData.SetInt(PlayerPrefsStrings.CASH, UserManager.playerData.GetInt(PlayerPrefsStrings.CASH) + RaceData.CoinsRewards[placement]);
+        if(placement < 3) {
+            RaceData.saveData.placement = placement;
+        }
     }
 
     private void OnDrawGizmos() {

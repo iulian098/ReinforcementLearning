@@ -26,4 +26,6 @@ public class RaceData : ScriptableObject
     public int MaxLoops => maxLoops;
     public int[] CoinsRewards => coinsReward;
 
+    public TrackSaveData saveData;
+
 }

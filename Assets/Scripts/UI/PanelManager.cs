@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PanelManager : MonoSingleton<PanelManager>
 {
@@ -24,6 +25,19 @@ public class PanelManager : MonoSingleton<PanelManager>
     bool IsPanelOpen => activePanels.Count > 0;
 
     public Action OnExitPopupShow;
+
+    protected override void OnAwake() {
+        DontDestroyOnLoad(this);
+        SceneManager.activeSceneChanged += OnSceneChanged;
+    }
+
+    private void OnDestroy() {
+        SceneManager.activeSceneChanged -= OnSceneChanged;
+    }
+
+    private void OnSceneChanged(Scene arg0, Scene arg1) {
+        activePanels.Clear();
+    }
 
     private void Update() {
         if (Input.GetKeyDown(KeyCode.Escape)) {

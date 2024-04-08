@@ -113,6 +113,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   thumbnail: {fileID: 3892495787300576803}
   trackNameText: {fileID: 1245741740108848578}
+  starFilled: {fileID: 21300000, guid: d71e7d6aceffc0b449688e7437be81cf, type: 3}
+  stars:
+  - {fileID: 6413384736054932703}
+  - {fileID: 740726680986690378}
+  - {fileID: 7241238767407176365}
 --- !u!114 &6172408304881464456
 MonoBehaviour:
   m_ObjectHideFlags: 0
