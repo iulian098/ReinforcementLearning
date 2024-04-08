@@ -2,19 +2,37 @@ using System.Collections;
 using System.IO;
 using UnityEngine;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System;
+using System.Reflection;
 
 [DefaultExecutionOrder(-50)]
 public class SaveSystem : MonoBehaviour
 {
+    static SaveSystem instance;
+    public static bool stopSaving;
+
     const string FILE_NAME = "saveFile.data";
 
     [SerializeField] VehiclesContainer vehiclesContainer;
+    [SerializeField] TracksContainer tracksContainer;
 
+    JsonSerializerSettings jsonSettings = new JsonSerializerSettings() {
+        MaxDepth = null,
+        CheckAdditionalContent = true
+    };
     string filePath;
     SaveFile saveFile;
 
     void Awake()
     {
+        if (instance == null)
+            instance = this;
+        else if (instance != null && instance != this) {
+            Destroy(this.gameObject);
+            return;
+        }
+
         DontDestroyOnLoad(this);
         filePath = Path.Combine(Application.persistentDataPath, FILE_NAME);
 
@@ -38,8 +56,17 @@ public class SaveSystem : MonoBehaviour
         }
 
         UserManager.playerData = saveFile.playerData;
-        //vehiclesContainer.vehicleSaveDatas = saveFile.vehicleSaveData;
         vehiclesContainer.SetSaveData(saveFile.vehicleSaveData);
+        tracksContainer.SetSaveDatas(saveFile.tracksSaveData);
+
+    }
+
+    [ContextMenu("ClearSave")]
+    void ClearSave() {
+        filePath = Path.Combine(Application.persistentDataPath, FILE_NAME);
+
+        if (File.Exists(filePath))
+            File.Delete(filePath);
     }
 
     #region Save/Load
@@ -53,7 +80,7 @@ public class SaveSystem : MonoBehaviour
             try {
                 using (var reader = new StreamReader(filePath)) {
                     data = reader.ReadToEnd();
-                    file = JsonConvert.DeserializeObject(data, typeof(SaveFile)) as SaveFile;
+                    file = JsonConvert.DeserializeObject(data, typeof(SaveFile), jsonSettings) as SaveFile;
                 }
                 Debug.Log("[SaveSystem] Save file loaded");
             }
@@ -72,9 +99,14 @@ public class SaveSystem : MonoBehaviour
     }
 
     void SaveFile() {
+        if (stopSaving) {
+            Debug.Log("[SaveSystem] Save disabled");
+            return;
+        }
         try {
-            using (StreamWriter sw = new StreamWriter(filePath))
-                sw.Write(JsonConvert.SerializeObject(saveFile));
+            using (StreamWriter sw = new StreamWriter(filePath)) {
+                sw.Write(JsonConvert.SerializeObject(saveFile, jsonSettings));
+            }
         }catch(IOException ex) {
             Debug.LogError(ex.Message);
         }

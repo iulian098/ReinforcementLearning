@@ -1,10 +1,12 @@
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class PlayerData
 {
-    [SerializeField] Dictionary<string, int> ints = new Dictionary<string, int>();
-    [SerializeField] Dictionary<string, string> strings = new Dictionary<string, string>();
+    [SerializeField, JsonProperty] Dictionary<string, int> ints = new Dictionary<string, int>();
+    [SerializeField, JsonProperty] Dictionary<string, string> strings = new Dictionary<string, string>();
 
     public void SetInt(string key, int value) {
         if(ints.ContainsKey(key)) ints[key] = value;
