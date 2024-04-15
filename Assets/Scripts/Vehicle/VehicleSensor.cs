@@ -136,8 +136,7 @@ public class VehicleSensor : MonoBehaviour
                 if (!string.IsNullOrEmpty(tags[i]))
                     tagFound = hitObject.CompareTag(tags[i]);
 
-                if (tagFound)
-                    output.HitTag = 1f;
+                output.HitTag = tagFound ? 1 : 0;
             }
         }
 
