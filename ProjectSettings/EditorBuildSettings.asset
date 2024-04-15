@@ -14,7 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Race2.unity
     guid: 16320310821955345bf3203e735c7150
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/CoreGameplay.unity
     guid: 889e49b65cb2c784cae71cec083eb15f
   m_configObjects:
