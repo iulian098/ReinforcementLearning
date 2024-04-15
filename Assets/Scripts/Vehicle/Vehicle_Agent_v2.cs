@@ -1,3 +1,6 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
@@ -14,30 +17,40 @@ public class Vehicle_Agent_v2 : Agent
     [SerializeField] LayerMask forwardLayers;
     [SerializeField] float sideSensorsDistance;
     [SerializeField] float frontSensorsDistance;
+    [SerializeField] float rearSensorDistance;
     [SerializeField] float velocitySensorMultiplier = 0.5f;
 
+    [SerializeField] bool beCompetitive = false;
     [SerializeField] bool loopTrack = false;
     [SerializeField] bool showDebug = false;
     [SerializeField] VehicleSensor vehicleSensor;
+    [SerializeField] VehicleTrigger frontTrigger;
 
     [Header("Debugging")]
     [SerializeField] float velocityMagnitude;
 
+    //Inputs
     float acc;
     float steer;
     bool handbrake;
     bool nos;
+
     float lapTime;
     float bestLapTime;
-
+    int lastSteerAction = 0;
+    int previousCheckpointsReached = 0;
     float lastCheckpointDistance;
     float normalizedYRotation;
     float checkpointDirection;
     float roadCenterDirection;
     float checkpointDotProduct;
+    float lastCheckpointDotProduct;
+    HashSet<Transform> prevCheckpoints = new HashSet<Transform>();
 
     bool finishReached = false;
     bool leftSensor = false, rightSensor = false, frontSensor = false, backSensor = false;
+    bool canUseNOS;
+    bool wasGoingWrongWay;
 
     Vector3 nextCheckpointPosition;
     Vector3 startingPos;
@@ -55,11 +68,14 @@ public class Vehicle_Agent_v2 : Agent
         checkpointManager.OnNextCheckpointReached += OnCheckpointReached;
         checkpointManager.OnPreviousCheckpointReached += OnPreviousCheckpointReached;
         checkpointManager.OnFinishReached += OnFinishReached;
+        frontTrigger.OnTriggered += OnFrontVehicleDetected;
     }
 
     private void OnFinishReached() {
         AddReward(1);
-        Debug.Log("OnLoopComplete");
+        if(showDebug)
+            Debug.Log("OnLoopComplete");
+
         if (bestLapTime != -1 && lapTime < bestLapTime) {
             AddReward(1);
             bestLapTime = lapTime;
@@ -76,20 +92,27 @@ public class Vehicle_Agent_v2 : Agent
         AddReward(obj ? 0.75f : -0.75f);
     }
 
-    private void OnPreviousCheckpointReached() {
+    private void OnPreviousCheckpointReached(Transform checkpoint) {
         Debug.Log("Previous checkpoint reached");
-        AddReward(-0.25f);
+        AddReward(-1f);
+        if(!prevCheckpoints.Contains(checkpoint))
+            prevCheckpoints.Add(checkpoint);
+        //previousCheckpointsReached++;
     }
 
-    private void OnCheckpointReached() {
+    private void OnCheckpointReached(Transform checkpoint) {
         AddReward(0.25f);
         nextCheckpointPosition = checkpointManager.vehicleData.nextCheckpoint.position;
         lastCheckpointDistance = Vector3.Distance(vehicle.transform.position, checkpointManager.vehicleData.nextCheckpoint.position);
-
+        previousCheckpointsReached = 0;
+        prevCheckpoints.Clear();
     }
 
     public override void OnEpisodeBegin() {
-        checkpointManager.OnPlacementChanged -= OnPlacementChanged;
+        Debug.Log("OnEpisodeBegin");
+
+        if(beCompetitive)
+            checkpointManager.OnPlacementChanged -= OnPlacementChanged;
 
         ResetVehicleData();
         finishReached = false;
@@ -100,7 +123,8 @@ public class Vehicle_Agent_v2 : Agent
         bestLapTime = -1;
         lapTime = 0;
 
-        checkpointManager.OnPlacementChanged += OnPlacementChanged;
+        if(beCompetitive)
+            checkpointManager.OnPlacementChanged += OnPlacementChanged;
     }
 
     public override void CollectObservations(VectorSensor sensor) {
@@ -112,6 +136,7 @@ public class Vehicle_Agent_v2 : Agent
         sensor.AddObservation(RearSideSlip());
         sensor.AddObservation(backSensor);
         sensor.AddObservation(vehicleSensor.TagHit);
+        sensor.AddObservation(canUseNOS);
     }
 
     public override void OnActionReceived(ActionBuffers actions) {
@@ -145,7 +170,7 @@ public class Vehicle_Agent_v2 : Agent
                 break;
         }
 
-        //nos = actions.DiscreteActions[2] == 1;
+        nos = actions.DiscreteActions[2] == 1;
             
 
         if (showDebug) {
@@ -160,25 +185,65 @@ public class Vehicle_Agent_v2 : Agent
             nos = nos
         });
 
-
-        if (!frontSensor && acc > 0 && velocityMagnitude > 1f)
-            AddReward(0.005f);
-
-        if (frontSensor && acc > 0)
-            AddReward(-0.005f);
         if (backSensor && acc < 0)
             AddReward(-0.005f);
-        
-        if(rightSensor && steer > 0)
+
+        if (!frontSensor && acc > 0 && checkpointDotProduct > 0) {
+            float speedReward = vehicleVelocity.z * 0.0001f;//Mathf.InverseLerp(20, 120, vehicle.Velocity.z) / 100;
+            AddReward(speedReward);
+            //AddReward(0.005f);
+        }
+        if (frontSensor && acc > 0)
             AddReward(-0.005f);
-        if(leftSensor && steer < 0)
+        else if (!frontSensor && acc < 0)
+            AddReward(-0.005f);
+        else if (frontSensor && acc < 0)
+            AddReward(0.005f);
+
+        /*if (rightSensor && steer > 0)
             AddReward(-0.005f);
 
-        if(checkpointDotProduct < 0) 
+        if(leftSensor && steer < 0)
+            AddReward(-0.005f);*/
+
+        if (steer != lastSteerAction) {
+            if(actions.DiscreteActions[1] != 0)
+                AddReward(-0.001f);
+            lastSteerAction = actions.DiscreteActions[1];
+        }
+
+        //Vehicle it's not facing the checkpoint
+        if (checkpointDotProduct < 0) {
+            if (!wasGoingWrongWay) {
+                wasGoingWrongWay = true;
+                AddReward(-1);
+            }
+
             AddReward(-0.001f);
 
-        if (velocityMagnitude <= 0.3f)
+            if (checkpointDotProduct > lastCheckpointDotProduct)
+                AddReward(0.005f);
+            else
+                AddReward(-0.001f);
+            lastCheckpointDotProduct = checkpointDotProduct;
+
+        }else {
+            if (wasGoingWrongWay) {
+                wasGoingWrongWay = false;
+                AddReward(0.5f);
+            }
+        }
+
+        if (velocityMagnitude <= 1f)
             AddReward(-0.005f);
+
+        if (nos && (!canUseNOS || acc != 1 || vehicle.Kmph < 10))
+            AddReward(-0.001f);
+
+    }
+
+    private void OnFrontVehicleDetected() {
+        AddReward(-0.1f);
     }
 
     public void ResetVehicleData() {
@@ -187,14 +252,20 @@ public class Vehicle_Agent_v2 : Agent
         checkpointManager.ResetVehicleData();
         nextCheckpointPosition = checkpointManager.vehicleData.nextCheckpoint.position;
         lastCheckpointDistance = Vector3.Distance(vehicle.transform.position, nextCheckpointPosition);
+        //previousCheckpointsReached = 0;
+        prevCheckpoints.Clear();
     }
 
     private void Update() {
         normalizedYRotation = vehicle.transform.rotation.eulerAngles.y / 180f - 1f;
         vehicleVelocity = vehicle.transform.InverseTransformDirection(vehicle.VehicleRigidBody.velocity);
         vehicleAngularVelocity = vehicle.VehicleRigidBody.angularVelocity;
-        checkpointDotProduct = Vector3.Dot(vehicle.transform.forward, nextCheckpointPosition - vehicle.transform.position);
+        checkpointDotProduct = Vector3.Dot(vehicle.transform.forward, (nextCheckpointPosition - vehicle.transform.position).normalized);
         lapTime += Time.deltaTime;
+        canUseNOS = vehicle.NOSFraction > 0.4f;
+
+        if (Input.GetKeyDown(KeyCode.Space))
+            vehicle.GetComponent<VehicleManager>().ResetVehiclePosition();
     }
 
     private void FixedUpdate() {
@@ -204,7 +275,8 @@ public class Vehicle_Agent_v2 : Agent
         velocityMagnitude = vehicle.VehicleRigidBody.velocity.magnitude;
 
         float sideSensorCalc = CalcSensorDistance(sideSensorsDistance, vehicleAngularVelocity.y, velocitySensorMultiplier);
-        float frontSensorCalc = CalcSensorDistance(frontSensorsDistance, vehicleVelocity.z, velocitySensorMultiplier);
+        float frontSensorCalc = CalcSensorDistance(frontSensorsDistance, vehicleVelocity.z < 0 ? 0 : vehicleVelocity.z, velocitySensorMultiplier);
+        float rearSensorCalc = CalcSensorDistance(rearSensorDistance, vehicleVelocity.z > 0 ? 0 : vehicleVelocity.z, velocitySensorMultiplier);
 
         rightSensor = Physics.Raycast(vehicle.transform.position,
             Vector3.Scale(vehicle.transform.right, new Vector3(1, 0, 1)),
@@ -224,7 +296,7 @@ public class Vehicle_Agent_v2 : Agent
 
         backSensor = Physics.Raycast(vehicle.transform.position,
             -Vector3.Scale(vehicle.transform.forward, new Vector3(1, 0, 1)),
-            vehicleVelocity.z >= 0 ? frontSensorsDistance : frontSensorCalc,
+            vehicleVelocity.z >= 0 ? rearSensorDistance : rearSensorCalc,
             forwardLayers);
 
         Vector3 checkpointDirectionVector = vehicle.transform.position - nextCheckpointPosition;
@@ -239,6 +311,13 @@ public class Vehicle_Agent_v2 : Agent
         }
         else if(checkpointDistance > lastCheckpointDistance + 0.2f) {
             AddReward(-0.025f);
+        }
+
+        if(prevCheckpoints.Count >= 2/*previousCheckpointsReached >= 1*/) {
+            vehicle.GetComponent<VehicleManager>().ResetVehiclePosition();
+            //previousCheckpointsReached = 0;
+            prevCheckpoints.Clear();
+            AddReward(-1);
         }
 
     }
@@ -258,30 +337,31 @@ public class Vehicle_Agent_v2 : Agent
     private void OnCollisionEnter(Collision collision) {
 
         if (collision.collider.CompareTag("Player")) {
-            if(Vector3.Dot(transform.forward, transform.position - collision.collider.transform.position) < 0)
-                AddReward(-0.5f);
+            /*if(Vector3.Dot(transform.forward, transform.position - collision.collider.transform.position) < 0)
+                AddReward(-0.5f);*/
             return;
         }
 
-        AddReward(-1f);
+        AddReward(-0.5f);
     }
 
     private void OnCollisionStay(Collision collision) {
         if (collision.collider.CompareTag("Player")) {
             return;
         }
-        AddReward(-0.01f);
+        AddReward(-0.0001f);
     }
 
     private void OnDrawGizmosSelected() {
         float sideSensorCalc = CalcSensorDistance(sideSensorsDistance, vehicleAngularVelocity.y, velocitySensorMultiplier);
         float frontSensorCalc = CalcSensorDistance(frontSensorsDistance, vehicleVelocity.z, velocitySensorMultiplier);
+        float rearSensorCalc = CalcSensorDistance(rearSensorDistance, vehicleVelocity.z > 0 ? 0 : vehicleVelocity.z, velocitySensorMultiplier);
 
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(vehicle.transform.position, vehicle.transform.position + Vector3.Scale(vehicle.transform.right, new Vector3(1, 0, 1)) * (vehicleAngularVelocity.y <= 0 ? sideSensorsDistance : sideSensorCalc));
         Gizmos.DrawLine(vehicle.transform.position, vehicle.transform.position - Vector3.Scale(vehicle.transform.right, new Vector3(1, 0, 1)) * (vehicleAngularVelocity.y >= 0 ? sideSensorsDistance : sideSensorCalc));
         Gizmos.DrawLine(vehicle.transform.position, vehicle.transform.position + Vector3.Scale(vehicle.transform.forward, new Vector3(1, 0, 1)) * (vehicleVelocity.z <= 0 ? frontSensorsDistance : frontSensorCalc));
-        Gizmos.DrawLine(vehicle.transform.position, vehicle.transform.position - Vector3.Scale(vehicle.transform.forward, new Vector3(1, 0, 1)) * (vehicleVelocity.z >= 0 ? frontSensorsDistance : frontSensorCalc));
+        Gizmos.DrawLine(vehicle.transform.position, vehicle.transform.position - Vector3.Scale(vehicle.transform.forward, new Vector3(1, 0, 1)) * (vehicleVelocity.z >= 0 ? rearSensorDistance : rearSensorCalc));
     }
 
     public override void Heuristic(in ActionBuffers actionsOut) {
@@ -311,10 +391,10 @@ public class Vehicle_Agent_v2 : Agent
                 discreteActions[0] = 0;
         }
 
-        /*if (nos)
+        if (nos)
             discreteActions[2] = 1;
         else
-            discreteActions[2] = 0;*/
+            discreteActions[2] = 0;
         
     }
 

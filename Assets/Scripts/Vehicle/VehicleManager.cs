@@ -1,10 +1,16 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.MLAgents;
 using Unity.MLAgents.Policies;
 using UnityEngine;
 
 public class VehicleManager : MonoBehaviour
 {
+    const float NO_COLLISION_TIME = 3;
+    const string NO_COLLISION_LAYER = "NoCollision";
+    const string VEHICLE_LAYER = "Vehicle";
+
     [SerializeField] bool isPlayer;
     [SerializeField] Vehicle vehicle;
 
@@ -12,14 +18,19 @@ public class VehicleManager : MonoBehaviour
     public VehicleData vehicleData;
     public VehicleSaveData vehicleSaveData;
     public int currentPlacement;
+
+    Collider[] colls;
+    Dictionary<Collider, int> defaultLayers = new Dictionary<Collider, int>();
     float nextCheckpointDistance;
     float prevCheckpointDistance;
+    float noCollisionTimer;
 
-    public Action OnNextCheckpointReached;
-    public Action OnPreviousCheckpointReached;
+    public Action<Transform> OnNextCheckpointReached;
+    public Action<Transform> OnPreviousCheckpointReached;
     public Action OnFinishReached;
     public Action<bool> OnPlacementChanged;
     public Action<VehicleManager> OnRaceFinished;
+    public Action OnPositionReset;
 
     bool initialized = false;
 
@@ -30,11 +41,12 @@ public class VehicleManager : MonoBehaviour
     VehicleCheckpointsContainer CheckpointsContainer => VehicleCheckpointsContainer.Instance;
 
     public void Init(VehicleSaveData vehicleSaveData, bool isPlayer = false) {
+        Init(vehicleConfig, vehicleSaveData, isPlayer);
+        /*vehicle.Init(vehicleConfig, vehicleSaveData, isPlayer);
         ResetVehicleData();
         this.vehicleSaveData = vehicleSaveData;
         this.isPlayer = isPlayer;
         initialized = true;
-        vehicle.Init(vehicleConfig, vehicleSaveData, isPlayer);
 
         if (isPlayer) {
             if (gameObject.TryGetComponent<DecisionRequester>(out var decReq))
@@ -43,7 +55,7 @@ public class VehicleManager : MonoBehaviour
                 DestroyImmediate(agent);
             if (gameObject.TryGetComponent<BehaviorParameters>(out var behaviorParameters))
                 Destroy(behaviorParameters);
-        }
+        }*/
     }
 
     public void Init(VehicleConfig config, VehicleSaveData vehicleSaveData, bool isPlayer = false) {
@@ -62,6 +74,8 @@ public class VehicleManager : MonoBehaviour
             if(gameObject.TryGetComponent<Vehicle_Agent_v2>(out var agent))
                 Destroy(agent);
         }
+
+        colls = GetComponentsInChildren<Collider>().Where(x => !x.isTrigger && x.gameObject.layer == LayerMask.NameToLayer(VEHICLE_LAYER)).ToArray();
     }
 
     void Update() {
@@ -93,12 +107,21 @@ public class VehicleManager : MonoBehaviour
             else if (distFactor <= 0 && !goingForward)
                 SetPreviousCheckpoint(goingForward);
         }
+
+        if(noCollisionTimer > 0) {
+            noCollisionTimer -= Time.deltaTime;
+            if(noCollisionTimer <= 0) {
+                foreach (var item in colls) {
+                    item.gameObject.layer = LayerMask.NameToLayer(VEHICLE_LAYER);//LayerMask.GetMask(VEHICLE_LAYER);
+                }
+            }
+        }
     }
 
     void SetNextCheckpoint(bool goingForward) {
         if (!goingForward) return;
+        Transform checkpoint = vehicleData.nextCheckpoint;
         bool checkpointAdded = false;
-
         if (CheckpointsContainer.Checkpoints[vehicleData.PassedCheckpoints.Count] == vehicleData.currentCheckpoint) {
             vehicleData.PassedCheckpoints.Add(vehicleData.currentCheckpoint);
             checkpointAdded = true;
@@ -114,12 +137,12 @@ public class VehicleManager : MonoBehaviour
         vehicleData.nextCheckpoint = CheckpointsContainer.Checkpoints[vehicleData.checkpointIndex + 1 >= CheckpointsContainer.Checkpoints.Length ? 0 : vehicleData.checkpointIndex + 1];
         
         if (checkpointAdded)
-            OnNextCheckpointReached?.Invoke();
+            OnNextCheckpointReached?.Invoke(checkpoint);
     }
 
     void SetPreviousCheckpoint(bool goingForward) {
         if (goingForward) return;
-        
+        Transform checkpoint = vehicleData.currentCheckpoint;
         vehicleData.nextCheckpoint = vehicleData.currentCheckpoint;
         if (vehicleData.checkpointIndex - 1 < 0)
             vehicleData.checkpointIndex = CheckpointsContainer.Checkpoints.Length - 1;
@@ -127,7 +150,7 @@ public class VehicleManager : MonoBehaviour
             vehicleData.checkpointIndex--;
         vehicleData.currentCheckpoint = CheckpointsContainer.Checkpoints[vehicleData.checkpointIndex];
 
-        OnPreviousCheckpointReached?.Invoke();
+        OnPreviousCheckpointReached?.Invoke(checkpoint);
     }
 
     bool PassedAllCheckpoints() {
@@ -190,7 +213,38 @@ public class VehicleManager : MonoBehaviour
         vehicleData = new VehicleData(CheckpointsContainer.Checkpoints[0], CheckpointsContainer.Checkpoints[1]);
     }
 
+    public void ResetVehiclePosition() {
+        Vector3 relativePos = vehicleData.nextCheckpoint.position - vehicleData.currentCheckpoint.position;
+        Vector3 vehPos = (vehicleData.nextCheckpoint.position + vehicleData.currentCheckpoint.position) / 2;
+        Vector3 roadPos = GetRoadCenter(vehPos, vehicleData.currentCheckpoint.position, vehicleData.nextCheckpoint.position);
+        vehicle.transform.position = roadPos;
+        vehicle.transform.rotation = Quaternion.LookRotation(relativePos, Vector3.up);
+        vehicle.VehicleRigidBody.velocity = Vector3.zero;
+        noCollisionTimer = NO_COLLISION_TIME;
+
+        foreach (var item in colls) {
+            item.gameObject.layer = LayerMask.NameToLayer(NO_COLLISION_LAYER);
+        }
+
+        OnPositionReset?.Invoke();
+
+    }
+
     private void OnTriggerEnter(Collider other) {
+        if (CheckpointsContainer.UseTriggers) {
+
+            if (other.CompareTag("Checkpoint")) {
+                bool goingForward = vehicle.VehicleRigidBody.velocity.magnitude >= 0.1f && Vector3.Dot(vehicle.VehicleRigidBody.velocity, (vehicleData.nextCheckpoint.position - vehicleData.currentCheckpoint.position).normalized) > 0;
+
+                if (other.transform == vehicleData.nextCheckpoint && goingForward)
+                    SetNextCheckpoint(goingForward);
+                else if (other.transform == vehicleData.currentCheckpoint && !goingForward)
+                    SetPreviousCheckpoint(goingForward);
+            }
+        }
+    }
+
+    private void OnTriggerStay(Collider other) {
         if (CheckpointsContainer.UseTriggers) {
 
             if (other.CompareTag("Checkpoint")) {

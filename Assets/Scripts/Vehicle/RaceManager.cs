@@ -47,8 +47,10 @@ public class RaceManager : MonoSingleton<RaceManager> {
     public bool StopUpdate { get { return stopUpdate; } set {  stopUpdate = value; } }
 
     private void OnDestroy() {
-        foreach (var vehicle in vehicles)
-            vehicle.OnRaceFinished -= OnVehicleFinish;
+        if (!enableLearning) {
+            foreach (var vehicle in vehicles)
+                vehicle.OnRaceFinished -= OnVehicleFinish;
+        }
     }
 
     private void Start() {
@@ -63,13 +65,14 @@ public class RaceManager : MonoSingleton<RaceManager> {
 
         trackData = FindFirstObjectByType<Track>();
 
-        if (!enableLearning)
+        if (!enableLearning) {
             SpawnVehicles();
+            foreach (var vehicle in vehicles)
+                vehicle.OnRaceFinished += OnVehicleFinish;
+
+        }
         else
             vehicles = FindObjectsByType<VehicleManager>(FindObjectsSortMode.None).ToList();
-
-        foreach (var vehicle in vehicles)
-            vehicle.OnRaceFinished += OnVehicleFinish;
 
 
         distances = new float[vehicleCheckpoints.Checkpoints.Length + 1];
@@ -220,7 +223,7 @@ public class RaceManager : MonoSingleton<RaceManager> {
 
     private void OnPlayerFinishedRace(int placement) {
         if (placement < RaceData.CoinsRewards.Length)
-            UserManager.playerData.SetInt(PlayerPrefsStrings.CASH, UserManager.playerData.GetInt(PlayerPrefsStrings.CASH) + RaceData.CoinsRewards[placement]);
+            UserManager.playerData.AddInt(PlayerPrefsStrings.CASH, RaceData.CoinsRewards[placement]);
         if(placement < 3) {
             RaceData.saveData.placement = placement;
         }

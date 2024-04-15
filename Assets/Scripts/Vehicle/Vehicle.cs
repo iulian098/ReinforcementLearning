@@ -97,6 +97,7 @@ public class Vehicle : MonoBehaviour
     float enginePowerMultiplier = 1;
     float nosAmount;
     float nosTime;
+    float noCollisionTimer;
 
     int kmph;
     int currentGear;
@@ -391,6 +392,7 @@ public class Vehicle : MonoBehaviour
 
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
+        nosAmount = vehicleConfig.NosAmount;
     }
 
     public void ReceiveInput(InputData input) {

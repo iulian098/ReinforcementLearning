@@ -13,6 +13,8 @@ public class VehicleCheckpointsContainer : MonoBehaviour {
             Destroy(gameObject);
         else
             Instance = this;
+
+        Init();
     }
 
     #endregion
@@ -21,12 +23,13 @@ public class VehicleCheckpointsContainer : MonoBehaviour {
     [SerializeField] Transform[] checkpoints;
     [SerializeField] float checkpointRaidus = 5;
     [SerializeField] bool useTriggers;
+    [SerializeField] bool showDebug;
 
     public Transform[] Checkpoints => checkpoints;
     public float CheckpointRadius => checkpointRaidus;
     public bool UseTriggers => useTriggers;
 
-    private void Start() {
+    private void Init() {
         if (checkpointsContainer != null) {
             checkpoints = new Transform[checkpointsContainer.childCount];
             for (int i = 0; i < checkpointsContainer.childCount; i++) {
@@ -37,10 +40,12 @@ public class VehicleCheckpointsContainer : MonoBehaviour {
     }
 
     private void OnDrawGizmosSelected() {
-        foreach (var checkpoint in checkpoints) {
-
+        if (!showDebug) return;
+        if(checkpointsContainer != null) {
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(checkpoint.transform.position, checkpointRaidus);
+            for (int i = 0; i < checkpointsContainer.childCount; i++) {
+                Gizmos.DrawWireSphere(checkpointsContainer.GetChild(i).position, 0.5f);
+            }
         }
     }
 }
