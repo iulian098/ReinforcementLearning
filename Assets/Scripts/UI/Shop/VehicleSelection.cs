@@ -132,9 +132,15 @@ public class VehicleSelection : MonoBehaviour
         newSaveData.purchased = true;
         vehiclesContainer.vehicleSaveDatas.Add(newSaveData);
         selectedSaveData = newSaveData;*/
+
+        PopupPanel.Instance.Show("", "Do you want to buy this vehicle?", () => OnPurchaseConfirmed(vehicleIndex), true);
+        
+    }
+
+    void OnPurchaseConfirmed(int vehicleIndex) {
         vehiclesContainer.vehicleSaveDatas[vehicleIndex].purchased = true;
         selectedSaveData = vehiclesContainer.vehicleSaveDatas[vehicleIndex];
-
+        UserManager.playerData.SubtractInt(PlayerPrefsStrings.CASH, selectedItem.Config.Price);
         UpdateUIButtons();
     }
 

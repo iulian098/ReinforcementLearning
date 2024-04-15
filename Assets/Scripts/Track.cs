@@ -13,4 +13,14 @@ public class Track : MonoBehaviour
 
         return list;
     }
+
+    private void OnDrawGizmos() {
+        if (spawnPointsContainer == null) return;
+
+        Gizmos.color = Color.blue;
+
+        for (int i = 0; i < spawnPointsContainer.childCount; i++) {
+            Gizmos.DrawWireSphere(spawnPointsContainer.GetChild(i).position, 0.5f);
+        }
+    }
 }
