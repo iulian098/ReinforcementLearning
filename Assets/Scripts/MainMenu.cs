@@ -11,6 +11,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] VehicleSelection vehicleSelection;
     [SerializeField] GameObject mainMenu;
     [SerializeField] GameObject trackSelection;
+    [SerializeField] SettingsPanel settingsPanel;
     [SerializeField] PreviewManager previewManager;
 
     private void Start() {
@@ -73,13 +74,18 @@ public class MainMenu : MonoBehaviour
 
     }
 
-    void OnShowExitPopup() {
-        PopupPanel.Instance.Show("", "Are you sure you want to quit?", () => Application.Quit(), true, () => PanelManager.Instance.HidePanel());
+    public void OnOptionsClicked() {
+        PanelManager.Instance.ShowPanel("Options", () => {
+            settingsPanel.Open();
+            mainMenu.SetActive(false);
+        },
+        () => {
+            settingsPanel.Close();
+            mainMenu.SetActive(true);
+        });
     }
 
-    private void Update() {
-        if (Input.GetKeyDown(KeyCode.Space)) {
-            UserManager.playerData.SetInt(PlayerPrefsStrings.CASH, UserManager.playerData.GetInt(PlayerPrefsStrings.CASH) + 10);
-        }
+    void OnShowExitPopup() {
+        PopupPanel.Instance.Show("", "Are you sure you want to quit?", () => Application.Quit(), true, () => PanelManager.Instance.HidePanel());
     }
 }

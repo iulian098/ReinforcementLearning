@@ -16,6 +16,7 @@ public class SaveSystem : MonoBehaviour
 
     [SerializeField] VehiclesContainer vehiclesContainer;
     [SerializeField] TracksContainer tracksContainer;
+    [SerializeField] GameSettings gameSettings;
 
     JsonSerializerSettings jsonSettings = new JsonSerializerSettings() {
         MaxDepth = null,
@@ -58,6 +59,7 @@ public class SaveSystem : MonoBehaviour
         UserManager.playerData = saveFile.playerData;
         vehiclesContainer.SetSaveData(saveFile.vehicleSaveData);
         tracksContainer.SetSaveDatas(saveFile.tracksSaveData);
+        gameSettings.Load(true);
 
     }
 
