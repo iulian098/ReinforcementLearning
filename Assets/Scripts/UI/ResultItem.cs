@@ -17,7 +17,7 @@ public class ResultItem : MonoBehaviour
 
     public void SetData(ResultData resultData) {
         TimeSpan time = TimeSpan.FromSeconds(resultData.time);
-        nameText.text = resultData.vehicleManager.name;
+        nameText.text = resultData.vehicleManager.PlayerName;
         timeText.text = $"{time.Minutes}:{time.Seconds}";
         rewardText.text = "0";
     }

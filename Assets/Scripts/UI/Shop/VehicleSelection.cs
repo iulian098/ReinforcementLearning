@@ -266,8 +266,10 @@ public class VehicleSelection : MonoBehaviour
         selectedLevelIndex = newSelected.LevelIndex;
 
         List<int> purchasedUpgrades = selectedSaveData.PurchasedUpgrades.Get(selectedUpgradeData.upgradeType);
+        priceText.text = $"{selectedUpgradeData.price[selectedLevelIndex]}$";
+        //priceText.text = $"{selectedVehicleConfig.Upgrades.Price}$";
 
-        if(selectedSaveData.EquippedLevels.Get(selectedUpgradeData.upgradeType, -1) == selectedLevelIndex) {
+        if (selectedSaveData.EquippedLevels.Get(selectedUpgradeData.upgradeType, -1) == selectedLevelIndex) {
             buyButton.gameObject.SetActive(false);
             equipButton.gameObject.SetActive(false);
         }

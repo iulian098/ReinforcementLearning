@@ -11,6 +11,7 @@ public class VehicleManager : MonoBehaviour
     const string NO_COLLISION_LAYER = "NoCollision";
     const string VEHICLE_LAYER = "Vehicle";
 
+    [SerializeField] string playerName;
     [SerializeField] bool isPlayer;
     [SerializeField] Vehicle vehicle;
 
@@ -34,6 +35,7 @@ public class VehicleManager : MonoBehaviour
 
     bool initialized = false;
 
+    public string PlayerName => playerName;
     public bool Initialized => initialized;
     public bool IsPlayer => isPlayer;
 
@@ -71,7 +73,7 @@ public class VehicleManager : MonoBehaviour
                 Destroy(decReq);
             if(gameObject.TryGetComponent<BehaviorParameters>(out var behaviorParameters))
                 Destroy(behaviorParameters);
-            if(gameObject.TryGetComponent<Vehicle_Agent_v2>(out var agent))
+            if(gameObject.TryGetComponent<Vehicle_Agent>(out var agent))
                 Destroy(agent);
         }
 
@@ -116,6 +118,10 @@ public class VehicleManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void SetPlayerName(string name) {
+        playerName = name;
     }
 
     void SetNextCheckpoint(bool goingForward) {

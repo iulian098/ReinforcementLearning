@@ -97,7 +97,6 @@ public class Vehicle : MonoBehaviour
     float enginePowerMultiplier = 1;
     float nosAmount;
     float nosTime;
-    float noCollisionTimer;
 
     int kmph;
     int currentGear;

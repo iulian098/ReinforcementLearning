@@ -382,6 +382,18 @@ PrefabInstance:
       propertyPath: frontWheels.Array.data[1].wheelVisual
       value: 
       objectReference: {fileID: 5390353375843935562}
+    - target: {fileID: 5245002873514987349, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.40462872
+      objectReference: {fileID: 0}
+    - target: {fileID: 5245002873514987349, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.063
+      objectReference: {fileID: 0}
+    - target: {fileID: 5245002873514987349, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1.638
+      objectReference: {fileID: 0}
     - target: {fileID: 5709610120147997697, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
       propertyPath: m_SuspensionSpring.damper
       value: 5000
@@ -590,6 +602,14 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 49cafdc7d0f20bf4db52732537f7379b, type: 2}
+    - target: {fileID: 633269185496092635, guid: da970f94f46ce514e8a06a26849c6756, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 633269185496092635, guid: da970f94f46ce514e8a06a26849c6756, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: da970f94f46ce514e8a06a26849c6756, type: 3}
       propertyPath: m_Name
       value: SM_Veh_Car_Medium_01_LODS
@@ -666,7 +686,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4855992536001559937}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 7d66dc105789a2143882f23ff02ff192, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0

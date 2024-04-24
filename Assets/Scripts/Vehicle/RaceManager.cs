@@ -19,6 +19,7 @@ public class RaceManager : MonoSingleton<RaceManager> {
     public bool enableLearning;
 
     [SerializeField] RaceData currentRaceData;
+    [SerializeField] RacersNames racersNames;
     [SerializeField] Track trackData;
     [SerializeField] VehiclesContainer vehiclesContainer;
     [SerializeField] VehicleManager playerVehicle;
@@ -100,6 +101,14 @@ public class RaceManager : MonoSingleton<RaceManager> {
                 }
             }
         }
+
+        foreach (var vehicle in vehicles) {
+            if (!vehicle.IsPlayer) {
+                int nameIndex = UnityEngine.Random.Range(0, racersNames.Names.Length);
+                vehicle.SetPlayerName(racersNames.Names[nameIndex]);
+            }
+        }
+
 
         leaderboard.Init(vehicles);
         uiManager.Init();

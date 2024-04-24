@@ -135,7 +135,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!114 &203844587
 MonoBehaviour:
@@ -700,7 +700,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 6acec2fb248d0234e852259405b5d34e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -784,7 +784,7 @@ Transform:
   m_GameObject: {fileID: 5718059292330662368}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.01834613, y: 0, z: -0.000000028610229}
+  m_LocalPosition: {x: 0.01834613, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -911,6 +911,7 @@ Transform:
   m_LocalScale: {x: 100, y: 100, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1556892217202646347}
   - {fileID: 7051167746738935065}
   - {fileID: 3552871329518140159}
   - {fileID: 8390471430170918627}
@@ -920,7 +921,6 @@ Transform:
   - {fileID: 6866362051119370840}
   - {fileID: 1658458942443125391}
   - {fileID: 4390734892263067672}
-  - {fileID: 1556892217202646347}
   m_Father: {fileID: 8110144088142395541}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &3552871329518140159
@@ -975,7 +975,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 6acec2fb248d0234e852259405b5d34e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1019,7 +1019,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 5cce09f732c79164fb6ee657d1afe6d6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1081,7 +1081,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7562755644166892514}
   - component: {fileID: 7562755644166892515}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Checkpoint.004
   m_TagString: Checkpoint
   m_Icon: {fileID: 0}
@@ -1098,7 +1098,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3552871329518140159}
   - component: {fileID: 4689810247046178409}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Checkpoint.002
   m_TagString: Checkpoint
   m_Icon: {fileID: 0}
@@ -1124,7 +1124,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.05, y: 0.5, z: 0.5}
+  m_Size: {x: 0.02, y: 0.5, z: 0.5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &4741621018655890881
 GameObject:
@@ -1136,7 +1136,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1658458942443125391}
   - component: {fileID: 4741621018655890882}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Checkpoint.008
   m_TagString: Checkpoint
   m_Icon: {fileID: 0}
@@ -1162,7 +1162,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.05, y: 0.5, z: 0.5}
+  m_Size: {x: 0.02, y: 0.5, z: 0.5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!33 &4959773439926848053
 MeshFilter:
@@ -1182,7 +1182,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8390471430170918627}
   - component: {fileID: 8390471430170918628}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Checkpoint.003
   m_TagString: Checkpoint
   m_Icon: {fileID: 0}
@@ -1243,7 +1243,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1556892217202646347}
   - component: {fileID: 5718059292330662369}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Checkpoint.010
   m_TagString: Checkpoint
   m_Icon: {fileID: 0}
@@ -1269,7 +1269,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.05, y: 0.5, z: 0.5}
+  m_Size: {x: 0.02, y: 0.5, z: 0.5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6777709512879017918
 GameObject:
@@ -1393,7 +1393,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6866362051119370840}
   - component: {fileID: 7355114516510118794}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Checkpoint.007
   m_TagString: Checkpoint
   m_Icon: {fileID: 0}
@@ -1419,7 +1419,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.05, y: 0.5, z: 0.5}
+  m_Size: {x: 0.02, y: 0.5, z: 0.5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7427896175197092726
 GameObject:
@@ -1431,7 +1431,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7051167746738935065}
   - component: {fileID: 7427896175197092727}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Checkpoint.001
   m_TagString: Checkpoint
   m_Icon: {fileID: 0}
@@ -1457,7 +1457,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.05, y: 0.5, z: 0.5}
+  m_Size: {x: 0.02, y: 0.5, z: 0.5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &7562755644166892514
 Transform:
@@ -1493,7 +1493,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.05, y: 0.5, z: 0.5}
+  m_Size: {x: 0.02, y: 0.5, z: 0.5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7611072334357240096
 GameObject:
@@ -1539,7 +1539,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7949673065454548181}
   - component: {fileID: 7949673065454548182}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Checkpoint.006
   m_TagString: Checkpoint
   m_Icon: {fileID: 0}
@@ -1580,7 +1580,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.05, y: 0.5, z: 0.5}
+  m_Size: {x: 0.02, y: 0.5, z: 0.5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &8110144088142395541
 Transform:
@@ -1668,7 +1668,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.05, y: 0.5, z: 0.5}
+  m_Size: {x: 0.02, y: 0.5, z: 0.5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8624857798445706364
 GameObject:
@@ -1680,7 +1680,7 @@ GameObject:
   m_Component:
   - component: {fileID: 260640190186088315}
   - component: {fileID: 8624857798445706365}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Checkpoint.005
   m_TagString: Checkpoint
   m_Icon: {fileID: 0}
@@ -1706,7 +1706,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.05, y: 0.5, z: 0.5}
+  m_Size: {x: 0.02, y: 0.5, z: 0.5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8772156000457476203
 GameObject:
@@ -1718,7 +1718,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4390734892263067672}
   - component: {fileID: 8772156000457476204}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Checkpoint.009
   m_TagString: Checkpoint
   m_Icon: {fileID: 0}
@@ -1744,7 +1744,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.05, y: 0.5, z: 0.5}
+  m_Size: {x: 0.02, y: 0.5, z: 0.5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8919051101261947439
 GameObject:
@@ -1780,6 +1780,7 @@ MonoBehaviour:
   checkpoints: []
   checkpointRaidus: 5
   useTriggers: 1
+  showDebug: 0
 --- !u!114 &8919051101261947441
 MonoBehaviour:
   m_ObjectHideFlags: 0

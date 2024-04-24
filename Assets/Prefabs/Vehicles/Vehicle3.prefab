@@ -294,6 +294,14 @@ PrefabInstance:
       propertyPath: m_LocalRotation.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -1223792791841026275, guid: 990c169138afd2f4794596a34b55c061, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: -1223792791841026275, guid: 990c169138afd2f4794596a34b55c061, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     - target: {fileID: -209353527728132544, guid: 990c169138afd2f4794596a34b55c061, type: 3}
       propertyPath: m_LocalRotation.w
       value: 1
@@ -434,7 +442,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6944687982337823425}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 7d66dc105789a2143882f23ff02ff192, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -645,6 +653,14 @@ PrefabInstance:
       propertyPath: frontWheels.Array.data[1].wheelVisual
       value: 
       objectReference: {fileID: 656801138351698488}
+    - target: {fileID: 5245002873514987349, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.064
+      objectReference: {fileID: 0}
+    - target: {fileID: 5245002873514987349, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1.754
+      objectReference: {fileID: 0}
     - target: {fileID: 5686161917312755760, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
       propertyPath: m_IsActive
       value: 0

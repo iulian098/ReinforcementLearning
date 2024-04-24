@@ -14,7 +14,7 @@ public class UILeaderboard : MonoBehaviour
         for (int i = 0; i < items.Count; i++) {
             UILeaderboardItem item = Instantiate(leaderboardItem, itemsContainer);
 
-            item.SetText(items[i].name);
+            item.SetText(items[i].PlayerName);
             item.name = "Leaderboard" + items[i].name;
 
             spawnedItems.Add((items[i], item));
@@ -31,7 +31,7 @@ public class UILeaderboard : MonoBehaviour
 
             foreach (var item in spawnedItems) {
                 item.Item2.transform.SetSiblingIndex(item.Item1.currentPlacement);
-                item.Item2.SetText($"{item.Item1.currentPlacement + 1} {item.Item1.name}");
+                item.Item2.SetText($"{item.Item1.currentPlacement + 1} {item.Item1.PlayerName}");
             }
 
             yield return new WaitForSeconds(0.2f);

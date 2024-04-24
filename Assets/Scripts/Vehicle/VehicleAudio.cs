@@ -1,5 +1,8 @@
 using System;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.Audio;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class VehicleAudio : MonoBehaviour
 {
@@ -69,6 +72,7 @@ public class VehicleAudio : MonoBehaviour
     }
 
     [SerializeField] Vehicle vehicle;
+    [SerializeField] AssetReferenceT<AudioMixer> mixerReference;
     [SerializeField] EngineSoundData lowSounds;
     [SerializeField] EngineSoundData highSounds;
     [SerializeField] AudioData hitSound;
@@ -83,15 +87,20 @@ public class VehicleAudio : MonoBehaviour
 
     [SerializeField] AudioSettings engineAudioSettings;
 
+    AudioMixer mixer;
     GameObject parent;
     float pitch;
     float currentAcc;
+    bool initialized = false;
 
-    private void Start() {
+    private async void Start() {
         parent = new GameObject("Audio");
         parent.transform.SetParent(transform);
         parent.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-
+        AsyncOperationHandle op = Addressables.LoadAssetAsync<AudioMixer>(mixerReference);
+        await op.Task;
+        if (op.Result != null)
+            mixer = op.Result as AudioMixer;
         CreateEngineAudioSource(lowSounds);
         CreateEngineAudioSource(highSounds);
         CreateAudioSource(hitSound, false);
@@ -99,9 +108,12 @@ public class VehicleAudio : MonoBehaviour
         CreateAudioSource(skidSound, true, true);
         CreateAudioSource(nosLoopSoundSource, false);
         CreateAudioSource(nosMiscSoundSource, false);
+
+        initialized = true;
     }
 
     private void Update() {
+        if (!initialized) return;
         pitch = ULerp(lowSounds.minPitch, lowSounds.maxPitch, vehicle.EngineRPM / vehicle.ShiftUpRPM);
         currentAcc = Mathf.Lerp(currentAcc, vehicle.Braking ? 0 : Mathf.Abs(vehicle.CurrentInput.acceleration), Time.deltaTime * 30);
 
@@ -166,6 +178,7 @@ public class VehicleAudio : MonoBehaviour
             audioSource.minDistance = engineAudioSettings.minDistance;
             audioSource.Play();
             audioSources[i] = audioSource;
+            audioSource.outputAudioMixerGroup = AudioManager.Instance.Mixer.FindMatchingGroups("Master/SFX")[0];
         }
         engineSound.SetAudioSource(audioSources[0], audioSources[1]);
     }
@@ -180,7 +193,9 @@ public class VehicleAudio : MonoBehaviour
         audioSource.rolloffMode = engineAudioSettings.rolloffMode;
         audioSource.maxDistance = engineAudioSettings.maxDistance;
         audioSource.minDistance = engineAudioSettings.minDistance;
-        if(autoPlay)
+        audioSource.outputAudioMixerGroup = AudioManager.Instance.Mixer.FindMatchingGroups("Master/SFX")[0];
+
+        if (autoPlay)
             audioSource.Play();
         audioData.SetAudioSource(audioSource);
     }

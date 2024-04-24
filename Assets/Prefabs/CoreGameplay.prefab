@@ -567,6 +567,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enableLearning: 0
   currentRaceData: {fileID: 11400000, guid: 6ca6872b66eb02c49963668d40897cfd, type: 2}
+  racersNames: {fileID: 11400000, guid: 42bfcece35de64a41a6bb4a37fbfad59, type: 2}
   trackData: {fileID: 0}
   vehiclesContainer: {fileID: 11400000, guid: 79c56f100b70e0348881ca282c535822, type: 2}
   playerVehicle: {fileID: 0}
