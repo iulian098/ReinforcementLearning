@@ -20,9 +20,9 @@ MonoBehaviour:
   lowSpeedSteerRadius: 3.8
   highSpeedSteerRadius: 25
   downForce: 50
-  maxReverseTorque: 500
-  brakeTorque: 1000
-  handbrakeTorque: 1000
+  maxReverseTorque: 2000
+  brakeTorque: 5000
+  handbrakeTorque: 10000
   enginePowerCurve:
     serializedVersion: 2
     m_Curve:

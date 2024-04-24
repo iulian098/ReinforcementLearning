@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbc9ba03c9f15f14c9f7752f6d95ab75, type: 3}
+  m_Name: RaceData3
+  m_EditorClassIdentifier: 
+  sceneReference:
+    m_AssetGUID: bc63a8aaaa1b72440a18db631ef9c91c
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  sceneName: 
+  trackName: Track 3
+  thumbnail: {fileID: 21300000, guid: 27d32817a6f57ee4dac0ab6e5bd111ad, type: 3}
+  raceType: 0
+  maxPlayers: 5
+  maxLoops: 3
+  coinsReward: d4300000102700004c1d0000

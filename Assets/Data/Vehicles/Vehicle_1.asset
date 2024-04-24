@@ -20,7 +20,7 @@ MonoBehaviour:
   lowSpeedSteerRadius: 3.8
   highSpeedSteerRadius: 25
   downForce: 50
-  maxReverseTorque: 500
+  maxReverseTorque: 2000
   brakeTorque: 1000
   handbrakeTorque: 1000
   enginePowerCurve:
@@ -76,88 +76,6 @@ MonoBehaviour:
   tcsFactor: 0.5
   nosPowerMultiplier: 0.05
   nosAmount: 7.5
-  enginePowerBonus:
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  accelerationBonus:
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  nosPowerBonus:
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  nosAmountBonus:
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  - upgradeType: 0
-    price: 
-    val: []
-  wheelHandlingBonus:
-  - upgradeType: 0
-    price: d0070000b80b0000a00f00008813000070170000
-    val:
-    - 0.1
-    - 0.15
-    - 0.2
-    - 0.275
-    - 0.31
-  - upgradeType: 1
-    price: d0070000b80b0000a00f00008813000070170000
-    val:
-    - 0.05
-    - 0.1
-    - 0.125
-    - 0.17
-    - 0.22
-  - upgradeType: 2
-    price: d0070000b80b0000a00f00008813000070170000
-    val:
-    - 150
-    - 200
-    - 230
-    - 280
-    - 350
-  - upgradeType: 3
-    price: d0070000b80b0000a00f00008813000070170000
-    val:
-    - 0.02
-    - 0.075
-    - 0.1
-    - 0.125
-    - 0.175
   upgrades:
   - upgradeType: 0
     price: d0070000b80b0000a00f00008813000070170000
@@ -191,3 +109,6 @@ MonoBehaviour:
     - 0.1
     - 0.125
     - 0.175
+  saveData:
+    vehicleIndex: 0
+    purchased: 0
