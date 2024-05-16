@@ -765,6 +765,10 @@ PrefabInstance:
       propertyPath: m_SidewaysFriction.m_ExtremumValue
       value: 1.2
       objectReference: {fileID: 0}
+    - target: {fileID: 7858975250784024347, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_Model
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 8269959474600532210, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
       propertyPath: m_IsActive
       value: 0

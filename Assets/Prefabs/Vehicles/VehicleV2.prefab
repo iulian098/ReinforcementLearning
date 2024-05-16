@@ -492,7 +492,7 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   MaxStep: 0
   vehicle: {fileID: 5634309148492109163}
-  checkpointManager: {fileID: 8622531910035623962}
+  vehicleManager: {fileID: 8622531910035623962}
   layers:
     serializedVersion: 2
     m_Bits: 2049
@@ -542,7 +542,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: d6709588667fceb4ab05196e7a0bef68, type: 3}
+  m_Model: {fileID: 0}
   m_InferenceDevice: 2
   m_BehaviorType: 0
   m_BehaviorName: MyAgents

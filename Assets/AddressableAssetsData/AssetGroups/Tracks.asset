@@ -22,6 +22,26 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 96adcf55b354ffd40bece35c18b058e5
+    m_Address: Assets/Terrains/Terrain_Rocks.terrainlayer
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5a7e7401bdc05304299335ea992c089b
+    m_Address: Assets/Terrains/Terrain_Grass.terrainlayer
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c3d44065366450c418877c7d63062176
+    m_Address: Assets/Shaders/Terrain/FlatTerrainMat.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a470a49a03778a64b848b8c856eaab03
+    m_Address: Assets/Shaders/Terrain
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 6040624669966984aa340a91327dd50f, type: 2}
   m_SchemaSet:

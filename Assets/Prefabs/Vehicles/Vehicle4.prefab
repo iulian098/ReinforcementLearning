@@ -1937,6 +1937,10 @@ PrefabInstance:
       propertyPath: m_SidewaysFriction.m_AsymptoteValue
       value: 0.9
       objectReference: {fileID: 0}
+    - target: {fileID: 7858975250784024347, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: m_Model
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 8299892737163379834, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

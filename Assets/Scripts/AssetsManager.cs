@@ -13,7 +13,7 @@ public static class AssetsManager<T> where T : Object
     private static Dictionary<AssetReferenceT<T>, AsyncOperationHandle<T>> loadedAssets = new Dictionary<AssetReferenceT<T>, AsyncOperationHandle<T>>();
 
     private static Dictionary<AssetReference, AsyncOperationHandle> loadedScenes = new Dictionary<AssetReference, AsyncOperationHandle>();
-    public static async Task<T> Get(AssetReferenceT<T> reference) {
+    public static async Task<T> Load(AssetReferenceT<T> reference) {
         if (loadedAssets.TryGetValue(reference, out var loadedAsset))
             return loadedAsset.Result;
 
@@ -52,7 +52,8 @@ public static class AssetsManager<T> where T : Object
     }
 
     public static void ReleaseSceneaSync(AssetReferenceT<T> scene) {
-        if (!loadedScenes.TryGetValue(scene, out var opHandle)) return;
+        if (!loadedScenes.TryGetValue(scene, out var opHandle)) 
+            return;
 
         Addressables.Release(opHandle);
 

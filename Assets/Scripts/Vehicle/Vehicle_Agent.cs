@@ -7,7 +7,7 @@ using UnityEngine;
 public class Vehicle_Agent : Agent
 {
     [SerializeField] Vehicle vehicle;
-    [SerializeField] VehicleManager checkpointManager;
+    [SerializeField] VehicleManager vehicleManager;
     [SerializeField] LayerMask layers;
     [SerializeField] LayerMask forwardLayers;
     [SerializeField] float sideSensorsDistance;
@@ -57,9 +57,9 @@ public class Vehicle_Agent : Agent
     private void Start() {
         startingPos = vehicle.transform.position;
         startingRot = vehicle.transform.rotation;
-        checkpointManager.OnNextCheckpointReached += OnCheckpointReached;
-        checkpointManager.OnPreviousCheckpointReached += OnPreviousCheckpointReached;
-        checkpointManager.OnFinishReached += OnFinishReached;
+        vehicleManager.OnNextCheckpointReached += OnCheckpointReached;
+        vehicleManager.OnPreviousCheckpointReached += OnPreviousCheckpointReached;
+        vehicleManager.OnFinishReached += OnFinishReached;
         frontTrigger.OnTriggered += OnFrontVehicleDetected;
     }
 
@@ -93,20 +93,20 @@ public class Vehicle_Agent : Agent
 
     private void OnCheckpointReached(Transform checkpoint) {
         AddReward(0.25f);
-        nextCheckpointPosition = checkpointManager.vehicleData.nextCheckpoint.position;
-        lastCheckpointDistance = Vector3.Distance(vehicle.transform.position, checkpointManager.vehicleData.nextCheckpoint.position);
+        nextCheckpointPosition = vehicleManager.vehicleData.nextCheckpoint.position;
+        lastCheckpointDistance = Vector3.Distance(vehicle.transform.position, vehicleManager.vehicleData.nextCheckpoint.position);
         prevCheckpoints.Clear();
     }
 
     public override void OnEpisodeBegin() {
         Debug.Log("OnEpisodeBegin");
 
-        checkpointManager.OnPlacementChanged -= OnPlacementChanged;
+        vehicleManager.OnPlacementChanged -= OnPlacementChanged;
 
         vehicle.ResetVehicle();
         vehicle.transform.SetLocalPositionAndRotation(startingPos, startingRot);
-        checkpointManager.ResetVehicleData();
-        nextCheckpointPosition = checkpointManager.vehicleData.nextCheckpoint.position;
+        vehicleManager.ResetVehicleData();
+        nextCheckpointPosition = vehicleManager.vehicleData.nextCheckpoint.position;
         lastCheckpointDistance = Vector3.Distance(vehicle.transform.position, nextCheckpointPosition);
         prevCheckpoints.Clear();
         finishReached = false;
@@ -115,7 +115,7 @@ public class Vehicle_Agent : Agent
         bestLapTime = -1;
         lapTime = 0;
 
-        checkpointManager.OnPlacementChanged += OnPlacementChanged;
+        vehicleManager.OnPlacementChanged += OnPlacementChanged;
     }
 
     public override void CollectObservations(VectorSensor sensor) {
@@ -240,8 +240,8 @@ public class Vehicle_Agent : Agent
     public void ResetVehicleData() {
         vehicle.ResetVehicle();
         vehicle.transform.SetLocalPositionAndRotation(startingPos, startingRot);
-        checkpointManager.ResetVehicleData();
-        nextCheckpointPosition = checkpointManager.vehicleData.nextCheckpoint.position;
+        vehicleManager.ResetVehicleData();
+        nextCheckpointPosition = vehicleManager.vehicleData.nextCheckpoint.position;
         lastCheckpointDistance = Vector3.Distance(vehicle.transform.position, nextCheckpointPosition);
         prevCheckpoints.Clear();
     }
@@ -257,7 +257,7 @@ public class Vehicle_Agent : Agent
 
     private void FixedUpdate() {
         if (finishReached) return;
-        nextCheckpointPosition = checkpointManager.vehicleData.nextCheckpoint.position;
+        nextCheckpointPosition = vehicleManager.vehicleData.nextCheckpoint.position;
         float checkpointDistance = Vector3.Distance(vehicle.transform.position, nextCheckpointPosition);
         velocityMagnitude = vehicle.VehicleRigidBody.velocity.magnitude;
 
@@ -277,7 +277,7 @@ public class Vehicle_Agent : Agent
         Vector3 checkpointDirectionVector = vehicle.transform.position - nextCheckpointPosition;
         checkpointDirection = (Vector3.SignedAngle(vehicle.transform.forward, checkpointDirectionVector, Vector3.up) + 180) / 360;
 
-        Vector3 roadCenterDirectionVector = vehicle.transform.position - checkpointManager.vehicleData.RoadCenter;
+        Vector3 roadCenterDirectionVector = vehicle.transform.position - vehicleManager.vehicleData.RoadCenter;
         roadCenterDirection = (Vector3.SignedAngle(vehicle.transform.forward, roadCenterDirectionVector, Vector3.up) + 180) / 360;
 
         if (checkpointDistance < lastCheckpointDistance - 0.2f){
