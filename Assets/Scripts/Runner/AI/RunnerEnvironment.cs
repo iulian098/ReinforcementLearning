@@ -4,9 +4,6 @@ using UnityEngine;
 using System.IO;
 using System;
 using Cinemachine;
-using System.Threading.Tasks;
-using System.Text;
-using NPOI.HSSF.Record;
 using TMPro;
 using StateMachine.Player;
 

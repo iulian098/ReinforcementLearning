@@ -5,10 +5,14 @@ public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
     public static T Instance;
 
     private void Awake() {
-        if (Instance != null && Instance != this)
+        Instance = FindFirstObjectByType<T>();
+        if (Instance != null && Instance != this) {
             Destroy(gameObject);
-        else
+        }
+        else {
             Instance = this as T;
+            gameObject.name = typeof(T).Name + "_Singleton";
+        }
 
         OnAwake();
     }

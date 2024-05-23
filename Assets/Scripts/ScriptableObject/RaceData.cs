@@ -6,7 +6,8 @@ public class RaceData : ScriptableObject
 {
     public enum RaceType {
         Circuit,
-        Sprint
+        Sprint,
+        TimeAttack
     }
 
     public AssetReferenceT<Object> sceneReference;
