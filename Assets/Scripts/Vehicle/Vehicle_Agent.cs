@@ -337,15 +337,20 @@ public class Vehicle_Agent : Agent
 
     public override void Heuristic(in ActionBuffers actionsOut) {
         ActionSegment<int> discreteActions = actionsOut.DiscreteActions;
+        if (vehicle.Controls == null) return;
+        float horizontal = vehicle.Controls.Player.LeftRight.ReadValue<float>();//Input.GetAxis("Horizontal"),
+        float vertical = vehicle.Controls.Player.AccelerateDecelerate.ReadValue<float>();//Input.GetAxis("Vertical"),
+        bool handbrake = vehicle.Controls.Player.Handbrake.IsPressed();//Input.GetButton("Jump"),
+        bool nos = vehicle.Controls.Player.Nos.IsPressed();
 
-        float horizontal = Input.GetAxisRaw("Horizontal");
+        /*float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
         bool handbrake = Input.GetButton("Jump");
-        bool nos = Input.GetButton("NOS");
+        bool nos = Input.GetButton("NOS");*/
 
         if (horizontal > 0)
             discreteActions[1] = 1;
-        else if(horizontal < 0)
+        else if (horizontal < 0)
             discreteActions[1] = 2;
         else
             discreteActions[1] = 0;

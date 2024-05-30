@@ -11,6 +11,7 @@ public class RaceData : ScriptableObject
     }
 
     public AssetReferenceT<Object> sceneReference;
+    [SerializeField] int buyIn;
     [SerializeField] string sceneName;
     [SerializeField] string trackName;
     [SerializeField] Sprite thumbnail;
@@ -19,6 +20,7 @@ public class RaceData : ScriptableObject
     [SerializeField] int maxLoops;
     [SerializeField] int[] coinsReward;
 
+    public int BuyIn => buyIn;
     public string SceneName => sceneName;
     public string TrackName => trackName;
     public Sprite Thumbnail => thumbnail;

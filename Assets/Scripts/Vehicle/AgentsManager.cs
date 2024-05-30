@@ -6,23 +6,21 @@ namespace Unity.MLAgents {
     public class AgentsManager : MonoBehaviour {
         public Academy academy;
         [SerializeField] RaceManager raceManager;
-        [SerializeField] Vehicle_Agent_v2[] vehicleAgents;
+        [SerializeField] Vehicle_Agent[] vehicleAgents;
 
         int selfPlayAgentIndex = 0;
 
         private void Awake() {
-            for (int i = 0; i < vehicleAgents.Length; i++)
-                vehicleAgents[i].agentID = i;
 
-            /*academy = Academy.Instance;
-            vehicleAgents[selfPlayAgentIndex].GetComponent<BehaviorParameters>().TeamId = 1;
-            academy.OnEnvironmentReset += Academy_OnEnvironmentReset;*/
+            academy = Academy.Instance;
+            //vehicleAgents[selfPlayAgentIndex].GetComponent<BehaviorParameters>().TeamId = 1;
+            academy.OnEnvironmentReset += Academy_OnEnvironmentReset;
         }
 
         private void Academy_OnEnvironmentReset() {
             Debug.Log("OnReset");
 
-            vehicleAgents[selfPlayAgentIndex].GetComponent<BehaviorParameters>().TeamId = 0;
+            /*vehicleAgents[selfPlayAgentIndex].GetComponent<BehaviorParameters>().TeamId = 0;
             selfPlayAgentIndex = (selfPlayAgentIndex + 1) % vehicleAgents.Length;
             vehicleAgents[selfPlayAgentIndex].GetComponent<BehaviorParameters>().TeamId = 1;
 
@@ -33,7 +31,7 @@ namespace Unity.MLAgents {
 
             raceManager.UpdateVehiclesPlacements(false);
 
-            raceManager.StopUpdate = false;
+            raceManager.StopUpdate = false;*/
         }
     }
 }

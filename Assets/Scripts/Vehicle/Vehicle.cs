@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Vehicle : MonoBehaviour
 {
@@ -74,7 +75,7 @@ public class Vehicle : MonoBehaviour
     [Space]
     [SerializeField] bool showDebug;
 
-
+    MyControls controls;
     InputData currentInput;
     Vector3 velocity;
     VehicleSaveData vehicleSaveData;
@@ -101,6 +102,7 @@ public class Vehicle : MonoBehaviour
     int kmph;
     int currentGear;
 
+    public MyControls Controls => controls;
     public Rigidbody VehicleRigidBody => rb;
     public WheelData[] FrontWheels => frontWheels;
     public WheelData[] RearWheels => rearWheels;
@@ -130,6 +132,33 @@ public class Vehicle : MonoBehaviour
         vehicleSaveData = saveData;
         isAgent = !isPlayer;
         nosAmount = config.NosAmount;
+        controls = new MyControls();
+        controls.Player.AccelerateDecelerate.Enable();
+        controls.Player.LeftRight.Enable();
+        controls.Player.Handbrake.Enable();
+        controls.Player.Nos.Enable();
+    }
+
+    private void Awake() {
+        if (isAgent) return;
+    }
+
+    private void OnEnable() {
+        if (isAgent || controls == null) return;
+
+        controls.Player.AccelerateDecelerate.Enable();
+        controls.Player.LeftRight.Enable();
+        controls.Player.Handbrake.Enable();
+        controls.Player.Nos.Enable();
+    }
+
+    private void OnDisable() {
+        if (isAgent) return;
+
+        controls.Player.AccelerateDecelerate.Disable();
+        controls.Player.LeftRight.Disable();
+        controls.Player.Handbrake.Disable();
+        controls.Player.Nos.Disable();
     }
 
     void Start()
@@ -189,13 +218,13 @@ public class Vehicle : MonoBehaviour
 
         isSliding = slidingWheelFound;
 
-        if (isAgent) return;
+        if (isAgent || controls == null) return;
 
         ReceiveInput(new InputData() {
-            steer = Input.GetAxis("Horizontal"),
-            acceleration = Input.GetAxis("Vertical"),
-            handbrake = Input.GetButton("Jump"),
-            nos = Input.GetButton("NOS")
+            steer = controls.Player.LeftRight.ReadValue<float>(),//Input.GetAxis("Horizontal"),
+            acceleration = controls.Player.AccelerateDecelerate.ReadValue<float>(),//Input.GetAxis("Vertical"),
+            handbrake = controls.Player.Handbrake.IsPressed(),//Input.GetButton("Jump"),
+            nos = controls.Player.Nos.IsPressed()
         });
     }
 

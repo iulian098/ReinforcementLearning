@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 
 public class SaveFile
 {
+    public DateTime saveDate;
     public PlayerData playerData;
     public List<VehicleSaveData> vehicleSaveData;
     public List<TrackSaveData> tracksSaveData;

@@ -6,6 +6,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewVehicleConfig", menuName = "ScriptableObjects/New Vehicle Config")]
 public class VehicleConfig : ScriptableObject
 {
+    [SerializeField] string vehicleName;
     [SerializeField] VehicleManager prefab;
     [SerializeField] GameObject previewPrefab;
     [SerializeField] int price;
@@ -52,6 +53,8 @@ public class VehicleConfig : ScriptableObject
     [SerializeField] UpgradeData[] upgrades;
 
     public VehicleSaveData saveData;
+
+    public string VehicleName => vehicleName;
 
     public VehicleManager Prefab => prefab;
     public GameObject PreviewPrefab => previewPrefab;
