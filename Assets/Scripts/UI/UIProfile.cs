@@ -11,7 +11,7 @@ public class UIProfile : MonoBehaviour
     private void Start() {
         UserManager.playerData.OnValueChanged += OnProfileUpdated;
         UpdateProfile();
-        UserManager.playerData.AddInt(PlayerPrefsStrings.CASH, 100000);
+        //UserManager.playerData.AddInt(PlayerPrefsStrings.CASH, 100000);
     }
 
     private void OnDestroy() {

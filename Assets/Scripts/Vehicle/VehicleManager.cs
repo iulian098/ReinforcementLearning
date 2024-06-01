@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.MLAgents;
@@ -25,6 +26,7 @@ public class VehicleManager : MonoBehaviour
     float nextCheckpointDistance;
     float prevCheckpointDistance;
     float noCollisionTimer;
+    float flippedTime = 0;
 
     public Action<Transform> OnNextCheckpointReached;
     public Action<Transform> OnPreviousCheckpointReached;
@@ -35,6 +37,8 @@ public class VehicleManager : MonoBehaviour
 
     bool initialized = false;
 
+    Coroutine checkFlippedCoroutine;
+
     public string PlayerName => playerName;
     public bool Initialized => initialized;
     public bool IsPlayer => isPlayer;
@@ -42,22 +46,18 @@ public class VehicleManager : MonoBehaviour
     public Vehicle Vehicle => vehicle;
     VehicleCheckpointsContainer CheckpointsContainer => VehicleCheckpointsContainer.Instance;
 
+    void OnEnable() {
+        if (checkFlippedCoroutine == null)
+            checkFlippedCoroutine = StartCoroutine(CheckFlipped());
+    }
+
+    void OnDisable() {
+        StopCoroutine(checkFlippedCoroutine);
+        checkFlippedCoroutine = null;
+    }
+
     public void Init(VehicleSaveData vehicleSaveData, bool isPlayer = false) {
         Init(vehicleConfig, vehicleSaveData, isPlayer);
-        /*vehicle.Init(vehicleConfig, vehicleSaveData, isPlayer);
-        ResetVehicleData();
-        this.vehicleSaveData = vehicleSaveData;
-        this.isPlayer = isPlayer;
-        initialized = true;
-
-        if (isPlayer) {
-            if (gameObject.TryGetComponent<DecisionRequester>(out var decReq))
-                DestroyImmediate(decReq);
-            if (gameObject.TryGetComponent<Vehicle_Agent_v2>(out var agent))
-                DestroyImmediate(agent);
-            if (gameObject.TryGetComponent<BehaviorParameters>(out var behaviorParameters))
-                Destroy(behaviorParameters);
-        }*/
     }
 
     public void Init(VehicleConfig config, VehicleSaveData vehicleSaveData, bool isPlayer = false) {
@@ -201,7 +201,7 @@ public class VehicleManager : MonoBehaviour
         return Mathf.Sqrt(t);
     }
 
-    private void OnDrawGizmos() {
+    void OnDrawGizmos() {
 
         if (vehicleData.currentCheckpoint == null || vehicleData.nextCheckpoint == null) return;
 
@@ -236,7 +236,7 @@ public class VehicleManager : MonoBehaviour
 
     }
 
-    private void OnTriggerEnter(Collider other) {
+    void OnTriggerEnter(Collider other) {
         if (CheckpointsContainer.UseTriggers) {
 
             if (other.CompareTag("Checkpoint")) {
@@ -250,7 +250,7 @@ public class VehicleManager : MonoBehaviour
         }
     }
 
-    private void OnTriggerStay(Collider other) {
+    void OnTriggerStay(Collider other) {
         if (CheckpointsContainer.UseTriggers) {
 
             if (other.CompareTag("Checkpoint")) {
@@ -263,4 +263,19 @@ public class VehicleManager : MonoBehaviour
             }
         }
     }
+
+    IEnumerator CheckFlipped() {
+        while (true) {
+            yield return new WaitForSeconds(0.5f);
+            if (!vehicle.GroudedWheels()) {
+                flippedTime += 0.5f;
+            }
+
+            if (flippedTime >= GlobalData.vehicleRespawnTime) {
+                flippedTime = 0;
+                ResetVehiclePosition();
+            }
+        }
+    }
+
 }

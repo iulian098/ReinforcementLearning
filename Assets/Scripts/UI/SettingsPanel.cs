@@ -1,3 +1,4 @@
+using Racing;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,5 +90,10 @@ public class SettingsPanel : MonoBehaviour
 
     public void OnClose() {
         PanelManager.Instance.HidePanel();
+    }
+
+    public void Logout() {
+        AuthenticationManager.Instance.Logout();
+        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     }
 }

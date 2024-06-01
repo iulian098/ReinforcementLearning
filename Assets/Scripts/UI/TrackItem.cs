@@ -8,15 +8,16 @@ using UnityEngine.UI;
 public class TrackItem : MonoBehaviour
 {
     [SerializeField] Image thumbnail;
+    [SerializeField] Image selectedImage;
     [SerializeField] TMP_Text trackNameText;
     [SerializeField] Sprite starFilled;
     [SerializeField] Image[] stars;
 
-    Action<RaceData> onClick;
+    Action<TrackItem, RaceData> onClick;
     RaceData raceData;
 
-    public void Init(RaceData data, Action<RaceData> onClick) {
-        this.onClick = onClick;    
+    public void Init(RaceData data, Action<TrackItem, RaceData> onClick) {
+        this.onClick = onClick;
         raceData = data;
 
         thumbnail.sprite = raceData.Thumbnail;
@@ -31,6 +32,10 @@ public class TrackItem : MonoBehaviour
     }
 
     public void OnClick() {
-        onClick?.Invoke(raceData);
+        onClick?.Invoke(this, raceData);
+    }
+
+    public void SetSelected(bool value) {
+        selectedImage.gameObject.SetActive(value);
     }
 }

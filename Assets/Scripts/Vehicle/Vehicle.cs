@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -54,6 +55,10 @@ public class Vehicle : MonoBehaviour
                 isSliding = false;
             }
         }
+
+        public bool IsGrounded() {
+            return wheelCollider.isGrounded;
+        }
     }
 
     public struct InputData {
@@ -98,6 +103,7 @@ public class Vehicle : MonoBehaviour
     float enginePowerMultiplier = 1;
     float nosAmount;
     float nosTime;
+    float flippedTime;
 
     int kmph;
     int currentGear;
@@ -268,7 +274,6 @@ public class Vehicle : MonoBehaviour
 
         float torque = tcsTriggered ? 0 : totalPower / drivingWheels.Length;
         float brake = ABSBrake(vehicleConfig.BrakeTorque * Mathf.Abs(val));
-        var rot = Quaternion.Euler(0, (reverse ? -1 : 1) * currentInput.steer * 45, 0);
 
         if (val > 0 && kmph >= vehicleConfig.MaxSpeed)
             val = 0;
@@ -395,7 +400,6 @@ public class Vehicle : MonoBehaviour
 
     }
 
-
     float GetForwardSlip(WheelData[] wheels) {
         float sum = 0;
         for (int i = 0; i < wheels.Length; i++)
@@ -430,6 +434,20 @@ public class Vehicle : MonoBehaviour
         Steer(targetSteer);
         Accelerate(input.acceleration);
         ApplyNOS(input.nos);
+    }
+
+    public bool GroudedWheels() {
+        foreach (var wf in frontWheels) {
+            if (wf.IsGrounded())
+                return true;
+        }
+
+        foreach (var wr in rearWheels) {
+            if (wr.IsGrounded())
+                return true;
+        }
+
+        return false;
     }
 
     private void OnDrawGizmos() {
