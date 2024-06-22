@@ -81,9 +81,9 @@ public class VehicleSelection : MonoBehaviour
     }
 
     void UpdateUIButtons() {
-        buyButton.gameObject.SetActive(selectedSaveData != null && !selectedSaveData.purchased);
-        equipButton.gameObject.SetActive(selectedSaveData != null && selectedSaveData.purchased && vehiclesContainer.GetEquippedVehicle() != selectedItem.Config);
-        upgradeButton.gameObject.SetActive(selectedSaveData != null && selectedSaveData.purchased);
+        buyButton.gameObject.SetActive(UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL) >= selectedVehicleConfig.UnlockLevel && selectedSaveData != null && !selectedSaveData.purchased);
+        equipButton.gameObject.SetActive(UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL) >= selectedVehicleConfig.UnlockLevel && selectedSaveData != null && selectedSaveData.purchased && vehiclesContainer.GetEquippedVehicle() != selectedItem.Config);
+        upgradeButton.gameObject.SetActive(UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL) >= selectedVehicleConfig.UnlockLevel && selectedSaveData != null && selectedSaveData.purchased);
     }
 
     void UpdateUpgradeUIButtons() {
@@ -133,13 +133,13 @@ public class VehicleSelection : MonoBehaviour
         selectedSaveData = newSaveData;*/
 
         PopupPanel.Instance.Show("", "Do you want to buy this vehicle?", () => OnPurchaseConfirmed(vehicleIndex), true);
-        
     }
 
     void OnPurchaseConfirmed(int vehicleIndex) {
         vehiclesContainer.vehicleSaveDatas[vehicleIndex].purchased = true;
         selectedSaveData = vehiclesContainer.vehicleSaveDatas[vehicleIndex];
         UserManager.playerData.SubtractInt(PlayerPrefsStrings.CASH, selectedItem.Config.Price);
+        selectedItem.SetState(ShopItemState.Purchased);
         UpdateUIButtons();
     }
 

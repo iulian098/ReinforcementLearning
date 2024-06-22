@@ -11,6 +11,7 @@ public class UIProfile : MonoBehaviour
     private void Start() {
         UserManager.playerData.OnValueChanged += OnProfileUpdated;
         UpdateProfile();
+        UpdateLevel();
         //UserManager.playerData.AddInt(PlayerPrefsStrings.CASH, 100000);
     }
 
@@ -21,10 +22,16 @@ public class UIProfile : MonoBehaviour
     public void OnProfileUpdated(string key) {
         if (key == PlayerPrefsStrings.CASH)
             UpdateProfile();
+        else if (key == PlayerPrefsStrings.LEVEL || key == PlayerPrefsStrings.EXP)
+            UpdateLevel();
     }
 
-    public void UpdateProfile() {
+    void UpdateLevel() {
+        levelText.text = (UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL) + 1).ToString();
+        levelFill.fillAmount = LevelSystem.Instance.GetLevelProgress();
+    }
+
+    void UpdateProfile() {
         cashText.text = UserManager.playerData.GetInt(PlayerPrefsStrings.CASH).ToString();
-        levelText.text = UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL).ToString();
     }
 }

@@ -20,6 +20,11 @@ public class TrackSelection : MonoBehaviour
             spawnedItems[i] = Instantiate(trackItemPrefab, trackItemsContainer);
             spawnedItems[i].Init(tracksContainer.Tracks[i], OnTrackSelected/*mainMenu.OnPlay*/);
         }
+
+        if (GlobalData.lastPlayedTrack != -1)
+            spawnedItems[GlobalData.lastPlayedTrack].OnClick();
+        else
+            spawnedItems[0].OnClick();
     }
 
     void OnTrackSelected(TrackItem trackItem, RaceData raceData) {

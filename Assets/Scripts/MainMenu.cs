@@ -23,20 +23,6 @@ public class MainMenu : MonoBehaviour
     }
 
     public async void OnPlay(RaceData data) {
-        /*Debug.Log("[MainMenu] Start loading main scene");
-
-        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(coreGamePlayScene, LoadSceneMode.Single);
-        while (!asyncOperation.isDone)
-            await Task.Yield();
-
-        Debug.Log("[MainMenu] Start loading track scene");
-        AsyncOperationHandle<SceneInstance> handle = Addressables.LoadSceneAsync(data.sceneReference, LoadSceneMode.Additive);
-
-        await handle.Task;
-
-        Debug.Log("[MainMenu] Initialize RaceManager");
-        RaceManager.Instance.Init();*/
-
         object[] scenesToLoad = new object[] {
             data.sceneReference,
             coreGamePlayScene

@@ -68,14 +68,14 @@ public class VehicleManager : MonoBehaviour
         initialized = true;
         vehicle.Init(vehicleConfig, vehicleSaveData, isPlayer);
 
-        if (isPlayer) {
+        /*if (isPlayer) {
             if (gameObject.TryGetComponent<DecisionRequester>(out var decReq))
                 Destroy(decReq);
             if(gameObject.TryGetComponent<BehaviorParameters>(out var behaviorParameters))
                 Destroy(behaviorParameters);
             if(gameObject.TryGetComponent<Vehicle_Agent>(out var agent))
                 Destroy(agent);
-        }
+        }*/
 
         colls = GetComponentsInChildren<Collider>().Where(x => !x.isTrigger && x.gameObject.layer == LayerMask.NameToLayer(VEHICLE_LAYER)).ToArray();
     }
@@ -122,6 +122,13 @@ public class VehicleManager : MonoBehaviour
 
     public void SetPlayerName(string name) {
         playerName = name;
+    }
+
+    public Transform GetNextCheckpoint(int checkpointIndex) {
+        if (checkpointIndex + 1 >= CheckpointsContainer.Checkpoints.Length)
+            return CheckpointsContainer.Checkpoints[0];
+        else
+            return CheckpointsContainer.Checkpoints[checkpointIndex + 1];
     }
 
     void SetNextCheckpoint(bool goingForward) {

@@ -17,6 +17,7 @@ MonoBehaviour:
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
+  buyIn: 5000
   sceneName: 
   trackName: Track 2
   thumbnail: {fileID: 21300000, guid: 64402f9c5976952429ecc1559f832cf4, type: 3}
@@ -24,3 +25,4 @@ MonoBehaviour:
   maxPlayers: 5
   maxLoops: 3
   coinsReward: d4300000102700004c1d0000
+  expReward: 7d000000640000004b000000

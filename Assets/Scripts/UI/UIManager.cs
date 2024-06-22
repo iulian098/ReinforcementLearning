@@ -12,9 +12,16 @@ public class UIManager : MonoBehaviour
     [SerializeField] TMP_Text startingTimeText;
     [SerializeField] TMP_Text nosText;
     [SerializeField] ResultScreen resultScreen;
+    [SerializeField] GameObject controlsObjects;
 
     public void Init() {
         resultScreen.Init(RaceManager.Instance.Vehicles);
+
+#if UNITY_ANDROID
+        controlsObjects.SetActive(true);
+#else
+        controlsObjects.SetActive(false);
+#endif
     }
 
     void FixedUpdate()

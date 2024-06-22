@@ -1,4 +1,5 @@
 using Racing;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,8 @@ public class SettingsPanel : MonoBehaviour
     const string SFX_VOLUME = "SFXVolume";
 
     [SerializeField] GameSettings gameSettings;
+
+    [SerializeField] TMP_InputField playerNameInput;
 
     [Header("Audio")]
     [SerializeField] Slider masterVolumeSlider;
@@ -54,7 +57,8 @@ public class SettingsPanel : MonoBehaviour
 
         fullscreen.value = (int)Screen.fullScreenMode;
         resolution.value = gameSettings.Resolution;
-        
+
+        playerNameInput.text = UserManager.playerData.PlayerName;
 
         masterVolumeSlider.value = Mathf.InverseLerp(-80f, 20f, masterVolume);
         musicVolumeSlider.value = Mathf.InverseLerp(-80f, 20f, musicVolume);
@@ -75,8 +79,12 @@ public class SettingsPanel : MonoBehaviour
         musicVolumeSlider.onValueChanged.AddListener(gameSettings.MusicVolumeChanged);
         sfxVolumeSlider.onValueChanged.AddListener(gameSettings.SfxVolumeChanged);
 
-
+        playerNameInput.onSubmit.AddListener(OnPlayerNameChanged);
         
+    }
+
+    private void OnPlayerNameChanged(string playerName) {
+        UserManager.playerData.PlayerName = playerName;
     }
 
     public void Open() {

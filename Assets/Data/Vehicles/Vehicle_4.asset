@@ -12,9 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab238dd907a8e774c95228de39cac413, type: 3}
   m_Name: Vehicle_4
   m_EditorClassIdentifier: 
+  vehicleName: Vehicle_4
   prefab: {fileID: 7594144794929900, guid: 99e9524f6572ae643961358e3b8e71be, type: 3}
   previewPrefab: {fileID: 2986426937015916866, guid: 242f584b449101b4fbb38af2161f8957, type: 3}
   price: 45000
+  unlockLevel: 10
   maxSpeed: 200
   maxReverseSpeed: 25
   lowSpeedSteerRadius: 3.8
@@ -111,3 +113,4 @@ MonoBehaviour:
     - 0.175
   saveData:
     vehicleIndex: 3
+    purchased: 1

@@ -17,10 +17,12 @@ MonoBehaviour:
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
+  buyIn: 0
   sceneName: 
   trackName: Track 1
   thumbnail: {fileID: 21300000, guid: 6d67e2f51f6f5a044983acea31962a95, type: 3}
   raceType: 0
   maxPlayers: 5
   maxLoops: 3
-  coinsReward: 102700004c1d000088130000
+  coinsReward: a00f0000c4090000e8030000
+  expReward: 640000004b00000032000000

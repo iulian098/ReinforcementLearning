@@ -57,9 +57,10 @@ public class UITrackInfo : MonoBehaviour
             PopupPanel.Instance.Show("", "Not enough money.", null);
             return;
         }
-
-        mainMenu.OnPlay(raceData);
+        UserManager.playerData.SubtractInt(PlayerPrefsStrings.CASH, raceData.BuyIn);
         GlobalData.lastPlayedTrack = raceIndex;
+        GlobalData.selectedRaceData = raceData;
+        mainMenu.OnPlay(raceData);
     }
 
     void ClearInfos() {

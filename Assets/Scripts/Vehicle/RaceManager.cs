@@ -3,6 +3,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.MLAgents;
+using Unity.MLAgents.Policies;
 using UnityEngine;
 
 public class RaceManager : MonoSingleton<RaceManager> {
@@ -24,10 +26,12 @@ public class RaceManager : MonoSingleton<RaceManager> {
     [SerializeField] VehiclesContainer vehiclesContainer;
     [SerializeField] VehicleManager playerVehicle;
     [SerializeField] CinemachineStateDrivenCamera cam;
+    [SerializeField] CinemachineVirtualCamera vehicleCamera;
     [SerializeField] UIManager uiManager;
     [SerializeField] UILeaderboard leaderboard;
     [SerializeField] VehicleCheckpointsContainer vehicleCheckpoints;
     [SerializeField] Animator cinemachineAnimator;
+    [SerializeField] ParticleSystem speed_vfx;
     [SerializeField] bool initOnStart;
 
     List<VehicleManager> vehicles = new List<VehicleManager>();
@@ -61,6 +65,9 @@ public class RaceManager : MonoSingleton<RaceManager> {
 
     public void Init() {
         Debug.Log("[RaceManager] Init");
+        if (GlobalData.selectedRaceData != null)
+            currentRaceData = GlobalData.selectedRaceData;
+
         if(vehicleCheckpoints == null)
             vehicleCheckpoints = VehicleCheckpointsContainer.Instance;
 
@@ -107,6 +114,9 @@ public class RaceManager : MonoSingleton<RaceManager> {
                 int nameIndex = UnityEngine.Random.Range(0, racersNames.Names.Length);
                 vehicle.SetPlayerName(racersNames.Names[nameIndex]);
             }
+            else {
+                vehicle.SetPlayerName(UserManager.playerData.PlayerName);
+            }
         }
 
 
@@ -125,13 +135,39 @@ public class RaceManager : MonoSingleton<RaceManager> {
         initialized = true;
     }
 
+    private void Update() {
+        if (playerVehicle == null) return;
+
+        float fovFraction = Mathf.Max(playerVehicle.Vehicle.Kmph - 50, 0) / 50f;
+
+        if (playerVehicle.Vehicle.NOSActive) {
+            fovFraction = 1;
+            if (speed_vfx != null) speed_vfx.Play();
+        }
+        else 
+            if (speed_vfx != null) speed_vfx.Stop();
+
+        float targetFov = Mathf.Lerp(70f, 90f, fovFraction);
+
+        vehicleCamera.m_Lens.FieldOfView = Mathf.Lerp(vehicleCamera.m_Lens.FieldOfView, targetFov, Time.deltaTime * 2);
+    }
+
     private void FixedUpdate() {
         if (!initialized) return;
 
         if (currentState == State.Playing)
             raceTimeSeconds += Time.deltaTime;
+
+        if(playerVehicle != null) {
+            UpdateVehicleCamera();
+        }
+
         if (stopUpdate) return;
         UpdateVehiclesPlacements(true);
+    }
+
+    void UpdateVehicleCamera() {
+        //vehicleCamera.m_Lens.FieldOfView = Mathf.Lerp(70f, 80f, Mathf.Max(playerVehicle.Vehicle.Kmph - 50, 0) / 20f);
     }
 
     void SpawnVehicles() {
@@ -148,6 +184,10 @@ public class RaceManager : MonoSingleton<RaceManager> {
             if (i == spawnPoints.Count - 1 || i == currentRaceData.MaxPlayers - 1) {
                 //Spawn Player
                 VehicleManager vehicle = Instantiate(vehiclesContainer.GetEquippedVehicle().Prefab, spawnPoints[i].position, spawnPoints[i].rotation);
+                DestroyImmediate(vehicle.GetComponent<DecisionRequester>());
+                DestroyImmediate(vehicle.GetComponent<Vehicle_Agent>());
+                DestroyImmediate(vehicle.GetComponent<BehaviorParameters>());
+                
                 VehicleSaveData saveData = vehiclesContainer.vehicleSaveDatas[vehiclesContainer.selectedVehicle];
                 vehicles.Add(vehicle);
                 vehicle.Init(vehiclesContainer.GetEquippedVehicle(), saveData, true);
@@ -233,6 +273,8 @@ public class RaceManager : MonoSingleton<RaceManager> {
     private void OnPlayerFinishedRace(int placement) {
         if (placement < RaceData.CoinsRewards.Length)
             UserManager.playerData.AddInt(PlayerPrefsStrings.CASH, RaceData.CoinsRewards[placement]);
+        if(placement < RaceData.ExpReward.Length)
+            LevelSystem.Instance.AddExp(RaceData.ExpReward[placement]);
         if(placement < 3) {
             RaceData.saveData.placement = placement;
         }

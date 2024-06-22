@@ -178,7 +178,8 @@ public class VehicleAudio : MonoBehaviour
             audioSource.minDistance = engineAudioSettings.minDistance;
             audioSource.Play();
             audioSources[i] = audioSource;
-            audioSource.outputAudioMixerGroup = AudioManager.Instance.Mixer.FindMatchingGroups("Master/SFX")[0];
+            if (AudioManager.Instance.Mixer != null)
+                audioSource.outputAudioMixerGroup = AudioManager.Instance.Mixer.FindMatchingGroups("Master/SFX")[0];
         }
         engineSound.SetAudioSource(audioSources[0], audioSources[1]);
     }
@@ -193,7 +194,8 @@ public class VehicleAudio : MonoBehaviour
         audioSource.rolloffMode = engineAudioSettings.rolloffMode;
         audioSource.maxDistance = engineAudioSettings.maxDistance;
         audioSource.minDistance = engineAudioSettings.minDistance;
-        audioSource.outputAudioMixerGroup = AudioManager.Instance.Mixer.FindMatchingGroups("Master/SFX")[0];
+        if(AudioManager.Instance.Mixer != null)
+            audioSource.outputAudioMixerGroup = AudioManager.Instance.Mixer.FindMatchingGroups("Master/SFX")[0];
 
         if (autoPlay)
             audioSource.Play();

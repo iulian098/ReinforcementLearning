@@ -503,6 +503,8 @@ MonoBehaviour:
   frontSensorsDistance: 2.5
   rearSensorDistance: 1.75
   velocitySensorMultiplier: 0.5
+  resetOnHit: 0
+  disablePlacementRewards: 0
   showDebug: 0
   vehicleSensor: {fileID: 3964649193893516381}
   frontTrigger: {fileID: 2093432850980823862}
@@ -533,7 +535,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 21
+    VectorObservationSize: 23
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -542,7 +544,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: 3150920c24df67d47b862309625c0a96, type: 3}
   m_InferenceDevice: 2
   m_BehaviorType: 0
   m_BehaviorName: MyAgents

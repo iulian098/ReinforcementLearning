@@ -10,6 +10,7 @@ public class VehicleConfig : ScriptableObject
     [SerializeField] VehicleManager prefab;
     [SerializeField] GameObject previewPrefab;
     [SerializeField] int price;
+    [SerializeField] int unlockLevel;
 
     [Space]
     [SerializeField] float maxSpeed = 185;
@@ -59,6 +60,7 @@ public class VehicleConfig : ScriptableObject
     public VehicleManager Prefab => prefab;
     public GameObject PreviewPrefab => previewPrefab;
     public int Price => price;
+    public int UnlockLevel => unlockLevel;
 
     public float MaxSpeed => maxSpeed;
     public float MaxReverseSpeed => maxReverseSpeed;
@@ -92,7 +94,15 @@ public class VehicleConfig : ScriptableObject
 
     public float GetUpgradeValue(UpgradeType type, float currentValue, int level) {
         if (level == -1)
-            return 0;
+            return currentValue;
+
+        UpgradeData upgradeData = Array.Find(upgrades, x => x.upgradeType == type);
+        return currentValue + upgradeData.val[level] * currentValue;
+    }
+
+    public float GetUpgradeValue(UpgradeType type, float currentValue) {
+        if(!saveData.EquippedLevels.TryGetValue(type, out int level))
+            return currentValue;
 
         UpgradeData upgradeData = Array.Find(upgrades, x => x.upgradeType == type);
         return currentValue + upgradeData.val[level] * currentValue;

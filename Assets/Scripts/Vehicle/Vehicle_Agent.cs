@@ -15,6 +15,10 @@ public class Vehicle_Agent : Agent
     [SerializeField] float rearSensorDistance;
     [SerializeField] float velocitySensorMultiplier = 0.5f;
 
+    [Header("Learning Settings")]
+    [SerializeField] bool resetOnHit = false;
+    [SerializeField] bool disablePlacementRewards = false;
+
     [SerializeField] bool showDebug = false;
     [SerializeField] VehicleSensor vehicleSensor;
     [SerializeField] VehicleTrigger frontTrigger;
@@ -33,6 +37,7 @@ public class Vehicle_Agent : Agent
     float lastCheckpointDistance;
     float normalizedYRotation;
     float checkpointDirection;
+    float nextCheckpointDirection;
     float roadCenterDirection;
     float checkpointDotProduct;
     float lastCheckpointDotProduct;
@@ -85,13 +90,16 @@ public class Vehicle_Agent : Agent
     }
 
     private void OnPreviousCheckpointReached(Transform checkpoint) {
-        Debug.Log("Previous checkpoint reached");
+        if(showDebug)
+            Debug.Log("Previous checkpoint reached");
         AddReward(-1f);
         if(!prevCheckpoints.Contains(checkpoint))
             prevCheckpoints.Add(checkpoint);
     }
 
     private void OnCheckpointReached(Transform checkpoint) {
+        if(showDebug)
+            Debug.Log("Next checkpoint reached", gameObject);
         AddReward(0.25f);
         nextCheckpointPosition = vehicleManager.vehicleData.nextCheckpoint.position;
         lastCheckpointDistance = Vector3.Distance(vehicle.transform.position, vehicleManager.vehicleData.nextCheckpoint.position);
@@ -99,9 +107,10 @@ public class Vehicle_Agent : Agent
     }
 
     public override void OnEpisodeBegin() {
-        Debug.Log("OnEpisodeBegin");
-
-        vehicleManager.OnPlacementChanged -= OnPlacementChanged;
+        if(showDebug)
+            Debug.Log("OnEpisodeBegin");
+        if(!disablePlacementRewards)
+            vehicleManager.OnPlacementChanged -= OnPlacementChanged;
 
         vehicle.ResetVehicle();
         vehicle.transform.SetLocalPositionAndRotation(startingPos, startingRot);
@@ -115,7 +124,8 @@ public class Vehicle_Agent : Agent
         bestLapTime = -1;
         lapTime = 0;
 
-        vehicleManager.OnPlacementChanged += OnPlacementChanged;
+        if (!disablePlacementRewards)
+            vehicleManager.OnPlacementChanged += OnPlacementChanged;
     }
 
     public override void CollectObservations(VectorSensor sensor) {
@@ -123,6 +133,7 @@ public class Vehicle_Agent : Agent
         sensor.AddObservation(vehicleSensor.HitFractions);
         sensor.AddObservation(checkpointDirection);
         sensor.AddObservation(roadCenterDirection);
+        sensor.AddObservation(nextCheckpointDirection);
         sensor.AddObservation(normalizedYRotation);
         sensor.AddObservation(RearSideSlip());
         sensor.AddObservation(backSensor);
@@ -277,6 +288,8 @@ public class Vehicle_Agent : Agent
         Vector3 checkpointDirectionVector = vehicle.transform.position - nextCheckpointPosition;
         checkpointDirection = (Vector3.SignedAngle(vehicle.transform.forward, checkpointDirectionVector, Vector3.up) + 180) / 360;
 
+        GetSecondCheckpointDirection();
+
         Vector3 roadCenterDirectionVector = vehicle.transform.position - vehicleManager.vehicleData.RoadCenter;
         roadCenterDirection = (Vector3.SignedAngle(vehicle.transform.forward, roadCenterDirectionVector, Vector3.up) + 180) / 360;
 
@@ -294,6 +307,13 @@ public class Vehicle_Agent : Agent
             AddReward(-1);
         }
 
+    }
+
+    void GetSecondCheckpointDirection() {
+        Vector3 currentCheckpointDirectionVector = vehicleManager.vehicleData.nextCheckpoint.position - vehicleManager.vehicleData.currentCheckpoint.position;
+        Vector3 nextCheckpointDirectionVector = vehicleManager.vehicleData.nextCheckpoint.position - vehicleManager.GetNextCheckpoint(vehicleManager.vehicleData.checkpointIndex + 1).position;
+        float nextCheckpointAngle = (Vector3.SignedAngle(currentCheckpointDirectionVector, nextCheckpointDirectionVector, Vector3.up) + 180) / 360;
+        nextCheckpointDirection = Mathf.Round(nextCheckpointAngle * 8f) / 8f;
     }
 
     float RearSideSlip() {
@@ -317,6 +337,11 @@ public class Vehicle_Agent : Agent
         }
 
         AddReward(-0.5f);
+
+        if(resetOnHit && collision.collider.CompareTag("Obstacle")) {
+            AddReward(-1);
+            EndEpisode();
+        }
     }
 
     private void OnCollisionStay(Collision collision) {

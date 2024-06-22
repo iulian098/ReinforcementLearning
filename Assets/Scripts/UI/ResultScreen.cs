@@ -14,6 +14,7 @@ public class ResultScreen : MonoBehaviour
 {
     [SerializeField] TMP_Text raceTypeText;
     [SerializeField] TMP_Text cashWonText;
+    [SerializeField] TMP_Text expWonText;
     [SerializeField] Transform resultItemsContainer;
     [SerializeField] ResultItem resultItemPrefab;
 
@@ -34,9 +35,14 @@ public class ResultScreen : MonoBehaviour
         raceTypeText.text = raceData.Type.ToString();
 
         if (playerPlacement < raceData.CoinsRewards.Length)
-            cashWonText.text = raceData.CoinsRewards[playerPlacement].ToString();
+            cashWonText.text = $"+{raceData.CoinsRewards[playerPlacement]}$";
         else
             cashWonText.text = "0$";
+
+        if (playerPlacement < raceData.ExpReward.Length)
+            expWonText.text = $"+{raceData.ExpReward[playerPlacement]} EXP";
+        else
+            expWonText.text = "0";
     }
 
     public void SetResult(int index, ResultData result) {

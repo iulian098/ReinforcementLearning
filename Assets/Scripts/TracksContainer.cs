@@ -8,6 +8,7 @@ public class TracksContainer : ScriptableObject
     List<TrackSaveData> tracksSaveData;
 
     public RaceData[] Tracks => tracks;
+    public int selectedTrack;
 
     public void SetSaveDatas(List<TrackSaveData> saveData) {
         if (saveData.IsNullOrEmpty()) {

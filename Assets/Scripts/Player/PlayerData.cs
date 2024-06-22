@@ -6,12 +6,24 @@ using UnityEngine;
 [System.Serializable]
 public class PlayerData
 {
+    [SerializeField, JsonProperty] string playerName;
     [SerializeField, JsonProperty] Dictionary<string, int> ints = new Dictionary<string, int>();
     [SerializeField, JsonProperty] Dictionary<string, float> floats = new Dictionary<string, float>();
     [SerializeField, JsonProperty] Dictionary<string, string> strings = new Dictionary<string, string>();
     [SerializeField, JsonProperty] Dictionary<string, bool> bools = new Dictionary<string, bool>();
 
     [JsonIgnore] public Action<string> OnValueChanged;
+    [JsonIgnore] public string PlayerName {
+        get {
+            if (string.IsNullOrEmpty(playerName))
+                playerName = AuthenticationManager.Instance.UserName;
+
+            return playerName;
+        }
+        set {
+            playerName = value;
+        }
+    }
 
     #region String
 
