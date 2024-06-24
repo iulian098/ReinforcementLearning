@@ -1,26 +1,29 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UITrackInfo : MonoBehaviour
 {
-    [SerializeField] TracksContainer tracksContainer;
     [SerializeField] Image trackIcon;
     [SerializeField] UITrackRewardInfo buyInInfo;
     [SerializeField] Transform infoContainer;
     [SerializeField] UITrackRewardInfo infoPrefab;
     [SerializeField] MainMenu mainMenu;
-
+    TracksContainer tracksContainer;
     List<UITrackRewardInfo> rewardInfos = new List<UITrackRewardInfo>();
 
     RaceData raceData;
     int raceIndex = 0;
 
+    public void Init(TracksContainer tracksContainer) {
+        this.tracksContainer = tracksContainer;
+    }
+
     public void SetRaceData(RaceData raceData) {
         this.raceData = raceData;
         raceIndex = Array.IndexOf(tracksContainer.Tracks, raceData);
+        trackIcon.sprite = raceData.Thumbnail;
         ClearInfos();
 
         if(raceData.BuyIn > 0) {
@@ -48,7 +51,7 @@ public class UITrackInfo : MonoBehaviour
                     break;
             }
 
-            info.Init(placeText, raceData.CoinsRewards[i].ToString() + "$");
+            info.Init(placeText, (raceData.CoinsRewards[i] * (GlobalData.enableSpecialEventBonus && raceData.UseEvent ? 2 : 1)).ToString() + "$" + $"/{raceData.ExpReward[i] * (GlobalData.enableSpecialEventBonus && raceData.UseEvent ? 2 : 1)} EXP");
         }
     }
 

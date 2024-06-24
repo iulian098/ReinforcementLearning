@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] TMP_Text rpmText;
     [SerializeField] TMP_Text startingTimeText;
     [SerializeField] TMP_Text nosText;
+    [SerializeField] Image nosAmountImage;
     [SerializeField] ResultScreen resultScreen;
     [SerializeField] GameObject controlsObjects;
 
@@ -38,7 +40,13 @@ public class UIManager : MonoBehaviour
         kmText.text = "Km/h: " + vehicle.Kmph;
         gearText.text = "Gear: " + vehicle.CurrentGear;
         rpmText.text = "RPM: " + (int)vehicle.EngineRPM;
+#if UNITY_ANDROID
+        nosAmountImage.fillAmount = vehicle.NOSFraction;
+        nosText.gameObject.SetActive(false);
+#else
         nosText.text = "NOS: " + vehicle.NOSFraction;
+        nosText.gameObject.SetActive(true);
+#endif
     }
 
     public void SetVehicle(VehicleManager vehicle) {

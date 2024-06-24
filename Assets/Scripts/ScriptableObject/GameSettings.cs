@@ -50,15 +50,17 @@ public class GameSettings : ScriptableObject
         UniversalRenderPipelineAsset asset = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
         int currentResolutionIndex = Array.IndexOf(Screen.resolutions, Screen.currentResolution);
 
-        qualityLevel = UserManager.playerData.GetInt("Quality_Level", -1);
-        antiAliasing = UserManager.playerData.GetInt("Antialiasing", -1);
-        shadowResolution = UserManager.playerData.GetInt("ShadowResolution", -1);
-        masterVolume = UserManager.playerData.GetFloat("Master_Volume", -1);
-        musicVolume = UserManager.playerData.GetFloat("Music_Volume", -1);
-        sfxVolume = UserManager.playerData.GetFloat("SFX_Volume", -1);
-        resolution = UserManager.playerData.GetInt("Resolution", currentResolutionIndex);
-        fullscreenMode = UserManager.playerData.GetInt("FullscreenMode", (int)Screen.fullScreenMode);
+        qualityLevel = PlayerPrefs.GetInt("Quality_Level", -1);
+        antiAliasing = PlayerPrefs.GetInt("Antialiasing", -1);
+        shadowResolution = PlayerPrefs.GetInt("ShadowResolution", -1);
+        masterVolume = PlayerPrefs.GetFloat("Master_Volume", -1);
+        musicVolume = PlayerPrefs.GetFloat("Music_Volume", -1);
+        sfxVolume = PlayerPrefs.GetFloat("SFX_Volume", -1);
 
+#if !UNITY_ANDROID
+        resolution = PlayerPrefs.GetInt("Resolution", currentResolutionIndex);
+        fullscreenMode = PlayerPrefs.GetInt("FullscreenMode", (int)Screen.fullScreenMode);
+#endif
         while(AudioManager.Instance == null || AudioManager.Instance.Mixer == null) {
             await Task.Delay(100);
         }
@@ -98,35 +100,38 @@ public class GameSettings : ScriptableObject
             SfxVolumeChanged(sfxVolume);
             ChangeQualityLevel(qualityLevel);
             //ChangeAntiAliasing(antiAliasing);
+#if !UNITY_ANDROID
             ChangeResolution(resolution);
+            ChangeFullScreenMode(fullscreenMode);
+#endif
         }
     }
 
     public void Save() {
-        UserManager.playerData.SetInt("Resolution", resolution);
-        UserManager.playerData.SetInt("FullscreenMode", fullscreenMode);
-        UserManager.playerData.SetInt("Quality_Level", qualityLevel);
-        UserManager.playerData.SetInt("Antialiasing", antiAliasing);
-        UserManager.playerData.SetInt("ShadowResolution", shadowResolution);
-        UserManager.playerData.SetFloat("Master_Volume", masterVolume);
-        UserManager.playerData.SetFloat("Music_Volume", musicVolume);
-        UserManager.playerData.SetFloat("SFX_Volume", sfxVolume);
+        PlayerPrefs.SetInt("Resolution", resolution);
+        PlayerPrefs.SetInt("FullscreenMode", fullscreenMode);
+        PlayerPrefs.SetInt("Quality_Level", qualityLevel);
+        PlayerPrefs.SetInt("Antialiasing", antiAliasing);
+        PlayerPrefs.SetInt("ShadowResolution", shadowResolution);
+        PlayerPrefs.SetFloat("Master_Volume", masterVolume);
+        PlayerPrefs.SetFloat("Music_Volume", musicVolume);
+        PlayerPrefs.SetFloat("SFX_Volume", sfxVolume);
 
     }
 
     public void MasterVolumeChanged(float val) {
-        AudioManager.Instance.Mixer.SetFloat(MASTER_VOLUME, Mathf.Lerp(-80, 20, val));
+        AudioManager.Instance.Mixer.SetFloat(MASTER_VOLUME, Mathf.Lerp(-80, 0, val));
         masterVolume = val;
     }
 
     public void MusicVolumeChanged(float val) {
-        AudioManager.Instance.Mixer.SetFloat(MUSIC_VOLUME, Mathf.Lerp(-80, 20, val));
+        AudioManager.Instance.Mixer.SetFloat(MUSIC_VOLUME, Mathf.Lerp(-80, 0, val));
         OnMusicVolumeChanged?.Invoke();
         musicVolume = val;
     }
 
     public void SfxVolumeChanged(float val) {
-        AudioManager.Instance.Mixer.SetFloat(SFX_VOLUME, Mathf.Lerp(-80, 20, val));
+        AudioManager.Instance.Mixer.SetFloat(SFX_VOLUME, Mathf.Lerp(-80, 0, val));
         sfxVolume = val;
     }
 

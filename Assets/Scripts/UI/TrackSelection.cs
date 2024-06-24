@@ -1,9 +1,10 @@
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 public class TrackSelection : MonoBehaviour
 {
     [SerializeField] MainMenu mainMenu;
-    [SerializeField] TracksContainer tracksContainer;
+    [SerializeField] AssetReferenceT<TracksContainer> tracksContainerRef;
     [SerializeField] TrackItem trackItemPrefab;
     [SerializeField] Transform trackItemsContainer;
     [SerializeField] UITrackInfo trackInfo;
@@ -11,9 +12,11 @@ public class TrackSelection : MonoBehaviour
     TrackItem[] spawnedItems;
 
     TrackItem selectedTrack;
-
-    void Start()
+    TracksContainer tracksContainer;
+    async void Start()
     {
+        tracksContainer = await AssetsManager<TracksContainer>.Load(tracksContainerRef);
+        trackInfo.Init(tracksContainer);
         spawnedItems = new TrackItem[tracksContainer.Tracks.Length];
         
         for (int i = 0; i < tracksContainer.Tracks.Length; i++) {
@@ -35,5 +38,9 @@ public class TrackSelection : MonoBehaviour
         selectedTrack.SetSelected(true);
 
         trackInfo.SetRaceData(raceData);
+    }
+
+    public void Close() {
+        PanelManager.Instance.HidePanel("TrackSelection");
     }
 }

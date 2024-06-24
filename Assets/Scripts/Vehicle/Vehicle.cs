@@ -125,7 +125,7 @@ public class Vehicle : MonoBehaviour
     public float SideSlip => sideSlip;
     public float ForwardSlip => forwardSlip;
     public float WheelRPM => wheelRPM;
-    public float NOSFraction => nosAmount / vehicleConfig.NosAmount;
+    public float NOSFraction => nosAmount / vehicleConfig.GetUpgradeValue(UpgradeType.Nos, vehicleConfig.NosAmount);
     public int GearsCount => vehicleConfig.Gears.Length;
     public int Kmph => kmph;
     public int CurrentGear => currentGear;
@@ -137,12 +137,42 @@ public class Vehicle : MonoBehaviour
         vehicleConfig = config;
         vehicleSaveData = saveData;
         isAgent = !isPlayer;
-        nosAmount = config.NosAmount;
+        nosAmount = vehicleConfig.GetUpgradeValue(UpgradeType.Nos, vehicleConfig.NosAmount);
         controls = new MyControls();
         controls.Player.AccelerateDecelerate.Enable();
         controls.Player.LeftRight.Enable();
         controls.Player.Handbrake.Enable();
         controls.Player.Nos.Enable();
+
+        allWheels = GetAllWheels();
+
+        foreach (var wheel in allWheels) {
+            wheel.Init();
+
+            WheelFrictionCurve sidewaysFriction = wheel.WheelCollider.sidewaysFriction;
+            sidewaysFriction.extremumSlip = vehicleConfig.GetUpgradeValue(UpgradeType.Handling, wheel.WheelCollider.sidewaysFriction.extremumSlip);
+            sidewaysFriction.asymptoteSlip = vehicleConfig.GetUpgradeValue(UpgradeType.Handling, wheel.WheelCollider.sidewaysFriction.asymptoteSlip);
+
+            WheelFrictionCurve forwardFriction = wheel.WheelCollider.forwardFriction;
+            forwardFriction.extremumSlip = vehicleConfig.GetUpgradeValue(UpgradeType.Handling, wheel.WheelCollider.forwardFriction.extremumSlip);
+            forwardFriction.asymptoteSlip = vehicleConfig.GetUpgradeValue(UpgradeType.Handling, wheel.WheelCollider.forwardFriction.asymptoteSlip);
+
+
+            wheel.WheelCollider.sidewaysFriction = sidewaysFriction;
+            wheel.WheelCollider.forwardFriction = forwardFriction;
+        }
+
+        switch (drivetrain) {
+            case Drivetrain.FWD:
+                drivingWheels = frontWheels;
+                break;
+            case Drivetrain.RWD:
+                drivingWheels = rearWheels;
+                break;
+            case Drivetrain.AWD:
+                drivingWheels = allWheels;
+                break;
+        }
     }
 
     private void Awake() {
@@ -167,29 +197,14 @@ public class Vehicle : MonoBehaviour
         controls.Player.Nos.Disable();
     }
 
-    void Start()
+    /*void Start()
     {
-        allWheels = GetAllWheels();
 
-        foreach (var wheel in allWheels) {
-            wheel.Init();
-        }
-
-        switch (drivetrain) {
-            case Drivetrain.FWD:
-                drivingWheels = frontWheels; 
-                break;
-            case Drivetrain.RWD:
-                drivingWheels = rearWheels;
-                break;
-            case Drivetrain.AWD:
-                drivingWheels = allWheels;
-                break;
-        }
-    }
+    }*/
 
     void Update()
     {
+        if (GlobalData.IsGamePaused) return;
         UpdateWheels();
         ApplyDownForce();
         velocity = transform.InverseTransformDirection(rb.velocity);
@@ -200,9 +215,9 @@ public class Vehicle : MonoBehaviour
         float av = Mathf.Abs(velocity.z) / frontWheels[0].WheelCollider.radius;
         wheelRPM = (av / (2 * Mathf.PI)) * 60;
 
-        totalPower = vehicleConfig.EnginePowerCurve.Evaluate(engineRPM) * vehicleConfig.EnginePower * vehicleConfig.Gears[currentGear] * enginePowerMultiplier;
+        totalPower = vehicleConfig.EnginePowerCurve.Evaluate(engineRPM) * vehicleConfig.GetUpgradeValue(UpgradeType.Acceleration, vehicleConfig.EnginePower) * vehicleConfig.Gears[currentGear] * enginePowerMultiplier;
 
-        steerRadius = Mathf.Lerp(vehicleConfig.LowSpeedSteerRadius, vehicleConfig.HighSpeedSteerRadius, (velocity.z * 3.6f) / vehicleConfig.MaxSpeed);
+        steerRadius = Mathf.Lerp(vehicleConfig.LowSpeedSteerRadius, vehicleConfig.HighSpeedSteerRadius, (velocity.z * 3.6f) / vehicleConfig.GetUpgradeValue(UpgradeType.Engine, vehicleConfig.MaxSpeed));
         steerRadius = Mathf.Clamp(steerRadius, vehicleConfig.LowSpeedSteerRadius, vehicleConfig.HighSpeedSteerRadius);
 
         if (currentInput.handbrake)
@@ -275,7 +290,7 @@ public class Vehicle : MonoBehaviour
         float torque = tcsTriggered ? 0 : totalPower / drivingWheels.Length;
         float brake = ABSBrake(vehicleConfig.BrakeTorque * Mathf.Abs(val));
 
-        if (val > 0 && kmph >= vehicleConfig.MaxSpeed)
+        if (val > 0 && kmph >= vehicleConfig.GetUpgradeValue(UpgradeType.Engine, vehicleConfig.MaxSpeed))
             val = 0;
         else if (val < 0 && reverse && kmph >= vehicleConfig.MaxReverseSpeed)
             val = 0;
@@ -285,12 +300,12 @@ public class Vehicle : MonoBehaviour
                 if (reverse) {
                     wData.WheelCollider.motorTorque = vehicleConfig.MaxReverseTorque * val;
                     wData.WheelCollider.brakeTorque = 0;
-                    rb.AddForce(transform.forward * totalPower * vehicleConfig.AccelerationForce * val);
+                    rb.AddForce(transform.forward * totalPower * vehicleConfig.GetUpgradeValue(UpgradeType.Acceleration, vehicleConfig.AccelerationForce) * val);
                 }
                 else {
                     wData.WheelCollider.motorTorque = 0;
                     wData.WheelCollider.brakeTorque = brake;
-                    rb.AddForce(transform.forward * vehicleConfig.BrakeTorque * vehicleConfig.AccelerationForce * val);
+                    rb.AddForce(transform.forward * vehicleConfig.BrakeTorque * vehicleConfig.GetUpgradeValue(UpgradeType.Acceleration, vehicleConfig.AccelerationForce) * val);
                 }
             }
             braking = !reverse;
@@ -305,7 +320,7 @@ public class Vehicle : MonoBehaviour
                 else {
                     wData.WheelCollider.motorTorque = TCSAcceleration(wData, torque * val);
                     wData.WheelCollider.brakeTorque = 0;
-                    rb.AddForce(transform.forward * totalPower * vehicleConfig.AccelerationForce * enginePowerMultiplier * val);
+                    rb.AddForce(transform.forward * totalPower * vehicleConfig.GetUpgradeValue(UpgradeType.Acceleration, vehicleConfig.AccelerationForce) * enginePowerMultiplier * val);
                 }
             }
             braking = reverse;
@@ -322,18 +337,18 @@ public class Vehicle : MonoBehaviour
     void ApplyNOS(bool val) {
         if (currentInput.acceleration <= 0) return;
 
-        nosAmount = Mathf.Clamp(nosAmount, 0, vehicleConfig.NosAmount);
+        nosAmount = Mathf.Clamp(nosAmount, 0, vehicleConfig.GetUpgradeValue(UpgradeType.Nos, vehicleConfig.NosAmount));
 
         if (!val || nosAmount <= 0) {
             enginePowerMultiplier = 1;
-            if (nosAmount < vehicleConfig.NosAmount) {
+            if (nosAmount < vehicleConfig.GetUpgradeValue(UpgradeType.Nos, vehicleConfig.NosAmount)) {
                 if (nosTime > 3) nosAmount += Time.deltaTime;
                 else nosTime += Time.deltaTime;
             }
             return;
         }
         nosTime = 0;
-        enginePowerMultiplier = 1 + vehicleConfig.NosPowerMultiplier;
+        enginePowerMultiplier = 1 + vehicleConfig.GetUpgradeValue(UpgradeType.Nos, vehicleConfig.NosPowerMultiplier);
         nosAmount -= Time.deltaTime;
     }
 
@@ -417,14 +432,16 @@ public class Vehicle : MonoBehaviour
     }
 
     public void ResetVehicle() {
-        foreach (var item in allWheels) {
-            item.WheelCollider.motorTorque = 0;
-            item.WheelCollider.brakeTorque = 0;
+        if (!allWheels.IsNullOrEmpty()) {
+            foreach (var item in allWheels) {
+                item.WheelCollider.motorTorque = 0;
+                item.WheelCollider.brakeTorque = 0;
+            }
         }
 
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
-        nosAmount = vehicleConfig.NosAmount;
+        nosAmount = vehicleConfig.GetUpgradeValue(UpgradeType.Nos, vehicleConfig.NosAmount);
     }
 
     public void ReceiveInput(InputData input) {

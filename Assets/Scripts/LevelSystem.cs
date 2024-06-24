@@ -12,31 +12,41 @@ public class LevelSystem : MonoSingleton<LevelSystem>
 
     private void Start() {
         SceneManager.sceneLoaded += OnSceneLoaded;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    private void Update() {
+        if (Input.GetKeyDown(KeyCode.Tab))
+            AddExp(200);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode loadMode) {
-        if (scene.name == "MainMenu" && levelUpPending)
+        if (scene.name == "MainMenu" && levelUpPending) {
             PopupPanel.Instance.Show("Level Up!", $"You just leveled up!\nLevel {UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL) + 1}", null);
+            levelUpPending = false;
+        }
     }
 
     public void AddExp(int value) {
-        UserManager.playerData.AddInt(PlayerPrefsStrings.EXP, value);
-        int expNeeded = (int)levelCurve.Evaluate(UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL));
+        //UserManager.playerData.AddInt(PlayerPrefsStrings.EXP, value);
         int currentExp = UserManager.playerData.GetInt(PlayerPrefsStrings.EXP) + value;
+        int expNeeded = (int)levelCurve.Evaluate(UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL));
 
-        while (currentExp > expNeeded) {
+        while (currentExp >= expNeeded) {
             UserManager.playerData.AddInt(PlayerPrefsStrings.LEVEL, 1);
+
             UserManager.playerData.SetInt(PlayerPrefsStrings.EXP, currentExp - expNeeded);
+
             OnLevelUp?.Invoke(UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL));
+
             if (SceneManager.GetActiveScene().name != "MainMenu")
                 levelUpPending = true;
             else
                 PopupPanel.Instance.Show("Level Up!", $"You just leveled up!\nLevel {UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL) + 1}", null);
 
             expNeeded = (int)levelCurve.Evaluate(UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL));
-            currentExp = UserManager.playerData.GetInt(PlayerPrefsStrings.EXP) + value;
+            currentExp = UserManager.playerData.GetInt(PlayerPrefsStrings.EXP);
         }
-
     }
 
     public float GetLevelProgress() {

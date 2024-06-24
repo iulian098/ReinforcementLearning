@@ -10,7 +10,7 @@ public class VehicleData {
     public float totalDistance;
     public bool finished;
 
-    List<Transform> passedCheckpoints = new List<Transform>();
+    public List<Transform> passedCheckpoints = new List<Transform>();
 
     public List<Transform> PassedCheckpoints => passedCheckpoints;
     public Vector3 RoadCenter { get; set; }

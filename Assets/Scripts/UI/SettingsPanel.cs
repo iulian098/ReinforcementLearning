@@ -37,9 +37,17 @@ public class SettingsPanel : MonoBehaviour
     [SerializeField] TMP_Dropdown antialiasing;
     [SerializeField] TMP_Dropdown shadowQuality;
 
+    [SerializeField] GameObject[] desktopOnlySettings;
+
     AudioMixer audioMixer;
 
     public void Start() {
+
+#if UNITY_ANDROID
+        foreach (var item in desktopOnlySettings) {
+            item.SetActive(false);
+        }
+#endif
 
         audioMixer = AudioManager.Instance.Mixer;
 
@@ -55,14 +63,15 @@ public class SettingsPanel : MonoBehaviour
         audioMixer.GetFloat(MUSIC_VOLUME, out float musicVolume);
         audioMixer.GetFloat(SFX_VOLUME, out float sfxVolume);
 
-        fullscreen.value = (int)Screen.fullScreenMode;
-        resolution.value = gameSettings.Resolution;
 
         playerNameInput.text = UserManager.playerData.PlayerName;
 
-        masterVolumeSlider.value = Mathf.InverseLerp(-80f, 20f, masterVolume);
-        musicVolumeSlider.value = Mathf.InverseLerp(-80f, 20f, musicVolume);
-        sfxVolumeSlider.value = Mathf.InverseLerp(-80f, 20f, sfxVolume);
+        masterVolumeSlider.value = Mathf.InverseLerp(-80f, 0, masterVolume);
+        musicVolumeSlider.value = Mathf.InverseLerp(-80f, 0, musicVolume);
+        sfxVolumeSlider.value = Mathf.InverseLerp(-80f, 0, sfxVolume);
+
+        fullscreen.value = (int)Screen.fullScreenMode;
+        resolution.value = gameSettings.Resolution;
 
         qualityLevel.value = gameSettings.QualityLevel;
         vsync.value = QualitySettings.vSyncCount;

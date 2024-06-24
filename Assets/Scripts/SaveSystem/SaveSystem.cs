@@ -7,17 +7,20 @@ using System;
 using System.Reflection;
 using Firebase.Firestore;
 using System.Threading.Tasks;
+using UnityEngine.AddressableAssets;
+using System.Runtime.CompilerServices;
 
 [DefaultExecutionOrder(-50)]
 public class SaveSystem : MonoBehaviour
 {
-    static SaveSystem instance;
+    public static SaveSystem Instance;
     public static bool stopSaving;
 
     const string FILE_NAME = "saveFile.data";
 
     [SerializeField] VehiclesContainer vehiclesContainer;
-    [SerializeField] TracksContainer tracksContainer;
+    [SerializeField] AssetReferenceT<TracksContainer> tracksContainer;
+    [SerializeField] TracksSaveDataContainer tracksSaveDataContainer;
     [SerializeField] GameSettings gameSettings;
 
     JsonSerializerSettings jsonSettings = new JsonSerializerSettings() {
@@ -28,18 +31,35 @@ public class SaveSystem : MonoBehaviour
     SaveFile saveFile;
     SaveFile cloudSaveFile;
     FirebaseFirestore firestoreDatabase;
+    Coroutine saveGameCoroutine;
+
     public Action OnSaveFileLoaded;
 
     async void Awake()
     {
-        if (instance == null)
-            instance = this;
-        else if (instance != null && instance != this) {
+        if (Instance == null)
+            Instance = this;
+        else if (Instance != null && Instance != this) {
             Destroy(this.gameObject);
             return;
         }
 
         DontDestroyOnLoad(this);
+
+    }
+
+    private void Start() {
+        gameSettings.Load(true);
+
+        AuthenticationManager.Instance.OnUserLoggedOut += (() => {
+            StopCoroutine(saveGameCoroutine);
+            saveGameCoroutine = null;
+        });
+
+        AuthenticationManager.Instance.OnUserLoggedIn += (result) => {
+            if(result)
+                saveGameCoroutine = StartCoroutine(SaveGameCoroutine());
+        };
     }
 
     public async Task Init() {
@@ -49,37 +69,47 @@ public class SaveSystem : MonoBehaviour
         cloudSaveFile = await LoadCloudSave();
 
         if (cloudSaveFile != null && cloudSaveFile.saveDate > saveFile.saveDate) {
-            PopupPanel.Instance.Show("", "Cloud save is newer than local save.\nUse cloud save?", () => {
+            PopupPanel.Instance.Show("", "Cloud save is newer than local save.\nUse cloud save?",
+            () => {
                 saveFile = cloudSaveFile;
                 LoadGameData();
             }
             , true, LoadGameData);
         }
-        else {
-            LoadGameData();
+        else if (cloudSaveFile != null && cloudSaveFile.saveDate < saveFile.saveDate) {
+            PopupPanel.Instance.Show("", "Cloud save is older than local save.\nUse local save?", LoadGameData, true,
+            () => {
+                saveFile = cloudSaveFile;
+                LoadGameData();
+            });
         }
+        else
+            LoadGameData();
     }
 
     IEnumerator SaveGameCoroutine() {
         yield return new WaitForSeconds(5);
         SaveFile();
         yield return SaveCloud();
-        StartCoroutine(SaveGameCoroutine());
+        saveGameCoroutine = StartCoroutine(SaveGameCoroutine());
     }
 
-    void LoadGameData() {
+     async void LoadGameData() {
         if (saveFile == null) {
             Debug.LogError("[SaveSystem] No save file found, creating new one");
             saveFile = new SaveFile();
         }
 
+        TracksContainer tracksContainer = await AssetsManager<TracksContainer>.Load(this.tracksContainer);
+        await tracksContainer.Init();
         UserManager.playerData = saveFile.playerData;
         vehiclesContainer.SetSaveData(saveFile.vehicleSaveData);
-        tracksContainer.SetSaveDatas(saveFile.tracksSaveData);
-        gameSettings.Load(true);
+        tracksSaveDataContainer.SetSaveDatas(tracksContainer.Tracks, saveFile.tracksSaveData);
 
-        StartCoroutine(SaveGameCoroutine());
+        saveGameCoroutine = StartCoroutine(SaveGameCoroutine());
         OnSaveFileLoaded?.Invoke();
+
+        Debug.Log("[SaveSystem] Save File Loaded");
     }
 
     [ContextMenu("ClearSave")]
@@ -88,6 +118,8 @@ public class SaveSystem : MonoBehaviour
 
         if (File.Exists(filePath))
             File.Delete(filePath);
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
     }
 
     #region Save/Load
@@ -116,7 +148,7 @@ public class SaveSystem : MonoBehaviour
             Debug.LogError("Failed to deserialize the save file");
             return null;
         }
-
+        Debug.Log("[SaveSystem] Cloud save loaded");
         return cloudSave;
     }
 

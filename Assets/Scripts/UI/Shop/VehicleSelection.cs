@@ -44,6 +44,7 @@ public class VehicleSelection : MonoBehaviour
     UpgradeItem selectedUpgradeItem;
 
     int selectedLevelIndex = 0;
+    bool inUpgradeMenu = false;
 
     private void Start() {
         spawnedItems = new VehicleShopItem[vehiclesContainer.Vehicles.Length];
@@ -55,7 +56,7 @@ public class VehicleSelection : MonoBehaviour
             item.Init(vehiclesContainer.Vehicles[i]);
             item.OnSelected += OnVehicleSelected;
 
-            if (i == vehiclesContainer.selectedVehicle)
+            if (i == UserManager.playerData.GetInt(PlayerPrefsStrings.SELECTED_VEHICLE))
                 OnVehicleSelected(item);
         }
 
@@ -83,7 +84,7 @@ public class VehicleSelection : MonoBehaviour
     void UpdateUIButtons() {
         buyButton.gameObject.SetActive(UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL) >= selectedVehicleConfig.UnlockLevel && selectedSaveData != null && !selectedSaveData.purchased);
         equipButton.gameObject.SetActive(UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL) >= selectedVehicleConfig.UnlockLevel && selectedSaveData != null && selectedSaveData.purchased && vehiclesContainer.GetEquippedVehicle() != selectedItem.Config);
-        upgradeButton.gameObject.SetActive(UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL) >= selectedVehicleConfig.UnlockLevel && selectedSaveData != null && selectedSaveData.purchased);
+        upgradeButton.gameObject.SetActive(!inUpgradeMenu && UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL) >= selectedVehicleConfig.UnlockLevel && selectedSaveData != null && selectedSaveData.purchased);
     }
 
     void UpdateUpgradeUIButtons() {
@@ -91,7 +92,7 @@ public class VehicleSelection : MonoBehaviour
 
     void UpdateEquip() {
         for (int i = 0; i < spawnedItems.Length; i++) {
-            if (vehiclesContainer.selectedVehicle == i)
+            if (UserManager.playerData.GetInt(PlayerPrefsStrings.SELECTED_VEHICLE, 0) == i)
                 spawnedItems[i].SetState(ShopItemState.Equipped);
             else if(vehiclesContainer.vehicleSaveDatas[i].purchased)
                 spawnedItems[i].SetState(ShopItemState.Purchased);
@@ -141,16 +142,20 @@ public class VehicleSelection : MonoBehaviour
         UserManager.playerData.SubtractInt(PlayerPrefsStrings.CASH, selectedItem.Config.Price);
         selectedItem.SetState(ShopItemState.Purchased);
         UpdateUIButtons();
+
+        AudioManager.Instance.PlayCommonAudio(AudioManager.Instance.AudioDataContainer.PurchaseClip);
     }
 
     public void OnEquipVehicle() {
         if(selectedItem == null) return;
 
         equippedVehicleConfig = selectedItem.Config;
-        vehiclesContainer.selectedVehicle = Array.IndexOf(vehiclesContainer.Vehicles, selectedItem.Config);
+        UserManager.playerData.SetInt(PlayerPrefsStrings.SELECTED_VEHICLE, Array.IndexOf(vehiclesContainer.Vehicles, selectedItem.Config));
         UpdateUIButtons();
         UpdateEquip();
         vehicleStats.UpdateValues(equippedVehicleConfig, selectedVehicleConfig);
+        AudioManager.Instance.PlayCommonAudio(AudioManager.Instance.AudioDataContainer.EquipClip);
+
     }
 
     public void OpenUpgradeMenu() {
@@ -167,6 +172,7 @@ public class VehicleSelection : MonoBehaviour
                 spawnedCategoryItems[i].Init(selectedVehicleConfig.Upgrades[i].upgradeType.ToString(), selectedVehicleConfig.Upgrades[i], OnCategorySelected);
         }
 
+        inUpgradeMenu = true;
         PanelManager.Instance.ShowPanel("CategoryPanel", () => {
             vehicleScrollPanel.SetActive(false);
             categoryScrollPanel.SetActive(true);
@@ -178,6 +184,7 @@ public class VehicleSelection : MonoBehaviour
         () => {
             vehicleScrollPanel.SetActive(true);
             categoryScrollPanel.SetActive(false);
+            inUpgradeMenu = false;
             UpdateUIButtons();
         });
     }
@@ -268,6 +275,8 @@ public class VehicleSelection : MonoBehaviour
         priceText.text = $"{selectedUpgradeData.price[selectedLevelIndex]}$";
         //priceText.text = $"{selectedVehicleConfig.Upgrades.Price}$";
 
+        vehicleStats.UpdateValues(selectedVehicleConfig, selectedUpgradeData.upgradeType, newSelected.LevelIndex);
+
         if (selectedSaveData.EquippedLevels.Get(selectedUpgradeData.upgradeType, -1) == selectedLevelIndex) {
             buyButton.gameObject.SetActive(false);
             equipButton.gameObject.SetActive(false);
@@ -283,12 +292,23 @@ public class VehicleSelection : MonoBehaviour
     }
 
     public void OnBuyUpgrade() {
-        //TODO: Auto select purchased item if the list is empty
+        if (UserManager.playerData.GetInt(PlayerPrefsStrings.CASH) < selectedUpgradeData.price[selectedUpgradeItem.LevelIndex]) {
+            Debug.LogError("Not enough money");
+            PopupPanel.Instance.Show("", "Not enough money.", null);
+            return;
+        }
+
         List<int> purchasedUpgrades = selectedSaveData.PurchasedUpgrades.Get(selectedUpgradeData.upgradeType);
         purchasedUpgrades.Add(selectedLevelIndex);
-
+        UserManager.playerData.SubtractInt(PlayerPrefsStrings.CASH, selectedUpgradeData.price[selectedUpgradeItem.LevelIndex]);
+        AudioManager.Instance.PlayCommonAudio(AudioManager.Instance.AudioDataContainer.PurchaseClip);
+        if (selectedUpgradeItem != null) {
+            OnEquipUpgrade();
+            return;
+        }
         Debug.Log("Bought upgrade");
         UpdateUpgradeEquip();
+        UpdateUIButtons();
 
     }
 
@@ -298,8 +318,15 @@ public class VehicleSelection : MonoBehaviour
 
         selectedUpgradeItem.SetState(ShopItemState.Equipped);
 
-        equipButton.gameObject.SetActive(false);
+        vehicleStats.UpdateValues(selectedVehicleConfig, selectedUpgradeData.upgradeType, selectedUpgradeItem.LevelIndex);
+
+
         UpdateUpgradeEquip();
+        UpdateUIButtons();
+        equipButton.gameObject.SetActive(false);
+        upgradeButton.gameObject.SetActive(false);
+        AudioManager.Instance.PlayCommonAudio(AudioManager.Instance.AudioDataContainer.EquipClip);
+
     }
 
     void UpdateUpgradeEquip() {

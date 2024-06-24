@@ -6,6 +6,7 @@ using System.Linq;
 using Unity.MLAgents;
 using Unity.MLAgents.Policies;
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class RaceManager : MonoSingleton<RaceManager> {
 
@@ -181,15 +182,16 @@ public class RaceManager : MonoSingleton<RaceManager> {
         for (int i = 0; i < currentRaceData.MaxPlayers; i++) {
             if (i > spawnPoints.Count - 1) break;
 
+            VehicleManager vehicle;
+
             if (i == spawnPoints.Count - 1 || i == currentRaceData.MaxPlayers - 1) {
                 //Spawn Player
-                VehicleManager vehicle = Instantiate(vehiclesContainer.GetEquippedVehicle().Prefab, spawnPoints[i].position, spawnPoints[i].rotation);
+                vehicle = Instantiate(vehiclesContainer.GetEquippedVehicle().Prefab, spawnPoints[i].position, spawnPoints[i].rotation);
                 DestroyImmediate(vehicle.GetComponent<DecisionRequester>());
                 DestroyImmediate(vehicle.GetComponent<Vehicle_Agent>());
                 DestroyImmediate(vehicle.GetComponent<BehaviorParameters>());
-                
-                VehicleSaveData saveData = vehiclesContainer.vehicleSaveDatas[vehiclesContainer.selectedVehicle];
-                vehicles.Add(vehicle);
+
+                VehicleSaveData saveData = vehiclesContainer.vehicleSaveDatas[UserManager.playerData.GetInt(PlayerPrefsStrings.SELECTED_VEHICLE)];
                 vehicle.Init(vehiclesContainer.GetEquippedVehicle(), saveData, true);
                 playerVehicle = vehicle;
                 uiManager.SetVehicle(vehicle);
@@ -197,12 +199,15 @@ public class RaceManager : MonoSingleton<RaceManager> {
             else {
                 //Spawn opponents
                 int vehicleIndex = UnityEngine.Random.Range(0, vehiclesContainer.Vehicles.Length);
-                VehicleManager vehicle = Instantiate(vehiclesContainer.Vehicles[vehicleIndex].Prefab, spawnPoints[i].position, spawnPoints[i].rotation);
+                vehicle = Instantiate(vehiclesContainer.Vehicles[vehicleIndex].Prefab, spawnPoints[i].position, spawnPoints[i].rotation);
                 VehicleSaveData saveData = new VehicleSaveData(vehicleIndex);
                 saveData.Randomize(vehiclesContainer.Vehicles[vehicleIndex]);
-                vehicles.Add(vehicle);
                 vehicle.Init(vehiclesContainer.Vehicles[vehicleIndex], saveData);
             }
+
+            vehicles.Add(vehicle);
+            vehicle.transform.position = spawnPoints[i].position;
+            vehicle.transform.rotation = spawnPoints[i].rotation;
         }
     }
 
@@ -272,9 +277,9 @@ public class RaceManager : MonoSingleton<RaceManager> {
 
     private void OnPlayerFinishedRace(int placement) {
         if (placement < RaceData.CoinsRewards.Length)
-            UserManager.playerData.AddInt(PlayerPrefsStrings.CASH, RaceData.CoinsRewards[placement]);
+            UserManager.playerData.AddInt(PlayerPrefsStrings.CASH, RaceData.CoinsRewards[placement] * (GlobalData.enableSpecialEventBonus && RaceData.UseEvent ? 2 : 1));
         if(placement < RaceData.ExpReward.Length)
-            LevelSystem.Instance.AddExp(RaceData.ExpReward[placement]);
+            LevelSystem.Instance.AddExp(RaceData.ExpReward[placement] * (GlobalData.enableSpecialEventBonus && RaceData.UseEvent ? 2 : 1));
         if(placement < 3) {
             RaceData.saveData.placement = placement;
         }

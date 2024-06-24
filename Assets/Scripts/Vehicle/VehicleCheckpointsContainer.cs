@@ -30,7 +30,7 @@ public class VehicleCheckpointsContainer : MonoBehaviour {
     public bool UseTriggers => useTriggers;
 
     private void Init() {
-        if (checkpointsContainer != null) {
+        if (checkpointsContainer != null && checkpoints.IsNullOrEmpty()) {
             checkpoints = new Transform[checkpointsContainer.childCount];
             for (int i = 0; i < checkpointsContainer.childCount; i++) {
                 checkpoints[i] = checkpointsContainer.GetChild(i);
@@ -47,5 +47,16 @@ public class VehicleCheckpointsContainer : MonoBehaviour {
                 Gizmos.DrawWireSphere(checkpointsContainer.GetChild(i).position, 0.5f);
             }
         }
+
+    }
+
+    private void OnDrawGizmos() {
+        if (!checkpoints.IsNullOrEmpty()) {
+            Gizmos.color = Color.yellow;
+            for (int i = 0; i < checkpoints.Length - 1;i++) {
+                Gizmos.DrawLine(checkpoints[i].position, checkpoints[i + 1].position);
+            }
+        }
+        
     }
 }

@@ -13,7 +13,7 @@ public class VehiclesContainer : ScriptableObject
     
     public void SetSaveData(List<VehicleSaveData> vehicleSaveDatas) {
         if (vehicleSaveDatas.IsNullOrEmpty()) {
-            selectedVehicle = 0;
+            UserManager.playerData.SetInt(PlayerPrefsStrings.SELECTED_VEHICLE, 0);
             for (int i = 0; i < vehicles.Length; i++)
                 vehicleSaveDatas.Add(CreateSaveData(i));
         }
@@ -43,7 +43,7 @@ public class VehiclesContainer : ScriptableObject
     }
 
     public VehicleConfig GetEquippedVehicle() {
-        return vehicles[selectedVehicle];
+        return vehicles[UserManager.playerData.GetInt(PlayerPrefsStrings.SELECTED_VEHICLE)];
     }
 
     public VehicleSaveData GetSaveData(int vehicleIndex) {

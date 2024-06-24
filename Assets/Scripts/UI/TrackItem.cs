@@ -12,6 +12,7 @@ public class TrackItem : MonoBehaviour
     [SerializeField] TMP_Text trackNameText;
     [SerializeField] Sprite starFilled;
     [SerializeField] Image[] stars;
+    [SerializeField] GameObject eventBadge;
 
     Action<TrackItem, RaceData> onClick;
     RaceData raceData;
@@ -22,6 +23,9 @@ public class TrackItem : MonoBehaviour
 
         thumbnail.sprite = raceData.Thumbnail;
         trackNameText.text = raceData.TrackName;
+
+        if (GlobalData.enableSpecialEventBonus && data.UseEvent)
+            eventBadge.SetActive(true);
 
         if (data.saveData.placement == -1) return;
 

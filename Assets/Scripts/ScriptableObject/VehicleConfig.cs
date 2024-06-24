@@ -103,7 +103,9 @@ public class VehicleConfig : ScriptableObject
     public float GetUpgradeValue(UpgradeType type, float currentValue) {
         if(!saveData.EquippedLevels.TryGetValue(type, out int level))
             return currentValue;
-
+        if (level == -1)
+            return currentValue;
+        
         UpgradeData upgradeData = Array.Find(upgrades, x => x.upgradeType == type);
         return currentValue + upgradeData.val[level] * currentValue;
     }

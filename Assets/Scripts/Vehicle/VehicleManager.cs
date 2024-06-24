@@ -94,13 +94,27 @@ public class VehicleManager : MonoBehaviour
 
         bool goingForward = vehicle.VehicleRigidBody.velocity.magnitude >= 0.1f && Vector3.Dot(vehicle.VehicleRigidBody.velocity, (vehicleData.nextCheckpoint.position - vehicleData.currentCheckpoint.position).normalized) > 0;
 
-        // Check if the vehicle is moving forward based on velocity
-        if (!vehicleData.finished && vehicleData.checkpointIndex == 0 && vehicleData.PassedCheckpoints.Count >= CheckpointsContainer.Checkpoints.Length && goingForward && PassedAllCheckpoints()) {
-            vehicleData.loopCount++;
-            vehicleData.PassedCheckpoints.Clear();
-            OnFinishReached?.Invoke();
-            if (vehicleData.loopCount >= RaceManager.Instance.RaceData.MaxLoops && !RaceManager.Instance.enableLearning)
-                OnRaceFinished?.Invoke(this);
+        switch (RaceManager.Instance.RaceData.Type) {
+            case RaceData.RaceType.Circuit:
+                // Check if the vehicle is moving forward based on velocity
+                if (!vehicleData.finished && vehicleData.checkpointIndex == 0 && vehicleData.PassedCheckpoints.Count >= CheckpointsContainer.Checkpoints.Length && goingForward && PassedAllCheckpoints()) {
+                    vehicleData.loopCount++;
+                    vehicleData.PassedCheckpoints.Clear();
+                    OnFinishReached?.Invoke();
+                    if (vehicleData.loopCount >= RaceManager.Instance.RaceData.MaxLoops && !RaceManager.Instance.enableLearning)
+                        OnRaceFinished?.Invoke(this);
+                }
+                break;
+            case RaceData.RaceType.Sprint:
+                if (!vehicleData.finished && vehicleData.PassedCheckpoints.Count + 1 >= CheckpointsContainer.Checkpoints.Length && goingForward && PassedAllCheckpoints()) {
+                    OnFinishReached?.Invoke();
+                    OnRaceFinished?.Invoke(this);
+                }
+                break;
+            case RaceData.RaceType.TimeAttack:
+                break;
+            default:
+                break;
         }
 
         if (!CheckpointsContainer.UseTriggers && (nextCheckpointDistance < CheckpointsContainer.CheckpointRadius || prevCheckpointDistance < CheckpointsContainer.CheckpointRadius)) {
@@ -142,12 +156,22 @@ public class VehicleManager : MonoBehaviour
 
         vehicleData.currentCheckpoint = vehicleData.nextCheckpoint;
 
-        if (vehicleData.checkpointIndex + 1 >= CheckpointsContainer.Checkpoints.Length)
-            vehicleData.checkpointIndex = 0;
-        else
-            vehicleData.checkpointIndex++;
+        if (RaceManager.Instance.RaceData.Type == RaceData.RaceType.Sprint) {
+            if (vehicleData.checkpointIndex + 1 > CheckpointsContainer.Checkpoints.Length - 1)
+                vehicleData.checkpointIndex = CheckpointsContainer.Checkpoints.Length - 1;
+            else
+                vehicleData.checkpointIndex++;
+            vehicleData.nextCheckpoint = CheckpointsContainer.Checkpoints[vehicleData.checkpointIndex + 1 >= CheckpointsContainer.Checkpoints.Length ? CheckpointsContainer.Checkpoints.Length - 1 : vehicleData.checkpointIndex + 1];
+        }
+        else {
 
-        vehicleData.nextCheckpoint = CheckpointsContainer.Checkpoints[vehicleData.checkpointIndex + 1 >= CheckpointsContainer.Checkpoints.Length ? 0 : vehicleData.checkpointIndex + 1];
+            if (vehicleData.checkpointIndex + 1 >= CheckpointsContainer.Checkpoints.Length)
+                vehicleData.checkpointIndex = 0;
+            else
+                vehicleData.checkpointIndex++;
+            vehicleData.nextCheckpoint = CheckpointsContainer.Checkpoints[vehicleData.checkpointIndex + 1 >= CheckpointsContainer.Checkpoints.Length ? 0 : vehicleData.checkpointIndex + 1];
+        }
+
         
         if (checkpointAdded)
             OnNextCheckpointReached?.Invoke(checkpoint);
@@ -230,6 +254,11 @@ public class VehicleManager : MonoBehaviour
         Vector3 relativePos = vehicleData.nextCheckpoint.position - vehicleData.currentCheckpoint.position;
         Vector3 vehPos = (vehicleData.nextCheckpoint.position + vehicleData.currentCheckpoint.position) / 2;
         Vector3 roadPos = GetRoadCenter(vehPos, vehicleData.currentCheckpoint.position, vehicleData.nextCheckpoint.position);
+        if (vehicleData.nextCheckpoint == vehicleData.currentCheckpoint) {
+            relativePos = Vector3.zero;
+            vehPos = Vector3.zero;
+            roadPos = vehicleData.currentCheckpoint.position;
+        }
         vehicle.transform.position = roadPos;
         vehicle.transform.rotation = Quaternion.LookRotation(relativePos, Vector3.up);
         vehicle.VehicleRigidBody.velocity = Vector3.zero;
@@ -274,9 +303,10 @@ public class VehicleManager : MonoBehaviour
     IEnumerator CheckFlipped() {
         while (true) {
             yield return new WaitForSeconds(0.5f);
-            if (!vehicle.GroudedWheels()) {
+            if (!vehicle.GroudedWheels())
                 flippedTime += 0.5f;
-            }
+            else
+                flippedTime = 0;
 
             if (flippedTime >= GlobalData.vehicleRespawnTime) {
                 flippedTime = 0;

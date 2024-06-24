@@ -16,6 +16,10 @@ public class GameManager : MonoBehaviour
         ChangeScene
     }
 
+    [Header("Status Panel")]
+    [SerializeField] GameObject statusPanel;
+    [SerializeField] TMP_Text statusText;
+
     [Header("Login")]
     [SerializeField] TMP_InputField login_Email;
     [SerializeField] TMP_InputField login_Password;
@@ -32,6 +36,9 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        if (remoteConfigManager == null) remoteConfigManager = RemoteConfigManager.Instance;
+        saveSystem = SaveSystem.Instance;
+
         ChangeState(State.Init);
     }
 
@@ -63,15 +70,18 @@ public class GameManager : MonoBehaviour
     }
 
     async void RemoteConfigFetch() {
+        statusPanel.SetActive(true);
+        statusText.text = "Loading Remote Config";
         await remoteConfigManager.FetchData();
         ChangeState(State.LoadSave);
     }
 
     void LoadSaveFile() {
+        statusText.text = "Loading Save File";
         saveSystem.OnSaveFileLoaded += () => {
             ChangeState(State.ChangeScene);
         };
-        saveSystem.Init();
+        _ = saveSystem.Init();
     }
 
     private void OnUserLoggedIn(bool success) {

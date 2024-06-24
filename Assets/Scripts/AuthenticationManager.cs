@@ -27,6 +27,7 @@ public class AuthenticationManager : MonoSingleton<AuthenticationManager>
     public string UserName => userName;
 
     public Action<bool> OnUserLoggedIn;
+    public Action OnUserLoggedOut;
 
     private void Start() {
         DontDestroyOnLoad(this);
@@ -51,7 +52,7 @@ public class AuthenticationManager : MonoSingleton<AuthenticationManager>
                 loginTask = GuestLogin();
                 break;
             case (int)LoginType.Google:
-                loginTask = GoogleLogin();
+                //loginTask = GoogleLogin();
                 break;
             case (int)LoginType.EmailLogin:
                 loginTask = EmailLogin(email, pass);
@@ -117,14 +118,17 @@ public class AuthenticationManager : MonoSingleton<AuthenticationManager>
             if(ex.ErrorCode == 12) {
                 PopupPanel.Instance.Show("", "The email or password is invalid", null);
             }
+            else {
+                Debug.LogError(ex.Message);
+            }
             return false;
         }
-
+        
         userId = user.UserId;
         userName = user.DisplayName;
 
         if(string.IsNullOrEmpty(userName))
-            userName = user.UserId;
+            userName = "Guest";
 
         return true;
     }
@@ -158,12 +162,12 @@ public class AuthenticationManager : MonoSingleton<AuthenticationManager>
         userId = user.UserId;
         userName = user.DisplayName;
         if (string.IsNullOrEmpty(userName))
-            userName = user.UserId;
+            userName = "Guest";
 
         return true;
     }
 
-    async Task<bool> GoogleLogin() {
+    /*async Task<bool> GoogleLogin() {
         GoogleSignIn.Configuration = new GoogleSignInConfiguration {
             RequestIdToken = false,
             WebClientId = "299180800988-539r2205koupqdqedlsk3po47b5hm7kv.apps.googleusercontent.com"
@@ -189,11 +193,12 @@ public class AuthenticationManager : MonoSingleton<AuthenticationManager>
 
         return true;
 
-    }
+    }*/
 
     public void Logout() {
         try {
             auth.SignOut();
+            OnUserLoggedOut?.Invoke();
         }catch (FirebaseException ex) {
             Debug.LogError(ex.ToString());
             PopupPanel.Instance.Show("", "Something went wrong. Please try again later.", null);

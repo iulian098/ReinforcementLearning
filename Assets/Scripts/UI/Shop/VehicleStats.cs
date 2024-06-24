@@ -18,21 +18,56 @@ public class VehicleStats : MonoBehaviour
         handling.SetValue(GetHandling(currentConfig), GetHandling(newConfig));
     }
 
-    float GetAcc(VehicleConfig config) {
-        return ((config.AccelerationForce * config.EnginePower) + config.EnginePower) / 2000;
+    public void UpdateValues(VehicleConfig config, UpgradeType upgradeType, int upgradeLevel) {
+        acceleration.SetValue(GetAcc(config));
+        speed.SetValue(GetMaxSpeed(config));
+        nos.SetValue(GetNosPower(config));
+        handling.SetValue(GetHandling(config));
+        switch (upgradeType) {
+            case UpgradeType.Engine:
+                speed.SetValue(GetMaxSpeed(config), GetMaxSpeed(config, upgradeLevel));
+                break;
+            case UpgradeType.Acceleration:
+                acceleration.SetValue(GetAcc(config), GetAcc(config, upgradeLevel));
+                break;
+            case UpgradeType.Nos:
+                nos.SetValue(GetNosPower(config), GetNosPower(config, upgradeLevel));
+                break;
+            case UpgradeType.Handling:
+                handling.SetValue(GetHandling(config), GetHandling(config, upgradeLevel));
+                break;
+
+        }
     }
 
-    float GetMaxSpeed(VehicleConfig config) {
-        return (config.MaxSpeed) / 300;
+    float GetAcc(VehicleConfig config, int level = -1) {
+        float val = ((config.AccelerationForce * config.EnginePower) + config.EnginePower) / 2000;
+
+        if(level != -1)
+            return config.GetUpgradeValue(UpgradeType.Acceleration, val, level);
+        return config.GetUpgradeValue(UpgradeType.Acceleration, val);
     }
 
-    float GetNosPower(VehicleConfig config) {
-        return (config.NosPowerMultiplier + config.NosAmount) / 20;
+    float GetMaxSpeed(VehicleConfig config, int level = -1) {
+        float val = (config.MaxSpeed) / 300;
+        if (level != -1)
+            return config.GetUpgradeValue(UpgradeType.Engine, val, level);
+        return config.GetUpgradeValue(UpgradeType.Engine, val);
+    }
+
+    float GetNosPower(VehicleConfig config, int level = -1) {
+        float val = (config.NosPowerMultiplier + config.NosAmount) / 20;
+        if (level != -1)
+            return config.GetUpgradeValue(UpgradeType.Nos, val, level);
+        return config.GetUpgradeValue(UpgradeType.Nos, val);
     }
     
-    float GetHandling(VehicleConfig config) {
+    float GetHandling(VehicleConfig config, int level = -1) {
         WheelCollider wheel = config.Prefab.GetComponentInChildren<WheelCollider>();
         float total = wheel.sidewaysFriction.extremumSlip + wheel.sidewaysFriction.asymptoteSlip + wheel.forwardFriction.extremumSlip + wheel.forwardFriction.asymptoteSlip;
-        return total / 4;
+        float val = total / 4;
+        if (level != -1)
+            return config.GetUpgradeValue(UpgradeType.Handling, val, level);
+        return config.GetUpgradeValue(UpgradeType.Handling, val);
     }
 }

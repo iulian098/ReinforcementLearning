@@ -35,12 +35,12 @@ public class ResultScreen : MonoBehaviour
         raceTypeText.text = raceData.Type.ToString();
 
         if (playerPlacement < raceData.CoinsRewards.Length)
-            cashWonText.text = $"+{raceData.CoinsRewards[playerPlacement]}$";
+            cashWonText.text = $"+{raceData.CoinsRewards[playerPlacement] * (GlobalData.enableSpecialEventBonus && raceData.UseEvent ? 2 : 1)}$";
         else
             cashWonText.text = "0$";
 
         if (playerPlacement < raceData.ExpReward.Length)
-            expWonText.text = $"+{raceData.ExpReward[playerPlacement]} EXP";
+            expWonText.text = $"+{raceData.ExpReward[playerPlacement] * (GlobalData.enableSpecialEventBonus && raceData.UseEvent ? 2 : 1)} EXP";
         else
             expWonText.text = "0";
     }

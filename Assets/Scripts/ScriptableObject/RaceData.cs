@@ -20,6 +20,7 @@ public class RaceData : ScriptableObject
     [SerializeField] int maxLoops;
     [SerializeField] int[] coinsReward;
     [SerializeField] int[] expReward;
+    [SerializeField] bool useEvent;
 
     public int BuyIn => buyIn;
     public string SceneName => sceneName;
@@ -30,6 +31,7 @@ public class RaceData : ScriptableObject
     public int MaxLoops => maxLoops;
     public int[] CoinsRewards => coinsReward;
     public int[] ExpReward => expReward;
+    public bool UseEvent => useEvent;
 
     public TrackSaveData saveData;
 

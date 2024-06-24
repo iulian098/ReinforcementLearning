@@ -27,4 +27,8 @@ public class StatsItem : MonoBehaviour
             newImg.color = decreasedValueColor;
         }
     }
+
+    public void SetValue(float currentValue) {
+        SetValue(currentValue, currentValue);
+    }
 }
