@@ -12,8 +12,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0e1741d5598f07419abf14ba9c2b159, type: 3}
   m_Name: TracksContainer
   m_EditorClassIdentifier: 
-  tracks:
-  - {fileID: 11400000, guid: 6ca6872b66eb02c49963668d40897cfd, type: 2}
-  - {fileID: 11400000, guid: c0369c012f014be458c220971ff85961, type: 2}
-  - {fileID: 11400000, guid: 1b1b48a9363e3f24095b4d51c4b0d522, type: 2}
-  - {fileID: 11400000, guid: ffbbb1bf13c50a049b9278302d9731dd, type: 2}
+  tracksRefs:
+  - m_AssetGUID: 6ca6872b66eb02c49963668d40897cfd
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: c0369c012f014be458c220971ff85961
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: 1b1b48a9363e3f24095b4d51c4b0d522
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: ffbbb1bf13c50a049b9278302d9731dd
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: 753310f37c83dfb4f87ef0e1236d8b12
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  - m_AssetGUID: 3cbaa6e7351db9f4c90ea97c4717b520
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0

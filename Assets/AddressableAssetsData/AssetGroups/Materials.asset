@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Materials
+  m_EditorClassIdentifier: 
+  m_GroupName: Materials
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 748bf4f43200b324eadd47b9f3d803f3
+  m_SerializeEntries:
+  - m_GUID: a0cec58fc32f482418596ffdf7c0d693
+    m_Address: Assets/Materials/FX_Base.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 85e89f3b829c70a4a85a798f89bd18ed
+    m_Address: Assets/Aligned Games/Polygonal Foliage Asset Package/Materials/atlass_1_1.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 6040624669966984aa340a91327dd50f, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 6eb6b5294e1f0f345a105d780ca0d577, type: 2}
+    - {fileID: 11400000, guid: 9a91d4fe90ad94a458305c4706fc1d7a, type: 2}

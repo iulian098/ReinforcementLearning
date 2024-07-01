@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "299180800988",
+    "project_id": "racinggame-bbef9",
+    "storage_bucket": "racinggame-bbef9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:299180800988:android:27c69d3d22a3c67503ad19",
+        "android_client_info": {
+          "package_name": "com.DefaultCompany.ReinforcementLearning"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "299180800988-38vimlb16vgg3oe5j36im6ds6pbd5e8t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.DefaultCompany.ReinforcementLearning",
+            "certificate_hash": "810f9f9c9a861b9dbd967750024708dae74a4ea7"
+          }
+        },
+        {
+          "client_id": "299180800988-qv5ouv5sfd81o6imvo47tr6j8sr8aimt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.DefaultCompany.ReinforcementLearning",
+            "certificate_hash": "f94463d0557c6bbe778c5eae632211abf07711b8"
+          }
+        },
+        {
+          "client_id": "299180800988-539r2205koupqdqedlsk3po47b5hm7kv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPQ48DEj0VJuOMJFolk_n5J4weUS1yls4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "299180800988-539r2205koupqdqedlsk3po47b5hm7kv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

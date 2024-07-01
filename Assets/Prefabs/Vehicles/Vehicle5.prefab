@@ -254,6 +254,30 @@ PrefabInstance:
       propertyPath: m_SidewaysFriction.m_AsymptoteValue
       value: 0.95
       objectReference: {fileID: 0}
+    - target: {fileID: 640810855351555407, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: lowSounds.on
+      value: 
+      objectReference: {fileID: 8300000, guid: 94999993ce527774e874aae761b7e60d, type: 3}
+    - target: {fileID: 640810855351555407, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: highSounds.on
+      value: 
+      objectReference: {fileID: 8300000, guid: 7dd445608d08a6b468a3ddd516e73162, type: 3}
+    - target: {fileID: 640810855351555407, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: lowSounds.off
+      value: 
+      objectReference: {fileID: 8300000, guid: bdda55e3d2581c7449b9cb8cbe46d168, type: 3}
+    - target: {fileID: 640810855351555407, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: highSounds.off
+      value: 
+      objectReference: {fileID: 8300000, guid: 8a69ca9885dc3e346a54aa9b1a405ba8, type: 3}
+    - target: {fileID: 640810855351555407, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: lowSounds.maxVolume
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 640810855351555407, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
+      propertyPath: highSounds.maxVolume
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1509663931802791003, guid: 62500b5a4c36a174c967f3f52414f2a2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.56

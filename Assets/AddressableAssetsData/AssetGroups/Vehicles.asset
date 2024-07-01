@@ -17,16 +17,6 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: e548de4dee5f75848a3ff415bc788ab9
   m_SerializeEntries:
-  - m_GUID: ce2f69eff332bbe45a19e0ecc1087a62
-    m_Address: Assets/Prefabs/Vehicles
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 79c56f100b70e0348881ca282c535822
-    m_Address: Assets/Data/Vehicles/VehiclesContainer.asset
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 553abceea16eba143876c8fe4bb5ff72
     m_Address: Assets/Prefabs/Previews
     m_ReadOnly: 0

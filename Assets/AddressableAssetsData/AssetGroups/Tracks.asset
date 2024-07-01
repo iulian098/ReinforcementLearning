@@ -33,12 +33,47 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c3d44065366450c418877c7d63062176
-    m_Address: Assets/Shaders/Terrain/FlatTerrainMat.mat
+    m_Address: Assets/Materials/FlatTerrainMat.mat
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a470a49a03778a64b848b8c856eaab03
     m_Address: Assets/Shaders/Terrain
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e73d1fdc82894e749bdae04d6212dfaa
+    m_Address: Assets/Data/Tracks/TracksContainer.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6ca6872b66eb02c49963668d40897cfd
+    m_Address: Assets/Data/Tracks/RaceData.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c0369c012f014be458c220971ff85961
+    m_Address: Assets/Data/Tracks/RaceData2.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1b1b48a9363e3f24095b4d51c4b0d522
+    m_Address: Assets/Data/Tracks/RaceData3.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ffbbb1bf13c50a049b9278302d9731dd
+    m_Address: Assets/Data/Tracks/RaceData4.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 753310f37c83dfb4f87ef0e1236d8b12
+    m_Address: Assets/Data/Tracks/RaceData6.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3cbaa6e7351db9f4c90ea97c4717b520
+    m_Address: Assets/Data/Tracks/RaceDataTest.asset
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Barracuda;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
@@ -18,12 +19,14 @@ public class Vehicle_Agent : Agent
     [Header("Learning Settings")]
     [SerializeField] bool resetOnHit = false;
     [SerializeField] bool disablePlacementRewards = false;
+    [SerializeField] bool resetOnRaceFinished = false;
 
     [SerializeField] bool showDebug = false;
     [SerializeField] VehicleSensor vehicleSensor;
+    [SerializeField] VehicleSensor obstacleSensor;
     [SerializeField] VehicleTrigger frontTrigger;
 
-
+    [SerializeField] NNModel model;
     //Inputs
     float acc;
     float steer;
@@ -66,6 +69,12 @@ public class Vehicle_Agent : Agent
         vehicleManager.OnPreviousCheckpointReached += OnPreviousCheckpointReached;
         vehicleManager.OnFinishReached += OnFinishReached;
         frontTrigger.OnTriggered += OnFrontVehicleDetected;
+    }
+
+    [ContextMenu("GetSensonrs")]
+    void FindSensors() {
+        vehicleSensor = transform.Find("VehicleSensor").GetComponent<VehicleSensor>();
+        obstacleSensor = transform.Find("ObstacleSensor").GetComponent<VehicleSensor>();
     }
 
     private void OnFinishReached() {
@@ -126,18 +135,24 @@ public class Vehicle_Agent : Agent
 
         if (!disablePlacementRewards)
             vehicleManager.OnPlacementChanged += OnPlacementChanged;
+
+        if (resetOnRaceFinished)
+            vehicleManager.OnRaceFinished += (veh) => { finishReached = true; };
     }
 
     public override void CollectObservations(VectorSensor sensor) {
+        if (vehicleSensor.HitFractions.IsNullOrEmpty() || obstacleSensor.HitFractions.IsNullOrEmpty()) return;
         sensor.AddObservation(new Vector2(vehicleVelocity.x, vehicleVelocity.z));
         sensor.AddObservation(vehicleSensor.HitFractions);
+        sensor.AddObservation(obstacleSensor.HitFractions);
         sensor.AddObservation(checkpointDirection);
-        sensor.AddObservation(roadCenterDirection);
+        sensor.AddObservation(float.IsNaN(roadCenterDirection) ? 0 : roadCenterDirection);
         sensor.AddObservation(nextCheckpointDirection);
         sensor.AddObservation(normalizedYRotation);
         sensor.AddObservation(RearSideSlip());
         sensor.AddObservation(backSensor);
         sensor.AddObservation(vehicleSensor.TagHit);
+        sensor.AddObservation(obstacleSensor.TagHit);
         sensor.AddObservation(canUseNOS);
     }
 
@@ -172,7 +187,7 @@ public class Vehicle_Agent : Agent
                 break;
         }
 
-        nos = actions.DiscreteActions[2] == 1;
+        //nos = actions.DiscreteActions[2] == 1;
             
 
         if (showDebug) {

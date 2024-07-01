@@ -1,7 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -33,19 +29,25 @@ public class GameManager : MonoBehaviour
     [SerializeField] SaveSystem saveSystem;
 
     State currentState;
-
+    bool isOffline;
     void Start()
     {
         if (remoteConfigManager == null) remoteConfigManager = RemoteConfigManager.Instance;
         saveSystem = SaveSystem.Instance;
 
+        isOffline = Application.internetReachability == NetworkReachability.NotReachable;
+
         ChangeState(State.Init);
     }
 
     public void ChangeState(State newState) {
+        currentState = newState;
         switch (newState) {
             case State.Init:
-                Init();
+                if(isOffline)
+                    ChangeState(State.LoadSave);
+                else
+                    Init();
                 break;
             case State.Login:
                 break;

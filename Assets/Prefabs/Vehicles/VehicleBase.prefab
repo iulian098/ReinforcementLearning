@@ -10349,7 +10349,6 @@ GameObject:
   - component: {fileID: 6250580918819344204}
   - component: {fileID: 8791395164695130305}
   - component: {fileID: 7858975250784024347}
-  - component: {fileID: 7573595129609817662}
   - component: {fileID: 2738018854440859567}
   - component: {fileID: 640810855351555407}
   m_Layer: 8
@@ -10378,6 +10377,8 @@ Transform:
   - {fileID: 1776778200906087199}
   - {fileID: 2491377428061906053}
   - {fileID: 5245002873514987349}
+  - {fileID: 5713205523515712750}
+  - {fileID: 5653420843567674691}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &6260421608971829181
@@ -10457,6 +10458,7 @@ MonoBehaviour:
     loopCount: 0
     totalDistance: 0
     finished: 0
+    passedCheckpoints: []
   vehicleSaveData:
     vehicleIndex: 0
     purchased: 0
@@ -10491,9 +10493,12 @@ MonoBehaviour:
   velocitySensorMultiplier: 0.5
   resetOnHit: 0
   disablePlacementRewards: 0
+  resetOnRaceFinished: 0
   showDebug: 0
-  vehicleSensor: {fileID: 7573595129609817662}
+  vehicleSensor: {fileID: 2626268121821001259}
+  obstacleSensor: {fileID: 5121754611907068924}
   frontTrigger: {fileID: 8674802870451148353}
+  model: {fileID: 5022602860645237092, guid: 3150920c24df67d47b862309625c0a96, type: 3}
 --- !u!114 &8791395164695130305
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10521,7 +10526,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 23
+    VectorObservationSize: 37
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -10530,36 +10535,14 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 3150920c24df67d47b862309625c0a96, type: 3}
-  m_InferenceDevice: 2
+  m_Model: {fileID: 5022602860645237092, guid: 2372173ac99466841a37eb08ddc4132a, type: 3}
+  m_InferenceDevice: 0
   m_BehaviorType: 0
-  m_BehaviorName: MyAgents
+  m_BehaviorName: VehicleAgents
   TeamId: 0
   m_UseChildSensors: 0
   m_UseChildActuators: 1
   m_ObservableAttributeHandling: 0
---- !u!114 &7573595129609817662
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3496148512035913140}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2eb7e2ad890599348b8bdb8521ad3772, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  raysPerDirection: 3
-  raysAngle: 70
-  sensorsLength: 25
-  sensorsCastRadius: 0.5
-  tags:
-  - Player
-  sensorMask:
-    serializedVersion: 2
-    m_Bits: 257
-  showGizmos: 0
 --- !u!114 &2738018854440859567
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10612,13 +10595,13 @@ MonoBehaviour:
     off: {fileID: 8300000, guid: bb683044c23cd50438d45fe475089c84, type: 3}
     minPitch: 0.75
     maxPitch: 1.2
-    maxVolume: 0.3
+    maxVolume: 0.15
   highSounds:
     on: {fileID: 8300000, guid: 22cd46996da3b624bb08935264560d8c, type: 3}
     off: {fileID: 8300000, guid: 30ab19edabbfdea499f3db426001e120, type: 3}
     minPitch: 0.9
     maxPitch: 1.2
-    maxVolume: 0.3
+    maxVolume: 0.15
   hitSound:
     settings:
       minDistance: 2
@@ -10630,7 +10613,7 @@ MonoBehaviour:
     minPitch: 0.9
     maxPitch: 1
     pitch: 1
-    volume: 0.5
+    volume: 0.4
   highSpeedWindSound:
     settings:
       minDistance: 2
@@ -10654,7 +10637,7 @@ MonoBehaviour:
     minPitch: 0
     maxPitch: 0
     pitch: 1
-    volume: 0.8
+    volume: 0.75
   nosIn: {fileID: 8300000, guid: e3f31cb5151435e48845f0c408ba48a5, type: 3}
   nosOut: {fileID: 8300000, guid: 4769c7a33430da3408974f336e58b305, type: 3}
   nosFlame: {fileID: 8300000, guid: d519c905795fc0049b33dc727d981f7d, type: 3}
@@ -10669,7 +10652,7 @@ MonoBehaviour:
     minPitch: 0
     maxPitch: 0
     pitch: 1
-    volume: 1
+    volume: 0.8
   nosMiscSoundSource:
     settings:
       minDistance: 2
@@ -10952,6 +10935,59 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetTag: Player
+--- !u!1 &4599843423299379325
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5653420843567674691}
+  - component: {fileID: 5121754611907068924}
+  m_Layer: 8
+  m_Name: ObstacleSensor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5653420843567674691
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4599843423299379325}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8299892737163379834}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5121754611907068924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4599843423299379325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2eb7e2ad890599348b8bdb8521ad3772, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  raysPerDirection: 3
+  raysAngle: 70
+  sensorsLength: 25
+  sensorsCastRadius: 0.5
+  tags: []
+  sensorMask:
+    serializedVersion: 2
+    m_Bits: 1025
+  showGizmos: 1
 --- !u!1 &4624445892467905404
 GameObject:
   m_ObjectHideFlags: 0
@@ -11260,6 +11296,59 @@ WheelCollider:
   m_LayerOverridePriority: 0
   m_Enabled: 1
   m_ProvidesContacts: 0
+--- !u!1 &7107482257991462236
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5713205523515712750}
+  - component: {fileID: 2626268121821001259}
+  m_Layer: 8
+  m_Name: VehicleSensor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5713205523515712750
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7107482257991462236}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8299892737163379834}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2626268121821001259
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7107482257991462236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2eb7e2ad890599348b8bdb8521ad3772, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  raysPerDirection: 3
+  raysAngle: 70
+  sensorsLength: 25
+  sensorsCastRadius: 0.5
+  tags: []
+  sensorMask:
+    serializedVersion: 2
+    m_Bits: 256
+  showGizmos: 1
 --- !u!1 &8084111288822991163
 GameObject:
   m_ObjectHideFlags: 0

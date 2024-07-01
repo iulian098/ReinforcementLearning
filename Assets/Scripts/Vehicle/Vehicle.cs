@@ -300,12 +300,12 @@ public class Vehicle : MonoBehaviour
                 if (reverse) {
                     wData.WheelCollider.motorTorque = vehicleConfig.MaxReverseTorque * val;
                     wData.WheelCollider.brakeTorque = 0;
-                    rb.AddForce(transform.forward * totalPower * vehicleConfig.GetUpgradeValue(UpgradeType.Acceleration, vehicleConfig.AccelerationForce) * val);
+                    rb.AddForce(transform.forward * totalPower * vehicleConfig.GetUpgradeValue(UpgradeType.Acceleration, vehicleConfig.AccelerationForce) * val * 2);
                 }
                 else {
                     wData.WheelCollider.motorTorque = 0;
                     wData.WheelCollider.brakeTorque = brake;
-                    rb.AddForce(transform.forward * vehicleConfig.BrakeTorque * vehicleConfig.GetUpgradeValue(UpgradeType.Acceleration, vehicleConfig.AccelerationForce) * val);
+                    rb.AddForce(transform.forward * vehicleConfig.BrakeTorque * vehicleConfig.GetUpgradeValue(UpgradeType.Acceleration, vehicleConfig.AccelerationForce) * val * 1.25f);
                 }
             }
             braking = !reverse;
@@ -357,7 +357,7 @@ public class Vehicle : MonoBehaviour
         foreach (var wheel in drivingWheels) {
             wheel.WheelCollider.brakeTorque = vehicleConfig.HandbrakeTorque;
             wheel.WheelCollider.motorTorque = 0;
-            rb.AddForce(-transform.forward * vehicleConfig.HandbrakeTorque * Mathf.Clamp(-1, 1, velocity.z) / 10);
+            rb.AddForce(-transform.forward * vehicleConfig.HandbrakeTorque * Mathf.Clamp(-1, 1, velocity.z) / 3);
         }
     }
 

@@ -32,6 +32,10 @@ public class LevelSystem : MonoSingleton<LevelSystem>
         int currentExp = UserManager.playerData.GetInt(PlayerPrefsStrings.EXP) + value;
         int expNeeded = (int)levelCurve.Evaluate(UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL));
 
+        if(currentExp < expNeeded) {
+            UserManager.playerData.SetInt(PlayerPrefsStrings.EXP, currentExp);
+        }
+
         while (currentExp >= expNeeded) {
             UserManager.playerData.AddInt(PlayerPrefsStrings.LEVEL, 1);
 
@@ -47,6 +51,8 @@ public class LevelSystem : MonoSingleton<LevelSystem>
             expNeeded = (int)levelCurve.Evaluate(UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL));
             currentExp = UserManager.playerData.GetInt(PlayerPrefsStrings.EXP);
         }
+
+
     }
 
     public float GetLevelProgress() {

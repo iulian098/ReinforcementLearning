@@ -4,8 +4,7 @@ using Unity.MLAgents.Sensors;
 using UnityEngine;
 
 [ExecuteInEditMode]
-public class VehicleSensor : MonoBehaviour
-{
+public class VehicleSensor : MonoBehaviour {
     [SerializeField] int raysPerDirection = 3;
     [SerializeField] float raysAngle = 70;
     [SerializeField] float sensorsLength;
@@ -18,7 +17,14 @@ public class VehicleSensor : MonoBehaviour
     float[] tagHit;
 
     public float[] Angles => angles;
-    public float[] HitFractions => hitFractions;
+    public float[] HitFractions {
+        get {
+            if (hitFractions.IsNullOrEmpty()) {
+                hitFractions = new float[raysPerDirection * 2 + 1];
+            }
+            return hitFractions;
+        }
+    }
     public float[] TagHit => tagHit;
 
     private void Awake() {
@@ -37,6 +43,7 @@ public class VehicleSensor : MonoBehaviour
     }
 
     void UpdateRaysCount() {
+        Debug.Log("[Sensor] Updated Rays Count");
         angles = GetRayAngles(raysPerDirection, raysAngle);
         hitFractions = new float[angles.Length];
         tagHit = new float[angles.Length];

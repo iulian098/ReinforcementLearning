@@ -26,3 +26,6 @@ MonoBehaviour:
   maxLoops: 3
   coinsReward: d4300000102700004c1d0000
   expReward: 7d000000640000004b000000
+  useEvent: 1
+  saveData:
+    placement: -1

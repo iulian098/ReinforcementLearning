@@ -22,6 +22,36 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 899af77aad418e84ba167465b3cb84ab
+    m_Address: Assets/Aligned Games/Polygonal Foliage Asset Package/Models/Trees/Tree1/tree_1_LODS.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f92b78d767adf984697a3bf9c502c26f
+    m_Address: Assets/Scenes/VFXTest.unity
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 05dddf4f30ff88b41b4bdbe2862c68c7
+    m_Address: Assets/Aligned Games/Polygonal Foliage Asset Package/Models/Trees/Tree2/tree_2_LODS.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 942b1b10f8077c4489b7e595c43fd37a
+    m_Address: Assets/Aligned Games/Polygonal Foliage Asset Package/Models/Rocks/Rock17/rock_17.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cbcd805f39c7e0e4c8ee999fa9ba5552
+    m_Address: Assets/Aligned Games/Polygonal Foliage Asset Package/Models/Grass/Grass3/grass_3.fbx
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 889e49b65cb2c784cae71cec083eb15f
+    m_Address: Assets/Scenes/CoreGameplay.unity
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 6040624669966984aa340a91327dd50f, type: 2}
   m_SchemaSet:

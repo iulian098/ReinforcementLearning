@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a44db242fd9944444ad7f1486800f642, type: 3}
+  m_Name: AudioDataContainer
+  m_EditorClassIdentifier: 
+  buttonClickClip: {fileID: 8300000, guid: 7e314411869d1124c853f292923b8a65, type: 3}
+  purchaseClip: {fileID: 8300000, guid: 1553a8c5c66e4a3409e066cc65ce8813, type: 3}
+  equipClip: {fileID: 8300000, guid: 43d546b312fdffc43a35791e187190bc, type: 3}

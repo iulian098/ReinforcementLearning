@@ -110,7 +110,7 @@ public class SaveSystem : MonoBehaviour
         OnSaveFileLoaded?.Invoke();
 
         Debug.Log("[SaveSystem] Save File Loaded");
-    }
+    } 
 
     [ContextMenu("ClearSave")]
     void ClearSave() {
@@ -125,31 +125,37 @@ public class SaveSystem : MonoBehaviour
     #region Save/Load
 
     async Task<SaveFile> LoadCloudSave() {
-        firestoreDatabase = FirebaseFirestore.DefaultInstance;
-        DocumentReference docRef = firestoreDatabase.Collection("Players").Document(AuthenticationManager.Instance.UserId);
-        DocumentSnapshot docSnapshot = await docRef.GetSnapshotAsync();
-        string saveFileString = string.Empty;
-
-        if (docSnapshot.Exists) {
-            Dictionary<string, object> data = docSnapshot.ToDictionary();
-            if(data.TryGetValue("SaveFile", out object cloudSaveFile)) {
-                saveFileString = cloudSaveFile.ToString();
-            }
-        }
-        else {
-            Debug.LogError($"Document {AuthenticationManager.Instance.UserId} does not exist!");
-            return null;
-        }
-        SaveFile cloudSave;
         try {
-            cloudSave = JsonConvert.DeserializeObject(saveFileString, typeof(SaveFile), jsonSettings) as SaveFile;
+            firestoreDatabase = FirebaseFirestore.DefaultInstance;
+            DocumentReference docRef = firestoreDatabase.Collection("Players").Document(AuthenticationManager.Instance.UserId);
+            DocumentSnapshot docSnapshot = await docRef.GetSnapshotAsync();
+            string saveFileString = string.Empty;
+
+            if (docSnapshot.Exists) {
+                Dictionary<string, object> data = docSnapshot.ToDictionary();
+                if (data.TryGetValue("SaveFile", out object cloudSaveFile)) {
+                    saveFileString = cloudSaveFile.ToString();
+                }
+            }
+            else {
+                Debug.LogError($"Document {AuthenticationManager.Instance.UserId} does not exist!");
+                return null;
+            }
+            SaveFile cloudSave;
+            try {
+                cloudSave = JsonConvert.DeserializeObject(saveFileString, typeof(SaveFile), jsonSettings) as SaveFile;
+            }
+            catch {
+                Debug.LogError("Failed to deserialize the save file");
+                return null;
+            }
+            Debug.Log("[SaveSystem] Cloud save loaded");
+            return cloudSave;
+        }catch (Exception ex) {
+            Debug.LogError(ex.Message);
         }
-        catch {
-            Debug.LogError("Failed to deserialize the save file");
-            return null;
-        }
-        Debug.Log("[SaveSystem] Cloud save loaded");
-        return cloudSave;
+        return null;
+
     }
 
     async Task SaveCloud() {
