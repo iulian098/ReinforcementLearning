@@ -467,6 +467,26 @@ public class Vehicle : MonoBehaviour
         return false;
     }
 
+    public bool OutOfTrack() {
+        int onTerrainWheels = 0;
+        foreach (var wf in frontWheels) {
+            if(wf.WheelCollider.GetGroundHit(out var wfHit)) {
+                if (wfHit.collider.CompareTag("Terrain")) {
+                    onTerrainWheels++;
+                }
+            }
+        }
+
+        foreach (var rf in rearWheels) {
+            if(rf.WheelCollider.GetGroundHit(out var rfHit)) {
+                if (rfHit.collider.CompareTag("Terrain"))
+                    onTerrainWheels++;
+            }
+        }
+
+        return onTerrainWheels == allWheels.Length;
+    }
+
     private void OnDrawGizmos() {
 
         if (rb != null) {

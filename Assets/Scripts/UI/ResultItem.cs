@@ -16,6 +16,7 @@ public class ResultItem : MonoBehaviour
 
     public void SetData(ResultData resultData) {
         TimeSpan time = TimeSpan.FromSeconds(resultData.time);
+        placementText.text = resultData.placement.ToString();
         nameText.text = resultData.vehicleManager.PlayerName;
         timeText.text = $"{time.Minutes}:{time.Seconds}";
     }

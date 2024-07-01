@@ -261,6 +261,7 @@ public class VehicleManager : MonoBehaviour
         }
         vehicle.transform.position = roadPos;
         vehicle.transform.rotation = Quaternion.LookRotation(relativePos, Vector3.up);
+        vehicle.VehicleRigidBody.angularVelocity = Vector3.zero;
         vehicle.VehicleRigidBody.velocity = Vector3.zero;
         noCollisionTimer = NO_COLLISION_TIME;
 
@@ -303,6 +304,8 @@ public class VehicleManager : MonoBehaviour
     IEnumerator CheckFlipped() {
         while (true) {
             yield return new WaitForSeconds(0.5f);
+            if (vehicle.OutOfTrack())
+                ResetVehiclePosition();
             if (!vehicle.GroudedWheels())
                 flippedTime += 0.5f;
             else
