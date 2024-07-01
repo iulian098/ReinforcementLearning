@@ -18,6 +18,7 @@ MonoBehaviour:
     m_SubObjectType: 
     m_EditorAssetChanged: 0
   buyIn: 0
+  unlockLevel: 5
   sceneName: 
   trackName: Track 6
   thumbnail: {fileID: -1996193041, guid: 6fdc43027ac1cc14faab4a32bd727a8b, type: 3}
@@ -28,4 +29,4 @@ MonoBehaviour:
   expReward: c8000000af00000096000000
   useEvent: 1
   saveData:
-    placement: -1
+    placement: 0

@@ -10,6 +10,7 @@ public class UITrackInfo : MonoBehaviour
     [SerializeField] Transform infoContainer;
     [SerializeField] UITrackRewardInfo infoPrefab;
     [SerializeField] MainMenu mainMenu;
+    [SerializeField] Button startBtn;
     TracksContainer tracksContainer;
     List<UITrackRewardInfo> rewardInfos = new List<UITrackRewardInfo>();
 
@@ -26,7 +27,7 @@ public class UITrackInfo : MonoBehaviour
         trackIcon.sprite = raceData.Thumbnail;
         ClearInfos();
 
-        if(raceData.BuyIn > 0) {
+        if (raceData.BuyIn > 0) {
             buyInInfo.Init("Buy-in:", raceData.BuyIn.ToString() + "$");
         }
         else {
@@ -36,8 +37,8 @@ public class UITrackInfo : MonoBehaviour
         for (int i = 0; i < raceData.CoinsRewards.Length; i++) {
             UITrackRewardInfo info = Instantiate(infoPrefab, infoContainer);
             rewardInfos.Add(info);
-            
-            string placeText = $"{i+1}th:";
+
+            string placeText = $"{i + 1}th:";
 
             switch (i) {
                 case 0:
@@ -53,6 +54,8 @@ public class UITrackInfo : MonoBehaviour
 
             info.Init(placeText, (raceData.CoinsRewards[i] * (GlobalData.enableSpecialEventBonus && raceData.UseEvent ? 2 : 1)).ToString() + "$" + $"/{raceData.ExpReward[i] * (GlobalData.enableSpecialEventBonus && raceData.UseEvent ? 2 : 1)} EXP");
         }
+
+        startBtn.interactable = UserManager.playerData.GetInt(PlayerPrefsStrings.LEVEL) >= raceData.UnlockLevel;
     }
 
     public void StartRace() {

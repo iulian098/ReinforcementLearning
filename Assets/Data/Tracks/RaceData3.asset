@@ -18,6 +18,7 @@ MonoBehaviour:
     m_SubObjectType: 
     m_EditorAssetChanged: 0
   buyIn: 7000
+  unlockLevel: 3
   sceneName: 
   trackName: Track 3
   thumbnail: {fileID: 21300000, guid: 27d32817a6f57ee4dac0ab6e5bd111ad, type: 3}
@@ -26,3 +27,6 @@ MonoBehaviour:
   maxLoops: 3
   coinsReward: 983a0000e02e000034210000
   expReward: 960000007d00000064000000
+  useEvent: 0
+  saveData:
+    placement: -1

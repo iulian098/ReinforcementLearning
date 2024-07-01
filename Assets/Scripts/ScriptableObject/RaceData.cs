@@ -12,6 +12,7 @@ public class RaceData : ScriptableObject
 
     public AssetReferenceT<Object> sceneReference;
     [SerializeField] int buyIn;
+    [SerializeField] int unlockLevel;
     [SerializeField] string sceneName;
     [SerializeField] string trackName;
     [SerializeField] Sprite thumbnail;
@@ -23,6 +24,7 @@ public class RaceData : ScriptableObject
     [SerializeField] bool useEvent;
 
     public int BuyIn => buyIn;
+    public int UnlockLevel => unlockLevel;
     public string SceneName => sceneName;
     public string TrackName => trackName;
     public Sprite Thumbnail => thumbnail;
